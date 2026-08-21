@@ -1,0 +1,41 @@
+/** Fix mixed backtick/quote in ternaries and attributes */
+import fs from "node:fs";
+import path from "node:path";
+
+const ROOT = path.resolve(import.meta.dirname, "..");
+const ANALYSIS = path.join(ROOT, "src/components/analysis");
+
+function walk(dir, acc = []) {
+  for (const name of fs.readdirSync(dir)) {
+    const full = path.join(dir, name);
+    if (fs.statSync(full).isDirectory()) walk(full, acc);
+    else if (name.endsWith(".tsx")) acc.push(full);
+  }
+  return acc;
+}
+
+const REPAIRS = [
+  [/className="([^"]*?)`}/g, 'className="$1"'],
+  [/\? `border-accent/g, '? "border-accent'],
+  [/\? `([^`"]*?)"/g, '? "$1"'],
+  [/type="button`/g, 'type="button"'],
+  [/"—`/g, '"—"'],
+  [/toLocaleString\(`ko-KR"\)/g, 'toLocaleString("ko-KR")'],
+  [/\.toLocaleString\(`ko-KR"\)/g, '.toLocaleString("ko-KR")'],
+];
+
+let changed = 0;
+for (const file of walk(ANALYSIS)) {
+  let content = fs.readFileSync(file, "utf8");
+  const original = content;
+  for (const [re, rep] of REPAIRS) {
+    content = content.replace(re, rep);
+  }
+  if (content !== original) {
+    fs.writeFileSync(file, content, "utf8");
+    changed++;
+    console.log("fixed:", path.relative(ROOT, file));
+  }
+}
+
+console.log(`Fixed ${changed} file(s).`);

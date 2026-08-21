@@ -1,0 +1,82 @@
+.cra-root {
+  font-family: var(--font-geist-sans, "Inter", "Noto Sans KR", sans-serif);
+  background-color: #f8fafc;
+  color: #1e293b;
+  min-height: 100vh;
+  padding-bottom: 5rem;
+}
+
+.cra-root ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.cra-root ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.cra-root ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.cra-root ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.cra-tactile-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.03),
+    0 4px 10px -2px rgba(0, 0, 0, 0.02);
+}
+
+.cra-grade {
+  display: inline-flex;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.cra-grade-s {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+.cra-grade-a {
+  background: #d1fae5;
+  color: #047857;
+}
+.cra-grade-b {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.cra-grade-c {
+  background: #fef3c7;
+  color: #b45309;
+}
+.cra-grade-d {
+  background: #fce7f3;
+  color: #be185d;
+}
+.cra-grade-e {
+  background: #ffe4e6;
+  color: #be123c;
+}
+
+.cra-col-step1 {
+  background: rgba(238, 242, 255, 0.35);
+}
+.cra-col-step2 {
+  background: rgba(250, 245, 255, 0.35);
+}
+.cra-col-step3 {
+  background: rgba(238, 242, 255, 0.15);
+}
+
+.cra-highlight-step1 .cra-col-step1 {
+  background: rgba(238, 242, 255, 0.75);
+}
+.cra-highlight-step2 .cra-col-step2 {
+  background: rgba(250, 245, 255, 0.75);
+}
+.cra-highlight-step3 .cra-col-step3 {
+  background: rgba(238, 242, 255, 0.55);
+}

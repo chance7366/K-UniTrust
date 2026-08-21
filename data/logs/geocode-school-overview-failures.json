@@ -1,0 +1,27 @@
+[
+  {
+    "schoolCodeStd": "0000285",
+    "schoolName": "경운대학교(산업대)",
+    "roadAddress": "경상북도 구미시 산동면 강동로 730 (인덕리, 경운대학교)"
+  },
+  {
+    "schoolCodeStd": "0000455",
+    "schoolName": "재능대학교",
+    "roadAddress": "인천광역시 동구 재능로 178 (송림동, 재능대학)"
+  },
+  {
+    "schoolCodeStd": "0000590",
+    "schoolName": "한국폴리텍 II 대학 남인천캠퍼스",
+    "roadAddress": "인천광역시 남구 염전로333번길 23 (주안동, 한국폴리텍Ⅱ대학(남인천캠퍼스))"
+  },
+  {
+    "schoolCodeStd": "0000654",
+    "schoolName": "온석대학원대학교",
+    "roadAddress": "경기도 용인시 처인구 남사면 아곡로96번길 79 (아곡리, 중앙신학대학원대학교)"
+  },
+  {
+    "schoolCodeStd": "0002659",
+    "schoolName": "한국복지대학교",
+    "roadAddress": "경기도 평택시 삼남로 283 (장안동, 한국복지대학교)"
+  }
+]

@@ -1,0 +1,7 @@
+.ucm-banner {
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-orange) 35%, transparent);
+  background: color-mix(in srgb, var(--accent-orange) 8%, transparent);
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}

@@ -1,0 +1,237 @@
+/* Step3 종합지수 결과 테이블 */
+
+.s3t-table-wrap {
+  max-height: min(72vh, 920px);
+  overflow: auto;
+}
+
+.s3t-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.s3t-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.s3t-table thead th {
+  background: var(--surface-2, #f3f7f5);
+}
+
+.s3t-table th,
+.s3t-table td {
+  padding: 0.375rem 0.5rem;
+  border-right: 1px solid color-mix(in srgb, var(--border, #c5d8ce) 70%, transparent);
+  white-space: nowrap;
+}
+
+.s3t-table th:last-child,
+.s3t-table td:last-child {
+  border-right: none;
+}
+
+.s3t-col-tight {
+  width: 1%;
+  text-align: center;
+  padding-left: 0.35rem;
+  padding-right: 0.35rem;
+}
+
+.s3t-table tbody td {
+  background-color: transparent;
+}
+
+.s3t-col-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.125rem;
+  line-height: 1.25;
+}
+
+.s3t-col-header-bold > span:first-child {
+  font-weight: 700;
+}
+
+.s3t-stack {
+  width: 1%;
+  text-align: center;
+  padding-left: 0.28rem;
+  padding-right: 0.28rem;
+  line-height: 1.15;
+  white-space: normal;
+  text-transform: none;
+}
+
+.s3t-stack span {
+  display: block;
+}
+
+.s3t-group {
+  text-align: center;
+  font-weight: 700;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.s3t-table thead th.s3t-group-student,
+.s3t-table thead th.s3t-sub.s3t-group-student {
+  background: color-mix(in srgb, #86efac 18%, var(--surface-2, #f3f7f5));
+}
+
+.s3t-table thead th.s3t-group-univ,
+.s3t-table thead th.s3t-sub.s3t-group-univ {
+  background: color-mix(in srgb, #7dd3fc 18%, var(--surface-2, #f3f7f5));
+}
+
+.s3t-table thead th.s3t-group-corp,
+.s3t-table thead th.s3t-sub.s3t-group-corp {
+  background: color-mix(in srgb, #fdba74 20%, var(--surface-2, #f3f7f5));
+}
+
+.s3t-sub {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: normal;
+  width: 1%;
+  padding-left: 0.28rem;
+  padding-right: 0.28rem;
+  text-transform: none;
+}
+
+.s3t-sub span {
+  display: block;
+}
+
+.s3t-col-weight {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #ea580c;
+}
+
+.s3t-col-weight-break {
+  display: block;
+}
+
+.s3t-score {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-weight: 700;
+}
+
+.s3t-score-s {
+  color: #4338ca;
+}
+
+.s3t-score-a {
+  color: #047857;
+}
+
+.s3t-score-b {
+  color: #1d4ed8;
+}
+
+.s3t-score-c {
+  color: #b45309;
+}
+
+.s3t-score-d {
+  color: #be185d;
+}
+
+.s3t-score-e {
+  color: #be123c;
+}
+
+.s3t-absolute {
+  font-size: 0.75rem;
+  color: #d93a48;
+}
+
+.s3t-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.6875rem;
+  color: var(--muted, #5a6a7c);
+}
+
+.s3t-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.s3t-legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+.s3t-export-btn {
+  display: inline-flex;
+  height: 30px;
+  align-items: center;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(42, 122, 85, 0.3);
+  padding: 0 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #2a7a55;
+  transition: background-color 0.15s ease;
+}
+
+.s3t-export-btn:hover {
+  background: rgba(59, 154, 106, 0.08);
+}
+
+.s3t-export-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.s3t-help-panel section + section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border, #c5d8ce);
+}
+
+.s3t-help-panel h4 {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--foreground, #1a2433);
+}
+
+.s3t-help-panel p {
+  margin-top: 0.375rem;
+  font-size: 0.75rem;
+  line-height: 1.55;
+  color: var(--muted, #5a6a7c);
+}
+
+.s3t-banner {
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px dashed rgba(59, 154, 106, 0.35);
+  background: rgba(59, 154, 106, 0.06);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: #2a7a55;
+}
+
+.s3t-banner a {
+  color: #1f8fe0;
+  text-decoration: none;
+}
+
+.s3t-banner a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,135 @@
+.s3d-banner {
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px dashed rgba(59, 154, 106, 0.35);
+  background: rgba(59, 154, 106, 0.06);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: #2a7a55;
+}
+
+.s3d-banner a {
+  color: #1f8fe0;
+  text-decoration: none;
+}
+
+.s3d-banner a:hover {
+  text-decoration: underline;
+}
+
+.s3d-table-wrap {
+  max-height: min(72vh, 920px);
+  overflow: auto;
+}
+
+.s3d-table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.s3d-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.s3d-table thead th {
+  background: var(--surface-2, #f3f7f5);
+}
+
+.s3d-table th,
+.s3d-table td {
+  padding: 0.375rem 0.4rem;
+  border-right: 1px solid color-mix(in srgb, var(--border, #c5d8ce) 70%, transparent);
+  white-space: nowrap;
+}
+
+.s3d-table th:last-child,
+.s3d-table td:last-child {
+  border-right: none;
+}
+
+.s3d-stack {
+  width: 1%;
+  text-align: center;
+  padding-left: 0.28rem;
+  padding-right: 0.28rem;
+  line-height: 1.15;
+  white-space: normal;
+}
+
+.s3d-stack span {
+  display: block;
+}
+
+.s3d-group {
+  text-align: center;
+  font-weight: 700;
+}
+
+.s3d-group-student {
+  background: color-mix(in srgb, #86efac 18%, var(--surface-2, #f3f7f5));
+}
+
+.s3d-group-univ {
+  background: color-mix(in srgb, #7dd3fc 18%, var(--surface-2, #f3f7f5));
+}
+
+.s3d-group-corp {
+  background: color-mix(in srgb, #fdba74 20%, var(--surface-2, #f3f7f5));
+}
+
+.s3d-sub {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: normal;
+  width: 1%;
+  padding-left: 0.28rem;
+  padding-right: 0.28rem;
+}
+
+.s3d-sub span {
+  display: block;
+}
+
+.s3d-weight {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #ea580c;
+}
+
+.s3d-cell-tight {
+  width: 1%;
+  text-align: center;
+}
+
+.s3d-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.6875rem;
+  color: var(--muted, #5a6a7c);
+}
+
+.s3d-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.s3d-legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+.s3d-absolute {
+  font-size: 0.75rem;
+  color: #d93a48;
+}

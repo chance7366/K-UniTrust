@@ -1,0 +1,228 @@
+.ftb-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-bottom: 2.5rem;
+}
+
+.ftb-card {
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: var(--surface);
+  padding: 1.1rem 1.2rem 1.25rem;
+}
+
+.ftb-card-kicker {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #2a7a55;
+  text-transform: uppercase;
+}
+
+.ftb-card-title {
+  margin-top: 0.2rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1a5c3a;
+}
+
+.ftb-card-desc {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #5a6a7c;
+}
+
+.ftb-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+/* A. current */
+.ftb-a-seg {
+  display: inline-flex;
+  gap: 0.125rem;
+  padding: 0.125rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background: var(--surface-2);
+}
+
+.ftb-a-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 30px;
+  padding: 0 0.625rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ftb-a-tab.is-on {
+  background: #fff;
+  color: #3730a3;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(26, 36, 51, 0.06);
+  outline: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+
+.ftb-a-chip {
+  height: 30px;
+  padding: 0 0.625rem;
+  border: 0;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: #4a5568;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ftb-a-chip.is-on {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* B. mint glass */
+.ftb-b-seg {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  border: 1px solid rgba(184, 230, 207, 0.95);
+  border-radius: 0.7rem;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(255, 255, 255, 0.9), transparent 50%),
+    rgba(236, 253, 245, 0.7);
+}
+
+.ftb-b-tab,
+.ftb-b-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 30px;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #4a7a66;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ftb-b-tab.is-on,
+.ftb-b-chip.is-on {
+  color: #fff;
+  background: linear-gradient(165deg, #8edcb4 0%, #6fd0a0 28%, #4caf7a 62%, #3b9a6a 100%);
+  text-shadow: 0 1px 1px rgba(10, 40, 28, 0.35);
+}
+
+/* C. underline */
+.ftb-c-seg,
+.ftb-c-chips {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.15rem;
+}
+
+.ftb-c-tab,
+.ftb-c-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 32px;
+  padding: 0 0.55rem 0.2rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #5a6a7c;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ftb-c-tab.is-on,
+.ftb-c-chip.is-on {
+  color: #1a5c3a;
+  border-bottom-color: #3b9a6a;
+}
+
+/* D. open chips */
+.ftb-d-tab,
+.ftb-d-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 30px;
+  padding: 0 0.8rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: #5a6a7c;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ftb-d-tab.is-on,
+.ftb-d-chip.is-on {
+  border-color: #b8e6cf;
+  background: #e7f6ee;
+  color: #1a5c3a;
+}
+
+/* E. split roles */
+.ftb-e-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 32px;
+  padding: 0 0.15rem;
+  border: 0;
+  background: transparent;
+  color: #5a6a7c;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ftb-e-tab.is-on {
+  color: #1a5c3a;
+  box-shadow: inset 0 -2px 0 #3b9a6a;
+}
+
+.ftb-e-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 0.7rem;
+  border: 1px solid #d5e6dc;
+  border-radius: 999px;
+  background: #fff;
+  color: #4a7a66;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ftb-e-chip.is-on {
+  border-color: transparent;
+  background: linear-gradient(165deg, #8edcb4 0%, #4caf7a 70%, #3b9a6a 100%);
+  color: #fff;
+}
+
+.ftb-count {
+  font-weight: 500;
+  opacity: 0.78;
+}

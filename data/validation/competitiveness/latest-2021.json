@@ -1,0 +1,598 @@
+{
+  "analysisYear": 2021,
+  "validatedAt": "2026-08-17T21:27:50.363Z",
+  "editionLastRunAt": "2026. 8. 18. 오전 6:27:49",
+  "targetCount": 278,
+  "summary": {
+    "totalChecks": 53,
+    "passed": 47,
+    "errors": 0,
+    "warnings": 6,
+    "infos": 47
+  },
+  "findings": [
+    {
+      "checkId": "SYS-WEIGHT-001",
+      "title": "가중치 합 100% 검증",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "카테고리·지표 가중치 합 100% OK",
+      "samples": []
+    },
+    {
+      "checkId": "SET-TARGET-KIND-001",
+      "title": "대상대학 학교종류(대학·전문대학만)",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "대상대학 278교 — 대학·전문대학만",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "SET-YEAR-LABEL-001",
+      "title": "지표 적용연도 YYYY년 형식",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "적용연도 8개 지표 — YYYY년 형식 OK",
+      "samples": []
+    },
+    {
+      "checkId": "DB-REP-COVERAGE-001",
+      "title": "재정분석 *_rep.csv 적용연도·코호트 존재",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "신입생충원율 2021년 *_rep: 대학 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-REP-COVERAGE-001",
+      "title": "재정분석 *_rep.csv 적용연도·코호트 존재",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "재학생충원율 2021년 *_rep: 대학 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-REP-COVERAGE-001",
+      "title": "재정분석 *_rep.csv 적용연도·코호트 존재",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "중도탈락율 2020년 *_rep: 대학 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-REP-COVERAGE-001",
+      "title": "재정분석 *_rep.csv 적용연도·코호트 존재",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "자금확보율 2020년 *_rep: 대학 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-REP-COVERAGE-001",
+      "title": "재정분석 *_rep.csv 적용연도·코호트 존재",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "재정지원수혜율 2020년 *_rep: 대학 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-REP-COVERAGE-001",
+      "title": "재정분석 *_rep.csv 적용연도·코호트 존재",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "등록금의존율 2020년 *_rep: 대학 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-REP-COVERAGE-001",
+      "title": "재정분석 *_rep.csv 적용연도·코호트 존재",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "수익용재산확보율 2021년 *_rep: 대학 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-REP-COVERAGE-001",
+      "title": "재정분석 *_rep.csv 적용연도·코호트 존재",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "법인전입금비율 2020년 *_rep: 대학 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-ENROLLED-TOTAL-001",
+      "title": "재학생수 — 기본설정·1단계 vs *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "재학생수: 1단계 278교 vs 재적학생 재학생(A) 일치. 저장 설정값은 비어 있고 대상대학 화면은 실시간 조회",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-SCHOOL-SCALE-001",
+      "title": "규모 분류 — 3단계 vs 재적학생 재학생(A)",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "3단계 재학생수·규모 278교 vs 재적학생 재학생(A) 규모 분류 OK",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-SOURCE-001",
+      "title": "지표 원값 — 분석실행 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "신입생충원율: 1단계 278셀 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-SOURCE-001",
+      "title": "지표 원값 — 분석실행 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "재학생충원율: 1단계 277셀 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-SOURCE-001",
+      "title": "지표 원값 — 분석실행 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "중도탈락율: 1단계 278셀 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-SOURCE-001",
+      "title": "지표 원값 — 분석실행 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "자금확보율: 1단계 272셀 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-SOURCE-001",
+      "title": "지표 원값 — 분석실행 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "재정지원수혜율: 1단계 272셀 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-SOURCE-001",
+      "title": "지표 원값 — 분석실행 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "등록금의존율: 1단계 276셀 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-SOURCE-001",
+      "title": "지표 원값 — 분석실행 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "수익용재산확보율: 1단계 272셀 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-SOURCE-001",
+      "title": "지표 원값 — 분석실행 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "법인전입금비율: 1단계 272셀 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-STEP-ALIGN-001",
+      "title": "1·2·3단계 원값 일치",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "1·2·3단계 원값 278교 × 8지표 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-VALUE-STORED-001",
+      "title": "저장 원값 vs 재정분석 *_rep.csv",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "저장 1·2·3단계 원값 vs *_rep.csv 일치",
+      "affectedCount": 0,
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-COHORT-COVERAGE-001",
+      "title": "지표별 전국분포 동종 커버리지",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "신입생충원율 2021년 전국분포: 4년제 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-COHORT-COVERAGE-001",
+      "title": "지표별 전국분포 동종 커버리지",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "재학생충원율 2021년 전국분포: 4년제 152 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-DROPOUT-COHORT-001",
+      "title": "중도탈락률 DB 동종(전문대) 누락",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "중도탈락율 2020년 raw 4년제 452 · 전문대 125 · 통합 125"
+    },
+    {
+      "checkId": "DB-COHORT-COVERAGE-001",
+      "title": "지표별 전국분포 동종 커버리지",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "중도탈락율 2020년 전국분포: 4년제 153 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-COHORT-COVERAGE-001",
+      "title": "지표별 전국분포 동종 커버리지",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "자금확보율 2020년 전국분포: 4년제 148 · 전문대 124",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-COHORT-COVERAGE-001",
+      "title": "지표별 전국분포 동종 커버리지",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "재정지원수혜율 2020년 전국분포: 4년제 148 · 전문대 124",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-COHORT-COVERAGE-001",
+      "title": "지표별 전국분포 동종 커버리지",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "등록금의존율 2020년 전국분포: 4년제 151 · 전문대 125",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-COHORT-COVERAGE-001",
+      "title": "지표별 전국분포 동종 커버리지",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "수익용재산확보율 2021년 전국분포: 4년제 148 · 전문대 124",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-COHORT-COVERAGE-001",
+      "title": "지표별 전국분포 동종 커버리지",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "법인전입금비율 2020년 전국분포: 4년제 148 · 전문대 124",
+      "affectedCount": 0
+    },
+    {
+      "checkId": "DB-TARGET-MISSING-001",
+      "title": "대상대학 지표 원값 DB 누락",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "신입생충원율: 대상 278교 원값 OK",
+      "affectedCount": 0,
+      "samples": [],
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-TARGET-MISSING-001",
+      "title": "대상대학 지표 원값 DB 누락",
+      "passed": false,
+      "severity": "warning",
+      "owner": "user",
+      "message": "재학생충원율: DB 누락 1교",
+      "userAction": "재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.",
+      "affectedCount": 1,
+      "samples": [
+        "한국국제대학교 (경남)"
+      ],
+      "affectedSchools": [
+        "한국국제대학교 (경남)"
+      ]
+    },
+    {
+      "checkId": "DB-TARGET-MISSING-001",
+      "title": "대상대학 지표 원값 DB 누락",
+      "passed": true,
+      "severity": "info",
+      "owner": "user",
+      "message": "중도탈락율: 대상 278교 원값 OK",
+      "affectedCount": 0,
+      "samples": [],
+      "affectedSchools": []
+    },
+    {
+      "checkId": "DB-TARGET-MISSING-001",
+      "title": "대상대학 지표 원값 DB 누락",
+      "passed": false,
+      "severity": "warning",
+      "owner": "user",
+      "message": "자금확보율: DB 누락 6교",
+      "userAction": "재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.",
+      "affectedCount": 6,
+      "samples": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)",
+        "서울기독대학교 (서울)",
+        "광주가톨릭대학교 (전남)",
+        "제주국제대학교 (제주)",
+        "광양보건대학교 (전남)"
+      ],
+      "affectedSchools": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)",
+        "서울기독대학교 (서울)",
+        "광주가톨릭대학교 (전남)",
+        "제주국제대학교 (제주)",
+        "광양보건대학교 (전남)"
+      ]
+    },
+    {
+      "checkId": "DB-TARGET-MISSING-001",
+      "title": "대상대학 지표 원값 DB 누락",
+      "passed": false,
+      "severity": "warning",
+      "owner": "user",
+      "message": "재정지원수혜율: DB 누락 6교",
+      "userAction": "재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.",
+      "affectedCount": 6,
+      "samples": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)",
+        "서울기독대학교 (서울)",
+        "광주가톨릭대학교 (전남)",
+        "제주국제대학교 (제주)",
+        "광양보건대학교 (전남)"
+      ],
+      "affectedSchools": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)",
+        "서울기독대학교 (서울)",
+        "광주가톨릭대학교 (전남)",
+        "제주국제대학교 (제주)",
+        "광양보건대학교 (전남)"
+      ]
+    },
+    {
+      "checkId": "DB-TARGET-MISSING-001",
+      "title": "대상대학 지표 원값 DB 누락",
+      "passed": false,
+      "severity": "warning",
+      "owner": "user",
+      "message": "등록금의존율: DB 누락 2교",
+      "userAction": "재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.",
+      "affectedCount": 2,
+      "samples": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)"
+      ],
+      "affectedSchools": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)"
+      ]
+    },
+    {
+      "checkId": "DB-INCOME-PROPERTY-001",
+      "title": "수익용재산확보율 DB 누락",
+      "passed": false,
+      "severity": "warning",
+      "owner": "user",
+      "message": "수익용재산확보율: DB 누락 6교",
+      "userAction": "재정분석지표 › 법인재정 › 수익용재산확보율에서 해당 대학·연도 확보율(secure_rate)을 확인한다.",
+      "affectedCount": 6,
+      "samples": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)",
+        "서울기독대학교 (서울)",
+        "광주가톨릭대학교 (전남)",
+        "제주국제대학교 (제주)",
+        "광양보건대학교 (전남)"
+      ],
+      "affectedSchools": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)",
+        "서울기독대학교 (서울)",
+        "광주가톨릭대학교 (전남)",
+        "제주국제대학교 (제주)",
+        "광양보건대학교 (전남)"
+      ]
+    },
+    {
+      "checkId": "DB-TARGET-MISSING-001",
+      "title": "대상대학 지표 원값 DB 누락",
+      "passed": false,
+      "severity": "warning",
+      "owner": "user",
+      "message": "법인전입금비율: DB 누락 6교",
+      "userAction": "재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.",
+      "affectedCount": 6,
+      "samples": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)",
+        "서울기독대학교 (서울)",
+        "광주가톨릭대학교 (전남)",
+        "제주국제대학교 (제주)",
+        "광양보건대학교 (전남)"
+      ],
+      "affectedSchools": [
+        "영산대학교 (경남)",
+        "한국국제대학교 (경남)",
+        "서울기독대학교 (서울)",
+        "광주가톨릭대학교 (전남)",
+        "제주국제대학교 (제주)",
+        "광양보건대학교 (전남)"
+      ]
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "재학생충원율 · 4년제: dataMissing 1/153교 (종합 가중치 제외)",
+      "affectedCount": 1
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "자금확보율 · 4년제: dataMissing 5/153교 (종합 가중치 제외)",
+      "affectedCount": 5
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "자금확보율 · 전문대: dataMissing 1/125교 (종합 가중치 제외)",
+      "affectedCount": 1
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "재정지원수혜율 · 4년제: dataMissing 5/153교 (종합 가중치 제외)",
+      "affectedCount": 5
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "재정지원수혜율 · 전문대: dataMissing 1/125교 (종합 가중치 제외)",
+      "affectedCount": 1
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "등록금의존율 · 4년제: dataMissing 2/153교 (종합 가중치 제외)",
+      "affectedCount": 2
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "수익용재산확보율 · 4년제: dataMissing 5/153교 (종합 가중치 제외)",
+      "affectedCount": 5
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "수익용재산확보율 · 전문대: dataMissing 1/125교 (종합 가중치 제외)",
+      "affectedCount": 1
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "법인전입금비율 · 4년제: dataMissing 5/153교 (종합 가중치 제외)",
+      "affectedCount": 5
+    },
+    {
+      "checkId": "LOGIC-DATA-MISSING-001",
+      "title": "Step2 dataMissing — 종합점수 가중치 제외",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "법인전입금비율 · 전문대: dataMissing 1/125교 (종합 가중치 제외)",
+      "affectedCount": 1
+    },
+    {
+      "checkId": "LOGIC-COMPOSITE-GAP-001",
+      "title": "4년제·전문대 종합점수 평균 격차 과대",
+      "passed": true,
+      "severity": "info",
+      "owner": "monitor",
+      "message": "4년제·전문대 종합점수 평균 차 0.3점 (임계 8점 이내)",
+      "detail": "4년제 n=153, 전문대 n=125"
+    },
+    {
+      "checkId": "SYS-STORED-FRESH-001",
+      "title": "저장 결과 vs 재계산 일치",
+      "passed": true,
+      "severity": "info",
+      "owner": "system",
+      "message": "저장 step3 278교 vs 재계산 일치",
+      "affectedCount": 0,
+      "samples": []
+    },
+    {
+      "checkId": "MONITOR-GRADE-CUTOFF-001",
+      "title": "진단등급 baseline 캘리브레이션 컷오프",
+      "passed": true,
+      "severity": "info",
+      "owner": "monitor",
+      "message": "진단등급 S~E는 제안안(고정 컷). 통계분석·Step3 참고용."
+    }
+  ],
+  "userActions": [
+    "재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.",
+    "재정분석지표 › 법인재정 › 수익용재산확보율에서 해당 대학·연도 확보율(secure_rate)을 확인한다."
+  ],
+  "systemNotes": [],
+  "ok": true
+}

@@ -1,0 +1,37 @@
+.fpm-univ-tab-stack {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  padding-bottom: 0.75rem;
+}
+
+.fpm-univ-tab-row {
+  display: flex;
+  min-width: 0;
+  flex-shrink: 0;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.4rem 0.5rem;
+}
+
+.fpm-univ-tab-label {
+  width: auto;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.fpm-univ-banner {
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-orange) 35%, transparent);
+  background: color-mix(in srgb, var(--accent-orange) 8%, transparent);
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}

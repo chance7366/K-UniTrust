@@ -1,0 +1,62 @@
+.car-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -8%, rgba(16, 185, 129, 0.08), transparent 58%),
+    linear-gradient(180deg, #f2f6fa 0%, #e9eef3 45%, #dde5ee 100%);
+  color: #1a2433;
+}
+
+.car-panel {
+  background: #ffffff;
+  border: 1px solid #dde5ee;
+  border-radius: 14px;
+  box-shadow:
+    0 4px 16px rgba(26, 36, 51, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.car-label {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid #b4dcc8;
+  background: #effaf4;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1a5c3a;
+}
+
+.car-label.before {
+  border-color: #dde5ee;
+  background: #f4f7fa;
+  color: #5a6a7c;
+}
+
+.car-tab-badge {
+  margin-left: 0.25rem;
+  border-radius: 9999px;
+  background: #e8edf3;
+  padding: 0 0.35rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  color: #5a6a7c;
+}
+
+.car-tab-badge.active {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.car-chart-placeholder {
+  min-height: 200px;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  border: 1px dashed #dde5ee;
+  background: #f8fafc;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #5a6a7c;
+}

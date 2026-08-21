@@ -1,0 +1,49 @@
+{
+  "name": "k-unitrust-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0",
+    "lint": "eslint",
+    "geocode:univ-map": "tsx scripts/enrich-school-overview-geocodes.ts",
+    "validate:competitiveness": "tsx scripts/validate-competitiveness-analysis.ts",
+    "validate:competitiveness:all": "tsx scripts/validate-competitiveness-analysis.ts --from=2021 --to=2026",
+    "validate:competitiveness:post-run": "tsx scripts/post-run-validate-competitiveness.ts",
+    "validate:competitiveness:university-dashboard": "tsx scripts/validate-university-dashboard-data.ts --from=2021 --to=2026",
+    "validate:competitiveness:full": "npm run validate:competitiveness:all && npm run validate:competitiveness:university-dashboard",
+    "rerun:competitiveness": "tsx scripts/rerun-competitiveness-analysis.ts",
+    "audit:competitiveness-outliers": "tsx scripts/audit-competitiveness-outliers.ts --from=2021 --to=2026",
+    "postinstall": "node scripts/copy-cesium-assets.mjs",
+    "prepare:university-logos": "tsx scripts/prepare-university-logos.ts",
+    "predev": "tsx scripts/prepare-university-logos.ts --if-fresh"
+  },
+  "dependencies": {
+    "cesium": "^1.143.0",
+    "csv-parse": "^7.0.1",
+    "csv-stringify": "^6.8.1",
+    "echarts": "^6.1.0",
+    "lucide-react": "^1.30.0",
+    "next": "16.2.12",
+    "ol": "^10.10.0",
+    "ol-cesium": "^2.17.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "recharts": "^3.10.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "dotenv": "^17.4.2",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.12",
+    "sharp": "^0.35.3",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.1",
+    "typescript": "^5"
+  }
+}

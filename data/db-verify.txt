@@ -1,0 +1,17 @@
+db: D:\바이브코딩\K-UniTrust Dashborad\db\analytics.duckdb
+tables: audit_sync_log, dashboard_metric_values, dashboard_ranking, dashboard_regional_avg, dashboard_univ_year_metrics, data_source_registry, dim_codebook, dim_date, dim_indicator, dim_major, dim_region, dim_university, fact_indicator, fact_industry_wide, fact_regional
+audit_sync_log: 491
+dashboard_metric_values: 13256
+dashboard_ranking: 380
+dashboard_regional_avg: 829
+dashboard_univ_year_metrics: 1306
+data_source_registry: 11
+dim_codebook: 1206
+dim_date: 5
+dim_indicator: 83
+dim_major: 60545
+dim_region: 18
+dim_university: 376
+fact_indicator: 13256
+fact_industry_wide: 0
+fact_regional: 492

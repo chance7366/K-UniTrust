@@ -1,0 +1,141 @@
+.tsc-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding-bottom: 2.5rem;
+}
+
+.tsc-card {
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: var(--surface);
+  padding: 1.05rem 1.2rem 1.2rem;
+}
+
+.tsc-kicker {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #2a7a55;
+  text-transform: uppercase;
+}
+
+.tsc-title {
+  margin-top: 0.2rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1a2433;
+}
+
+.tsc-desc {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #5a6a7c;
+}
+
+.tsc-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.tsc-seg {
+  position: relative;
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem;
+  min-height: 1.875rem;
+  padding: 0.125rem 0.2rem;
+  border-radius: 0.7rem;
+  border: 1px solid rgba(184, 230, 207, 0.95);
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.92), transparent 44%),
+    rgba(236, 253, 245, 0.72);
+  box-shadow:
+    0 8px 16px rgba(45, 127, 90, 0.16),
+    0 2px 6px rgba(45, 127, 90, 0.1),
+    inset 2px 3px 5px rgba(255, 255, 255, 0.98),
+    inset -2px -3px 6px rgba(45, 127, 90, 0.14);
+}
+
+.tsc-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  height: 1.45rem;
+  padding: 0 0.7rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #2a7a55;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tsc-item:not(.is-on):hover {
+  color: #1a5c3a;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.tsc-count {
+  font-weight: 700;
+  opacity: 0.82;
+}
+
+.tsc-green.is-on {
+  color: #fff;
+  background: linear-gradient(165deg, #8edcb4 0%, #6fd0a0 28%, #4caf7a 62%, #3b9a6a 100%);
+  text-shadow: 0 1px 1px rgba(10, 40, 28, 0.45);
+  box-shadow:
+    0 0 8px rgba(52, 211, 153, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -2px 4px rgba(26, 92, 58, 0.28);
+}
+
+.tsc-sky.is-on {
+  color: #fff;
+  background: linear-gradient(165deg, #7ec8f5 0%, #4aa3e6 32%, #2d7fd6 68%, #1d6bb8 100%);
+  text-shadow: 0 1px 1px rgba(12, 40, 80, 0.45);
+  box-shadow:
+    0 0 8px rgba(45, 127, 214, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 4px rgba(15, 60, 120, 0.32);
+}
+
+.tsc-ink.is-on {
+  color: #fff;
+  background: linear-gradient(165deg, #5a6a7c 0%, #3d4a5c 40%, #1a2433 100%);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    0 0 8px rgba(26, 36, 51, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.28);
+}
+
+.tsc-amber.is-on {
+  color: #fff;
+  background: linear-gradient(165deg, #f6c56b 0%, #e8a53a 36%, #d4891a 72%, #b86e10 100%);
+  text-shadow: 0 1px 1px rgba(80, 40, 0, 0.4);
+  box-shadow:
+    0 0 8px rgba(232, 165, 58, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -2px 4px rgba(120, 60, 8, 0.3);
+}
+
+.tsc-slate.is-on {
+  color: #fff;
+  background: linear-gradient(165deg, #8ea0b5 0%, #6b7f96 36%, #4a5d73 72%, #334155 100%);
+  text-shadow: 0 1px 1px rgba(15, 25, 40, 0.4);
+  box-shadow:
+    0 0 8px rgba(74, 93, 115, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26),
+    inset 0 -2px 4px rgba(30, 40, 55, 0.3);
+}

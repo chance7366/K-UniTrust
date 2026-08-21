@@ -1,0 +1,83 @@
+/* Step3 종합지수 테이블 목업 — 부분지수 등급 색상 (배지 없이 글자색만) */
+
+.cra-score {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-weight: 700;
+}
+
+.cra-score-s {
+  color: #4338ca;
+}
+
+.cra-score-a {
+  color: #047857;
+}
+
+.cra-score-b {
+  color: #1d4ed8;
+}
+
+.cra-score-c {
+  color: #b45309;
+}
+
+.cra-score-d {
+  color: #be185d;
+}
+
+.cra-score-e {
+  color: #be123c;
+}
+
+.s3t-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 0.6875rem;
+  color: var(--muted, #5a6a7c);
+}
+
+.s3t-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.s3t-legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+}
+
+.s3t-banner {
+  margin-bottom: 1rem;
+  border-radius: 0.75rem;
+  border: 1px dashed rgba(59, 154, 106, 0.35);
+  background: rgba(59, 154, 106, 0.06);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: #2a7a55;
+}
+
+.s3t-banner a {
+  color: #1f8fe0;
+  text-decoration: none;
+}
+
+.s3t-banner a:hover {
+  text-decoration: underline;
+}
+
+.s3t-col-sector {
+  background: rgba(250, 245, 255, 0.35);
+}
+
+.s3t-col-total {
+  background: rgba(238, 242, 255, 0.2);
+}
+
+.s3t-absolute {
+  font-size: 0.75rem;
+  color: #d93a48;
+}

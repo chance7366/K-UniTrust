@@ -1,0 +1,180 @@
+========================================================================
+경쟁력분석 실행 후 검증 — 2022년
+검증 시각: 2026-08-17T21:27:44.313Z
+마지막 분석 실행: 2026. 8. 18. 오전 6:27:43
+대상대학: 277교
+결과: ✓ PASS — 통과 49/56, error 0, warning 7
+
+── 검증 항목 ──
+✓ [SYS-WEIGHT-001] 가중치 합 100% 검증
+   카테고리·지표 가중치 합 100% OK
+✓ [SET-TARGET-KIND-001] 대상대학 학교종류(대학·전문대학만)
+   대상대학 277교 — 대학·전문대학만
+✓ [SET-YEAR-LABEL-001] 지표 적용연도 YYYY년 형식
+   적용연도 8개 지표 — YYYY년 형식 OK
+✓ [DB-REP-COVERAGE-001] 재정분석 *_rep.csv 적용연도·코호트 존재
+   신입생충원율 2022년 *_rep: 대학 152 · 전문대 125
+✓ [DB-REP-COVERAGE-001] 재정분석 *_rep.csv 적용연도·코호트 존재
+   재학생충원율 2022년 *_rep: 대학 152 · 전문대 125
+✓ [DB-REP-COVERAGE-001] 재정분석 *_rep.csv 적용연도·코호트 존재
+   중도탈락율 2021년 *_rep: 대학 153 · 전문대 125
+✓ [DB-REP-COVERAGE-001] 재정분석 *_rep.csv 적용연도·코호트 존재
+   자금확보율 2021년 *_rep: 대학 153 · 전문대 125
+✓ [DB-REP-COVERAGE-001] 재정분석 *_rep.csv 적용연도·코호트 존재
+   재정지원수혜율 2021년 *_rep: 대학 153 · 전문대 125
+✓ [DB-REP-COVERAGE-001] 재정분석 *_rep.csv 적용연도·코호트 존재
+   등록금의존율 2021년 *_rep: 대학 153 · 전문대 125
+✓ [DB-REP-COVERAGE-001] 재정분석 *_rep.csv 적용연도·코호트 존재
+   수익용재산확보율 2022년 *_rep: 대학 152 · 전문대 125
+✓ [DB-REP-COVERAGE-001] 재정분석 *_rep.csv 적용연도·코호트 존재
+   법인전입금비율 2021년 *_rep: 대학 153 · 전문대 125
+✓ [DB-ENROLLED-TOTAL-001] 재학생수 — 기본설정·1단계 vs *_rep.csv
+   재학생수: 1단계 277교 vs 재적학생 재학생(A) 일치. 저장 설정값은 비어 있고 대상대학 화면은 실시간 조회
+✓ [DB-SCHOOL-SCALE-001] 규모 분류 — 3단계 vs 재적학생 재학생(A)
+   3단계 재학생수·규모 277교 vs 재적학생 재학생(A) 규모 분류 OK
+✓ [DB-VALUE-SOURCE-001] 지표 원값 — 분석실행 vs 재정분석 *_rep.csv
+   신입생충원율: 1단계 277셀 vs *_rep.csv 일치
+✓ [DB-VALUE-SOURCE-001] 지표 원값 — 분석실행 vs 재정분석 *_rep.csv
+   재학생충원율: 1단계 276셀 vs *_rep.csv 일치
+✓ [DB-VALUE-SOURCE-001] 지표 원값 — 분석실행 vs 재정분석 *_rep.csv
+   중도탈락율: 1단계 273셀 vs *_rep.csv 일치
+✓ [DB-VALUE-SOURCE-001] 지표 원값 — 분석실행 vs 재정분석 *_rep.csv
+   자금확보율: 1단계 269셀 vs *_rep.csv 일치
+✓ [DB-VALUE-SOURCE-001] 지표 원값 — 분석실행 vs 재정분석 *_rep.csv
+   재정지원수혜율: 1단계 269셀 vs *_rep.csv 일치
+✓ [DB-VALUE-SOURCE-001] 지표 원값 — 분석실행 vs 재정분석 *_rep.csv
+   등록금의존율: 1단계 271셀 vs *_rep.csv 일치
+✓ [DB-VALUE-SOURCE-001] 지표 원값 — 분석실행 vs 재정분석 *_rep.csv
+   수익용재산확보율: 1단계 273셀 vs *_rep.csv 일치
+✓ [DB-VALUE-SOURCE-001] 지표 원값 — 분석실행 vs 재정분석 *_rep.csv
+   법인전입금비율: 1단계 269셀 vs *_rep.csv 일치
+✓ [DB-VALUE-STEP-ALIGN-001] 1·2·3단계 원값 일치
+   1·2·3단계 원값 277교 × 8지표 일치
+✓ [DB-VALUE-STORED-001] 저장 원값 vs 재정분석 *_rep.csv
+   저장 1·2·3단계 원값 vs *_rep.csv 일치
+✓ [DB-COHORT-COVERAGE-001] 지표별 전국분포 동종 커버리지
+   신입생충원율 2022년 전국분포: 4년제 152 · 전문대 125
+✓ [DB-COHORT-COVERAGE-001] 지표별 전국분포 동종 커버리지
+   재학생충원율 2022년 전국분포: 4년제 151 · 전문대 125
+✓ [DB-DROPOUT-COHORT-001] 중도탈락률 DB 동종(전문대) 누락
+   중도탈락율 2021년 raw 4년제 452 · 전문대 125 · 통합 125
+✓ [DB-COHORT-COVERAGE-001] 지표별 전국분포 동종 커버리지
+   중도탈락율 2021년 전국분포: 4년제 153 · 전문대 125
+✓ [DB-COHORT-COVERAGE-001] 지표별 전국분포 동종 커버리지
+   자금확보율 2021년 전국분포: 4년제 149 · 전문대 124
+✓ [DB-COHORT-COVERAGE-001] 지표별 전국분포 동종 커버리지
+   재정지원수혜율 2021년 전국분포: 4년제 149 · 전문대 124
+✓ [DB-COHORT-COVERAGE-001] 지표별 전국분포 동종 커버리지
+   등록금의존율 2021년 전국분포: 4년제 150 · 전문대 125
+✓ [DB-COHORT-COVERAGE-001] 지표별 전국분포 동종 커버리지
+   수익용재산확보율 2022년 전국분포: 4년제 149 · 전문대 124
+✓ [DB-COHORT-COVERAGE-001] 지표별 전국분포 동종 커버리지
+   법인전입금비율 2021년 전국분포: 4년제 149 · 전문대 124
+✓ [DB-TARGET-MISSING-001] 대상대학 지표 원값 DB 누락
+   신입생충원율: 대상 277교 원값 OK
+⚠ [DB-TARGET-MISSING-001] 대상대학 지표 원값 DB 누락
+   재학생충원율: DB 누락 1교
+   해당 대학 (1교):
+     · 한국국제대학교 (경남)
+   → 사용자 조치: 재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.
+⚠ [DB-TARGET-MISSING-001] 대상대학 지표 원값 DB 누락
+   중도탈락율: DB 누락 4교
+   해당 대학 (4교):
+     · 한국공학대학교 (경기)
+     · 화성의과학대학교 (경기)
+     · 강서대학교 (서울)
+     · 아주자동차대학교 (충남)
+   → 사용자 조치: 재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.
+⚠ [DB-TARGET-MISSING-001] 대상대학 지표 원값 DB 누락
+   자금확보율: DB 누락 8교
+   해당 대학 (8교):
+     · 한국공학대학교 (경기)
+     · 화성의과학대학교 (경기)
+     · 영산대학교 (경남)
+     · 한국국제대학교 (경남)
+     · 강서대학교 (서울)
+     · 광주가톨릭대학교 (전남)
+     · 광양보건대학교 (전남)
+     · 아주자동차대학교 (충남)
+   → 사용자 조치: 재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.
+⚠ [DB-TARGET-MISSING-001] 대상대학 지표 원값 DB 누락
+   재정지원수혜율: DB 누락 8교
+   해당 대학 (8교):
+     · 한국공학대학교 (경기)
+     · 화성의과학대학교 (경기)
+     · 영산대학교 (경남)
+     · 한국국제대학교 (경남)
+     · 강서대학교 (서울)
+     · 광주가톨릭대학교 (전남)
+     · 광양보건대학교 (전남)
+     · 아주자동차대학교 (충남)
+   → 사용자 조치: 재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.
+⚠ [DB-TARGET-MISSING-001] 대상대학 지표 원값 DB 누락
+   등록금의존율: DB 누락 6교
+   해당 대학 (6교):
+     · 한국공학대학교 (경기)
+     · 화성의과학대학교 (경기)
+     · 영산대학교 (경남)
+     · 한국국제대학교 (경남)
+     · 강서대학교 (서울)
+     · 아주자동차대학교 (충남)
+   → 사용자 조치: 재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.
+⚠ [DB-INCOME-PROPERTY-001] 수익용재산확보율 DB 누락
+   수익용재산확보율: DB 누락 4교
+   해당 대학 (4교):
+     · 영산대학교 (경남)
+     · 한국국제대학교 (경남)
+     · 광주가톨릭대학교 (전남)
+     · 광양보건대학교 (전남)
+   → 사용자 조치: 재정분석지표 › 법인재정 › 수익용재산확보율에서 해당 대학·연도 확보율(secure_rate)을 확인한다.
+⚠ [DB-TARGET-MISSING-001] 대상대학 지표 원값 DB 누락
+   법인전입금비율: DB 누락 8교
+   해당 대학 (8교):
+     · 한국공학대학교 (경기)
+     · 화성의과학대학교 (경기)
+     · 영산대학교 (경남)
+     · 한국국제대학교 (경남)
+     · 강서대학교 (서울)
+     · 광주가톨릭대학교 (전남)
+     · 광양보건대학교 (전남)
+     · 아주자동차대학교 (충남)
+   → 사용자 조치: 재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   재학생충원율 · 4년제: dataMissing 1/152교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   중도탈락율 · 4년제: dataMissing 3/152교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   중도탈락율 · 전문대: dataMissing 1/125교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   자금확보율 · 4년제: dataMissing 6/152교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   자금확보율 · 전문대: dataMissing 2/125교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   재정지원수혜율 · 4년제: dataMissing 6/152교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   재정지원수혜율 · 전문대: dataMissing 2/125교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   등록금의존율 · 4년제: dataMissing 5/152교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   등록금의존율 · 전문대: dataMissing 1/125교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   수익용재산확보율 · 4년제: dataMissing 3/152교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   수익용재산확보율 · 전문대: dataMissing 1/125교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   법인전입금비율 · 4년제: dataMissing 6/152교 (종합 가중치 제외)
+✓ [LOGIC-DATA-MISSING-001] Step2 dataMissing — 종합점수 가중치 제외
+   법인전입금비율 · 전문대: dataMissing 2/125교 (종합 가중치 제외)
+✓ [LOGIC-COMPOSITE-GAP-001] 4년제·전문대 종합점수 평균 격차 과대
+   4년제·전문대 종합점수 평균 차 1.9점 (임계 8점 이내)
+✓ [SYS-STORED-FRESH-001] 저장 결과 vs 재계산 일치
+   저장 step3 277교 vs 재계산 일치
+✓ [MONITOR-GRADE-CUTOFF-001] 진단등급 baseline 캘리브레이션 컷오프
+   진단등급 S~E는 제안안(고정 컷). 통계분석·Step3 참고용.
+
+── 사용자 작업 필요 ──
+1. 재정분석지표 해당 탭에서 대학·연도·코호트(대학=combined 또는 university, 전문대=junior-college) 값을 확인한다.
+2. 재정분석지표 › 법인재정 › 수익용재산확보율에서 해당 대학·연도 확보율(secure_rate)을 확인한다.
+
+새 이슈 발견 시: src/lib/competitiveness-analysis/post-run-validation/issue-registry.ts 에 등록
+========================================================================

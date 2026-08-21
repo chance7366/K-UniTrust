@@ -1,0 +1,224 @@
+.upb-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -8%, rgba(59, 154, 106, 0.1), transparent 58%),
+    linear-gradient(180deg, #f2f6fa 0%, #e9eef3 45%, #dde5ee 100%);
+  color: #1a2433;
+}
+
+.upb-panel {
+  background: #ffffff;
+  border: 1px solid #dde5ee;
+  border-radius: 14px;
+  box-shadow:
+    0 4px 16px rgba(26, 36, 51, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.upb-upload-section {
+  border: 1px dashed rgba(45, 184, 212, 0.4);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 1.25rem;
+}
+
+.upb-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.upb-label.before {
+  border: 1px solid #dde5ee;
+  background: #f4f7fa;
+  color: #5a6a7c;
+}
+
+.upb-label.after {
+  border: 1px solid #b4dcc8;
+  background: #e7f6ee;
+  color: #1a5c3a;
+}
+
+/* tactile base */
+.upb-btn {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 0.5rem;
+  padding: 0.38rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
+}
+
+.upb-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  filter: grayscale(0.15);
+}
+
+.upb-btn svg {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.1));
+}
+
+/* 엑셀 파일 선택 — cyan primary */
+.upb-btn-select {
+  border: 1px solid #1a9bb8;
+  color: #ffffff;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 0%, rgba(255, 255, 255, 0.45), transparent 55%),
+    linear-gradient(180deg, #5fd4ef 0%, #2db5d4 42%, #1599b8 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 3px 0 #0d7a94,
+    0 4px 10px rgba(21, 153, 184, 0.32);
+}
+
+.upb-btn-select:hover:not(:disabled) {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.upb-btn-select:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 1px 4px rgba(21, 153, 184, 0.24);
+}
+
+/* 숨기기 — slate neutral */
+.upb-btn-hide {
+  border: 1px solid #8a96a8;
+  color: #ffffff;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 0%, rgba(255, 255, 255, 0.35), transparent 55%),
+    linear-gradient(180deg, #b8c2d0 0%, #8a96a8 45%, #6b778a 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.45) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 3px 0 #525d6e,
+    0 4px 10px rgba(82, 93, 110, 0.28);
+}
+
+.upb-btn-hide:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+.upb-btn-hide:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 1px 4px rgba(82, 93, 110, 0.22);
+}
+
+/* 도움말 — amber warm */
+.upb-btn-help {
+  border: 1px solid #c4841a;
+  color: #ffffff;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 0%, rgba(255, 255, 255, 0.4), transparent 55%),
+    linear-gradient(180deg, #f5c56a 0%, #e8a832 45%, #c4841a 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 3px 0 #9a6510,
+    0 4px 10px rgba(196, 132, 26, 0.3);
+}
+
+.upb-btn-help:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+}
+
+.upb-btn-help:active,
+.upb-btn-help.active {
+  transform: translateY(1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 1px 4px rgba(196, 132, 26, 0.24);
+}
+
+.upb-btn-help.active {
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 0%, rgba(255, 255, 255, 0.3), transparent 55%),
+    linear-gradient(180deg, #e8a832 0%, #c4841a 50%, #9a6510 100%);
+}
+
+/* 양식down — soft green outline 3D */
+.upb-btn-template {
+  border: 1px solid #3b9a6a;
+  color: #1a5c3a;
+  text-decoration: none;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 0%, rgba(255, 255, 255, 0.85), transparent 55%),
+    linear-gradient(180deg, #f3faf6 0%, #dff3e8 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 2px 0 #9ecfba,
+    0 3px 8px rgba(59, 154, 106, 0.18);
+}
+
+.upb-btn-template:hover {
+  filter: brightness(1.02);
+  transform: translateY(-1px);
+}
+
+.upb-btn-template:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 1px 4px rgba(59, 154, 106, 0.2);
+}
+
+/* current flat buttons (before) */
+.upb-btn-current {
+  border-radius: 0.5rem;
+  border: 1px solid rgba(59, 154, 106, 0.4);
+  background: #f4f7fa;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #2a7a55;
+}
+
+.upb-btn-current-muted {
+  border-radius: 0.5rem;
+  border: 1px solid #dde5ee;
+  background: #f4f7fa;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #5a6a7c;
+}
+
+.upb-btn-current-help {
+  border-radius: 0.5rem;
+  border: 1px solid #dde5ee;
+  background: #f4f7fa;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #5a6a7c;
+}
+
+.upb-btn-current-help.active {
+  border-color: rgba(59, 154, 106, 0.4);
+  background: rgba(59, 154, 106, 0.12);
+  color: #2a7a55;
+}

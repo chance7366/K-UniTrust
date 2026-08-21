@@ -1,0 +1,197 @@
+.ucm-chart-card {
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1rem;
+  box-shadow: var(--glow-inset);
+}
+
+.ucm-chart-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.ucm-legend-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.ucm-chart-card .recharts-default-tooltip {
+  background: color-mix(in srgb, var(--accent) 5%, #ffffff) !important;
+  border: 1px solid color-mix(in srgb, #2a7a55 50%, transparent) !important;
+  border-radius: 0.5rem !important;
+  font-size: 13px !important;
+  padding: 6px 10px !important;
+}
+
+.ucm-chart-card .recharts-tooltip-label,
+.ucm-chart-card .recharts-tooltip-item {
+  font-size: 13px !important;
+}
+
+.ucm-table-wrap {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+}
+
+.ucm-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.ucm-table th,
+.ucm-table td {
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+  padding: 0.5rem 0.625rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ucm-table th:first-child,
+.ucm-table td:first-child {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+
+.ucm-table thead th {
+  background: var(--surface-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.ucm-table-compare thead th,
+.ucm-table-compare thead th:first-child {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+  color: #2a7a55;
+}
+
+.ucm-table-compare tbody td:first-child {
+  color: #2a7a55;
+  font-weight: 600;
+}
+
+.ucm-table-compare tbody td:not(:first-child) {
+  text-align: right;
+  padding-right: 5ch;
+}
+
+.ucm-table-indicator {
+  width: 100%;
+  min-width: 546px;
+  table-layout: fixed;
+}
+
+.ucm-table-indicator thead th,
+.ucm-table-indicator thead th:first-child {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: normal;
+  line-height: 1.25;
+  color: #2a7a55;
+}
+
+.ucm-table-indicator th,
+.ucm-table-indicator td {
+  width: 12.5%;
+  padding: 0.45rem 0.35rem;
+}
+
+.ucm-table-indicator th:first-child,
+.ucm-table-indicator td:first-child {
+  text-align: center;
+  position: static;
+  color: #2a7a55;
+  font-weight: 600;
+}
+
+.ucm-table-indicator .ucm-rank {
+  color: #db2777;
+  font-weight: 700;
+}
+
+.ucm-summary-label {
+  margin-bottom: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #2a7a55;
+}
+
+.ucm-table-summary {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.ucm-table-summary thead th,
+.ucm-table-summary thead th:first-child {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: center;
+  color: #2a7a55;
+}
+
+.ucm-table-summary th,
+.ucm-table-summary td {
+  width: 12.5%;
+}
+
+.ucm-table-summary th:first-child,
+.ucm-table-summary td:first-child {
+  position: static;
+  color: #2a7a55;
+  font-weight: 600;
+}
+
+.ucm-table-summary tbody td {
+  text-align: right;
+  padding-right: 7ch;
+}
+
+.ucm-table-summary tbody td:first-child {
+  text-align: left;
+  padding-left: 1ch;
+  padding-right: 0.35rem;
+}
+
+.ucm-table-summary .ucm-rank {
+  color: #db2777;
+  font-weight: 700;
+}
+
+.ucm-table tbody tr:hover td {
+  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
+}
+
+.ucm-table tbody tr:hover td:first-child {
+  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
+}
+
+.ucm-rank {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--accent-orange);
+}
+
+.ucm-school-list-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.ucm-school-list-header .inline-flex {
+  flex-shrink: 0;
+}

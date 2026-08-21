@@ -1,0 +1,161 @@
+.krds-mock-root {
+  min-height: 100vh;
+  background: #e9eef3;
+  color: #0f172a;
+}
+
+.krds-mock-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 20px;
+  padding: 10px 16px;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  font-size: 13px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.krds-mock-banner a {
+  color: #166534;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.krds-mock-sidebar {
+  background: linear-gradient(180deg, #e6f4ea 0%, #edf7f0 100%);
+}
+
+.krds-mock-main {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -8%, rgba(59, 154, 106, 0.08), transparent 58%),
+    linear-gradient(180deg, #f2f6fa 0%, #e9eef3 100%);
+}
+
+.krds-mock-table .krds-th,
+.krds-mock-table .krds-td {
+  padding: 0.6875rem 0.75rem;
+  border-right: 1px solid #f1f5f9;
+  white-space: nowrap;
+}
+
+.krds-mock-table .krds-th {
+  text-align: center;
+}
+
+.typo-guide-root {
+  margin-top: 0.5rem;
+}
+
+.typo-guide-toggle {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  padding: 0.625rem 1rem;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+}
+
+.typo-guide-toggle:hover {
+  background: #f1f5f9;
+}
+
+.typo-guide-panel {
+  margin-top: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  padding: 1.25rem;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.typo-guide-table th,
+.typo-guide-table td {
+  vertical-align: top;
+}
+
+/* legacy compare mock styles */
+.fet-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -8%, rgba(59, 154, 106, 0.08), transparent 58%),
+    linear-gradient(180deg, #f8fafc 0%, #f1f5f9 45%, #e2e8f0 100%);
+  color: #0f172a;
+}
+
+.fet-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow:
+    0 4px 16px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.fet-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.fet-badge.before {
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.fet-badge.after {
+  border: 1px solid #bbf7d0;
+  background: #ecfdf5;
+  color: #166534;
+}
+
+.fet-preview-shell {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 1rem;
+}
+
+.fet-krds-table th,
+.fet-krds-table td {
+  border-bottom: 1px solid #e2e8f0;
+  border-right: 1px solid #f1f5f9;
+  padding: 0.625rem 0.75rem;
+}
+
+.fet-legacy-table th {
+  text-align: center;
+  font-weight: 700;
+  color: #0891b2;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.fet-legacy-table td {
+  font-size: 12px;
+}
+
+.fet-spec-row td {
+  font-size: 13px;
+  color: #475569;
+}
+
+.fet-spec-row code {
+  border-radius: 4px;
+  background: #f1f5f9;
+  padding: 0.1rem 0.35rem;
+  font-size: 11px;
+}

@@ -1,0 +1,106 @@
+/** L1~L10 단계별 폰트 스펙트럼 (Before → After) — 색상은 프로덕션 기존 유지 */
+export const TYPO_SPECTRUM = [
+  {
+    level: "L1",
+    element: "페이지 제목",
+    oldSize: "20px",
+    newSize: "26px",
+    tailwind: "text-[26px]",
+    weight: "Extrabold / #1a5c3a (DashboardPageTitle)",
+    target: "최상단 메인 페이지 헤더 (신입생 충원 현황)",
+  },
+  {
+    level: "L2",
+    element: "섹션 탭",
+    oldSize: "14px",
+    newSize: "16px",
+    tailwind: "text-base",
+    weight: "SemiBold / foreground·muted",
+    target: "상단 주요 네비게이션 탭 (통계분석, 대학별DB)",
+  },
+  {
+    level: "L3",
+    element: "패널 제목",
+    oldSize: "16px",
+    newSize: "20px",
+    tailwind: "text-xl",
+    weight: "Bold / text-foreground",
+    target: "주요 카드·패널 헤더 (대학별DB 패널)",
+  },
+  {
+    level: "L4",
+    element: "패널 부제",
+    oldSize: "14px",
+    newSize: "15px",
+    tailwind: "text-[15px]",
+    weight: "Regular / text-muted",
+    target: "건수·DB 유형 요약 텍스트",
+  },
+  {
+    level: "L5",
+    element: "툴바 라벨",
+    oldSize: "12px",
+    newSize: "13px",
+    tailwind: "text-[13px]",
+    weight: "SemiBold / text-muted",
+    target: "필터 라벨 (표시 연도, 조회 기준)",
+  },
+  {
+    level: "L6",
+    element: "툴바 컨트롤",
+    oldSize: "12px",
+    newSize: "14px",
+    tailwind: "text-sm",
+    weight: "Medium / accent·muted",
+    target: "연도·캠퍼스 선택 버튼, 드롭다운",
+  },
+  {
+    level: "L7",
+    element: "범례·보조",
+    oldSize: "12px",
+    newSize: "13px",
+    tailwind: "text-[13px]",
+    weight: "Regular / text-muted",
+    target: "차트 범례, 상태 텍스트, 테이블 푸터",
+  },
+  {
+    level: "L8",
+    element: "본문 안내",
+    oldSize: "14px",
+    newSize: "15px",
+    tailwind: "text-[15px]",
+    weight: "Regular / text-muted",
+    target: "Empty State, 패널 설명 문구",
+  },
+  {
+    level: "L9",
+    element: "테이블 본문",
+    oldSize: "12px",
+    newSize: "14px",
+    tailwind: "text-sm",
+    weight: "Medium / foreground·muted",
+    target: "데이터 테이블 셀 (학교명, 코드, 수치)",
+  },
+  {
+    level: "L10",
+    element: "테이블 헤더",
+    oldSize: "13px",
+    newSize: "14px",
+    tailwind: "text-sm",
+    weight: "Medium / text-table-head (accent-cyan)",
+    target: "데이터 테이블 컬럼 헤더 라벨",
+  },
+] as const;
+
+/** @deprecated compare 페이지용 — 구 10단계 */
+export const LEGACY_TYPO_SPEC = TYPO_SPECTRUM.map((row) => ({
+  level: row.level,
+  size: row.oldSize,
+  target: row.target,
+}));
+
+export const KRDS_TYPO_SPEC = TYPO_SPECTRUM.map((row) => ({
+  level: row.level,
+  size: row.newSize,
+  target: row.target,
+}));

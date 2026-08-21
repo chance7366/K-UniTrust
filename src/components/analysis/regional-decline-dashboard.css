@@ -1,0 +1,72 @@
+.rd-rank-bar {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.rd-rank-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+}
+
+.rd-table-wrap {
+  --rd-h1: 2rem;
+  --rd-h2: 2.75rem;
+}
+
+.rd-table-wrap table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+/* 헤더 전체 상단 틀고정 */
+.rd-table-wrap thead {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--surface-2);
+}
+
+.rd-table-wrap thead th {
+  box-sizing: border-box;
+  background: var(--surface-2);
+}
+
+/* 1행(그룹) */
+.rd-table-wrap thead tr:first-child > th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  height: var(--rd-h1);
+  max-height: var(--rd-h1);
+}
+
+/* rowspan 코너(구분/시도)는 1+2행 높이와 같게 — 헤더 아래로 내려가지 않음 */
+.rd-table-wrap thead tr:first-child > th[rowspan] {
+  height: calc(var(--rd-h1) + var(--rd-h2));
+  max-height: calc(var(--rd-h1) + var(--rd-h2));
+  z-index: 7;
+}
+
+/* 2행(세부)은 1행 높이에 맞춰 붙임 */
+.rd-table-wrap thead tr:nth-child(2) > th {
+  position: sticky;
+  top: var(--rd-h1);
+  z-index: 4;
+  height: var(--rd-h2);
+  max-height: var(--rd-h2);
+}
+
+.rd-table-wrap thead .feam-th-sticky-col,
+.rd-table-wrap thead .rd-th-col-2 {
+  z-index: 7;
+  background: var(--surface-2);
+}
+
+/* 본문 좌측 틀고정은 하지 않음 — 가로 스크롤 시 컬럼이 함께 이동 */
+.rd-table-wrap tbody .feam-td-sticky-col,
+.rd-table-wrap tbody .rd-td-col-2 {
+  z-index: 1;
+}

@@ -1,0 +1,62 @@
+name: Competitiveness Analysis Validation
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - ".github/workflows/competitiveness-analysis-validate.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/validate-competitiveness-analysis.ts"
+      - "scripts/validate-university-dashboard-data.ts"
+      - "scripts/show-multi-campus-rollup-samples.ts"
+      - "src/components/analysis/competitiveness-analysis/UniversityCompetitivenessDashboard.tsx"
+      - "src/lib/competitiveness-analysis/**"
+      - "src/lib/ingest/main-campus-rollup.ts"
+      - "src/lib/ingest/school-code-campus-index.ts"
+      - "src/lib/ingest/fund-shortage-detection.ts"
+      - "src/lib/ingest/target-universities-upload.ts"
+      - "src/lib/analysis/competitiveness-indicators.ts"
+      - "src/lib/analysis/income-property-secure-rate-analytics.ts"
+      - "data/csv/**"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - ".github/workflows/competitiveness-analysis-validate.yml"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/validate-competitiveness-analysis.ts"
+      - "scripts/validate-university-dashboard-data.ts"
+      - "scripts/show-multi-campus-rollup-samples.ts"
+      - "src/components/analysis/competitiveness-analysis/UniversityCompetitivenessDashboard.tsx"
+      - "src/lib/competitiveness-analysis/**"
+      - "src/lib/ingest/main-campus-rollup.ts"
+      - "src/lib/ingest/school-code-campus-index.ts"
+      - "src/lib/ingest/fund-shortage-detection.ts"
+      - "src/lib/ingest/target-universities-upload.ts"
+      - "src/lib/analysis/competitiveness-indicators.ts"
+      - "src/lib/analysis/income-property-secure-rate-analytics.ts"
+      - "data/csv/**"
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Step 1–3 data validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate competitiveness analysis (2021–2026)
+        run: npm run validate:competitiveness:full

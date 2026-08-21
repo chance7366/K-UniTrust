@@ -1,0 +1,42 @@
+.si-root {
+  min-height: 100vh;
+  background-color: #f1f5f9;
+  color: #1e293b;
+}
+
+.si-k-sidebar {
+  background: linear-gradient(180deg, #e6f4ea 0%, #edf7f0 100%);
+  border-right: 1px solid #d1e7dd;
+}
+
+.si-k-badge {
+  background-color: #d2e7d6;
+  color: #1b5e20;
+}
+
+.si-k-menu-item {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(209, 231, 221, 0.8);
+  transition: all 0.2s ease;
+}
+
+.si-k-menu-item:hover {
+  background: #ffffff;
+  border-color: #a3d9b1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.si-k-menu-item.active {
+  background: linear-gradient(90deg, #1a80e5 0%, #0066cc 100%);
+  color: #ffffff !important;
+  border-color: #0055b8;
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.25);
+}
+
+.si-k-menu-item.active svg {
+  color: #ffffff !important;
+}
+
+.si-sub-bar-line {
+  border-left: 2px solid #81c784;
+}

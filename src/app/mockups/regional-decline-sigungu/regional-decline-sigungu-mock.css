@@ -1,0 +1,26 @@
+.rdsm-banner {
+  margin-bottom: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--accent-orange) 35%, transparent);
+  background: color-mix(in srgb, var(--accent-orange) 8%, transparent);
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.rdsm-banner strong {
+  color: var(--foreground);
+}
+
+.rdsm-rank-bar {
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: rgb(var(--surface-2));
+  overflow: hidden;
+}
+
+.rdsm-rank-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 9999px;
+}

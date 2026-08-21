@@ -1,0 +1,110 @@
+.deh-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid #b8e6cf;
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(209, 250, 229, 0.95) 0%,
+      rgba(236, 253, 245, 0.88) 28%,
+      rgba(247, 254, 249, 0.72) 52%,
+      rgba(255, 255, 255, 0.98) 100%
+    );
+  padding: 1rem 1.25rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 8px 24px rgba(16, 185, 129, 0.08);
+}
+
+.deh-header-left {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.deh-icon {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
+  color: #047857;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
+}
+
+.deh-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(5, 150, 105, 0.22);
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  padding: 0.125rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+}
+
+.deh-subtitle-wrap {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.deh-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #5a7a6c;
+}
+
+.deh-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #5a6a7c;
+}
+
+.deh-title {
+  font-size: 1.625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #1a5c3a;
+  white-space: nowrap;
+}
+
+.excel-upload-btn-emerald {
+  border-color: #047857;
+  background: linear-gradient(180deg, #10b981 0%, #059669 55%, #047857 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 2px 6px rgba(4, 120, 87, 0.28);
+}
+
+.excel-upload-btn-emerald:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.32) inset,
+    0 4px 10px rgba(4, 120, 87, 0.32);
+}
+
+.excel-upload-btn-emerald:active {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 2px 6px rgba(4, 120, 87, 0.28);
+}

@@ -1,0 +1,122 @@
+.soh-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -8%, rgba(59, 154, 106, 0.1), transparent 58%),
+    linear-gradient(180deg, #f2f6fa 0%, #e9eef3 45%, #dde5ee 100%);
+  color: #1a2433;
+}
+
+.soh-panel {
+  background: #ffffff;
+  border: 1px solid #dde5ee;
+  border-radius: 14px;
+  box-shadow:
+    0 4px 16px rgba(26, 36, 51, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.soh-header-current h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  color: inherit;
+}
+
+.soh-header-proposed h1 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  color: #1a5c3a;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.soh-btn-current {
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  border: 1px dashed rgba(45, 184, 212, 0.4);
+  background: var(--surface-2, #f4f7fa);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--accent-cyan, #2db5d4);
+  transition: background 0.15s ease;
+}
+
+.soh-btn-current:hover {
+  background: rgba(45, 184, 212, 0.08);
+}
+
+.soh-btn-upload {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid #1a9bb8;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  cursor: pointer;
+  background:
+    radial-gradient(ellipse 90% 80% at 50% 0%, rgba(255, 255, 255, 0.45), transparent 55%),
+    linear-gradient(180deg, #5fd4ef 0%, #2db5d4 42%, #1599b8 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 3px 0 #0d7a94,
+    0 4px 10px rgba(21, 153, 184, 0.32);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
+}
+
+.soh-btn-upload:hover {
+  filter: brightness(1.04);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.08) inset,
+    0 4px 0 #0d7a94,
+    0 6px 14px rgba(21, 153, 184, 0.38);
+}
+
+.soh-btn-upload:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 1px 4px rgba(21, 153, 184, 0.24);
+}
+
+.soh-btn-upload svg {
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.12));
+}
+
+.soh-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid #b4dcc8;
+  background: #effaf4;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #2a7a55;
+}
+
+.soh-label.before {
+  border-color: #dde5ee;
+  background: #f4f7fa;
+  color: #5a6a7c;
+}
+
+.soh-label.after {
+  border-color: #b4dcc8;
+  background: #e7f6ee;
+  color: #1a5c3a;
+}

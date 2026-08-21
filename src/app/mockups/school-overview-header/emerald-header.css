@@ -1,0 +1,179 @@
+.soh-emerald-root {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -8%, rgba(16, 185, 129, 0.08), transparent 58%),
+    linear-gradient(180deg, #f2f6fa 0%, #e9eef3 45%, #dde5ee 100%);
+  color: #1a2433;
+}
+
+.soh-emerald-panel {
+  background: #ffffff;
+  border: 1px solid #dde5ee;
+  border-radius: 14px;
+  box-shadow:
+    0 4px 16px rgba(26, 36, 51, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.soh-emerald-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid #b8e6cf;
+  border-radius: 16px;
+  background:
+    linear-gradient(
+      105deg,
+      rgba(209, 250, 229, 0.95) 0%,
+      rgba(236, 253, 245, 0.88) 28%,
+      rgba(247, 254, 249, 0.72) 52%,
+      rgba(255, 255, 255, 0.98) 100%
+    );
+  padding: 1rem 1.25rem;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 8px 24px rgba(16, 185, 129, 0.08);
+}
+
+.soh-emerald-header-left {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.soh-emerald-icon {
+  display: flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.18);
+  background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
+  color: #047857;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.85) inset;
+}
+
+.soh-emerald-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.soh-emerald-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid rgba(5, 150, 105, 0.22);
+  background: linear-gradient(180deg, #34d399 0%, #10b981 100%);
+  padding: 0.125rem 0.55rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset;
+}
+
+.soh-emerald-subtitle {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #5a7a6c;
+}
+
+.soh-emerald-title {
+  margin-top: 0.25rem;
+  font-size: 1.625rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: #122033;
+}
+
+.soh-emerald-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid #047857;
+  border-radius: 0.5rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+  cursor: pointer;
+  background: linear-gradient(180deg, #10b981 0%, #059669 55%, #047857 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 2px 6px rgba(4, 120, 87, 0.28);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease;
+}
+
+.soh-emerald-btn:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.32) inset,
+    0 4px 10px rgba(4, 120, 87, 0.32);
+}
+
+.soh-emerald-btn:active {
+  transform: translateY(0);
+}
+
+.soh-emerald-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid #b4dcc8;
+  background: #effaf4;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1a5c3a;
+}
+
+.soh-emerald-label.current {
+  border-color: #dde5ee;
+  background: #f4f7fa;
+  color: #5a6a7c;
+}
+
+.soh-emerald-current-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #dde5ee;
+  background: #ffffff;
+  padding: 1rem 1.25rem;
+}
+
+.soh-emerald-current-header h1 {
+  font-size: 1.625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: inherit;
+}
+
+.soh-emerald-current-btn {
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  border: 1px dashed rgba(45, 184, 212, 0.4);
+  background: #f4f7fa;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  color: #2db5d4;
+}

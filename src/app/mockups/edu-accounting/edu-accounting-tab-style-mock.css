@@ -1,0 +1,43 @@
+.eatm-tablist {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.eatm-tab {
+  display: inline-flex;
+  height: 30px;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 6px;
+  border: 1px solid #6bbf94;
+  background: #e8f7ef;
+  padding: 0 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted, #64748b);
+  text-decoration: none;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.eatm-tab:hover {
+  background: rgb(255 255 255 / 0.55);
+  color: var(--foreground, #0f172a);
+}
+
+.eatm-tab-active {
+  background: #fff;
+  border-color: #4caf82;
+  font-weight: 600;
+  color: #4338ca;
+}
+
+.eatm-tab-icon {
+  height: 0.875rem;
+  width: 0.875rem;
+  flex-shrink: 0;
+  color: inherit;
+}

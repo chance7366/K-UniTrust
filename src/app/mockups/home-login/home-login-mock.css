@@ -1,0 +1,92 @@
+.hlm-content {
+  padding-top: 12vh;
+}
+
+.hlm-form,
+.hlm-signed {
+  max-width: 32rem;
+  margin-top: 2.25rem;
+}
+
+.hlm-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #1a5c3a;
+}
+
+.hlm-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.65rem;
+}
+
+.hlm-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  border-radius: 0.875rem;
+  border: 1px solid rgba(59, 154, 106, 0.28);
+  background: rgba(255, 255, 255, 0.78);
+  padding: 0.8rem 1rem;
+  font-size: 0.9375rem;
+  color: #14532d;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.hlm-input::placeholder {
+  color: #7a9e8c;
+}
+
+.hlm-input:focus {
+  outline: 2px solid #047857;
+  outline-offset: 2px;
+}
+
+.hlm-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.hlm-error {
+  margin-top: 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b42318;
+}
+
+.hlm-hint {
+  margin-top: 0.65rem;
+  font-size: 0.75rem;
+  color: #4d7a66;
+}
+
+.hlm-role-kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #2a7a55;
+}
+
+.hlm-role-name {
+  margin: 0.35rem 0 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #14532d;
+}
+
+.hlm-role-code {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #5b8a74;
+}
+
+.hlm-role-note {
+  margin: 0.65rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: #2d5c4a;
+}
