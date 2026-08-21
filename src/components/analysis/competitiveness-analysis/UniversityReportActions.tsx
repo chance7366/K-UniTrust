@@ -1,0 +1,197 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+
+import {
+  GlassActionButton,
+} from "@/components/analysis/GlassHelpButton";
+import { useCanUploadExcel } from "@/components/auth/AccessRoleProvider";
+import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
+import type { UniversityReportMeta } from "@/lib/competitiveness-analysis/university-report/report-store";
+
+export function UniversityReportActions({
+  analysisYear,
+  schoolCodeStd,
+  schoolName,
+  hasRunResults,
+}: {
+  analysisYear: number;
+  schoolCodeStd: string | null;
+  schoolName: string | null;
+  hasRunResults: boolean;
+}) {
+  const isAdmin = useCanUploadExcel();
+  const [meta, setMeta] = useState<UniversityReportMeta | null>(null);
+  const [loadingMeta, setLoadingMeta] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchMeta = useCallback(async () => {
+    if (!schoolCodeStd) {
+      setMeta(null);
+      return;
+    }
+    setLoadingMeta(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `/api/competitiveness-analysis/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}`,
+      );
+      if (res.status === 404) {
+        setMeta(null);
+        return;
+      }
+      const data = (await res.json()) as {
+        meta?: UniversityReportMeta;
+        error?: string;
+      };
+      if (!res.ok) {
+        throw new Error(data.error ?? "보고서 상태를 불러오지 못했습니다.");
+      }
+      setMeta(data.meta ?? null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "보고서 상태를 불러오지 못했습니다.",
+      );
+      setMeta(null);
+    } finally {
+      setLoadingMeta(false);
+    }
+  }, [analysisYear, schoolCodeStd]);
+
+  useEffect(() => {
+    void fetchMeta();
+  }, [fetchMeta]);
+
+  async function handleGenerate() {
+    if (!schoolCodeStd || !isAdmin) return;
+    setGenerating(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        "/api/competitiveness-analysis/university-reports/generate",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            analysisYear,
+            schoolCodeStd,
+          }),
+        },
+      );
+      const data = (await res.json()) as {
+        ok?: boolean;
+        meta?: UniversityReportMeta;
+        error?: string;
+      };
+      if (!res.ok) {
+        throw new Error(data.error ?? "보고서 생성에 실패했습니다.");
+      }
+      setMeta(data.meta ?? null);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "보고서 생성에 실패했습니다.",
+      );
+    } finally {
+      setGenerating(false);
+    }
+  }
+
+  function openReport() {
+    if (!schoolCodeStd) return;
+    window.open(
+      `/api/competitiveness-analysis/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}?format=html`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }
+
+  async function downloadPdf() {
+    if (!schoolCodeStd || !schoolName) return;
+    setPdfLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `/api/competitiveness-analysis/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}?format=pdf`,
+      );
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? "PDF 저장에 실패했습니다.");
+      }
+      const blob = await res.blob();
+      const filename = `${analysisYear}_${schoolCodeStd}_${schoolName}_competitiveness-report.pdf`;
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename.replace(/[\\/:*?"<>|]/g, "_");
+      anchor.click();
+      URL.revokeObjectURL(url);
+      void fetchMeta();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "PDF 저장에 실패했습니다.");
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
+  if (!hasRunResults || !schoolCodeStd || !schoolName) return null;
+
+  return (
+    <div className="rounded-lg border border-border/70 bg-surface-2/60 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-accent-cyan">
+            개별대학 보고서
+          </p>
+          <p className={`mt-0.5 ${FDB_TYPO.legend} text-muted`}>
+            {schoolName} · {analysisYear}년
+            {loadingMeta ? " · 상태 확인 중…" : null}
+            {!loadingMeta && meta
+              ? ` · 생성됨 (${new Date(meta.generatedAt).toLocaleString("ko-KR")})`
+              : !loadingMeta
+                ? " · 미생성"
+                : null}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {meta ? (
+            <>
+              <GlassActionButton tone="blue" onClick={openReport}>
+                보고서 열람
+              </GlassActionButton>
+              <GlassActionButton
+                tone="orange"
+                onClick={downloadPdf}
+                disabled={pdfLoading}
+              >
+                {pdfLoading ? "PDF 생성 중…" : "PDF 저장"}
+              </GlassActionButton>
+            </>
+          ) : null}
+          {isAdmin ? (
+            <GlassActionButton
+              tone="green"
+              onClick={handleGenerate}
+              disabled={generating}
+            >
+              {generating
+                ? "생성 중…"
+                : meta
+                  ? "보고서 재생성"
+                  : "보고서 생성"}
+            </GlassActionButton>
+          ) : null}
+        </div>
+      </div>
+      {error ? (
+        <p className="mt-2 text-xs text-danger">{error}</p>
+      ) : null}
+      {generating ? (
+        <p className={`mt-2 ${FDB_TYPO.legend} text-muted`}>
+          Gemini AI가 보고서를 작성 중입니다. 1~3분 정도 소요될 수 있습니다.
+        </p>
+      ) : null}
+    </div>
+  );
+}

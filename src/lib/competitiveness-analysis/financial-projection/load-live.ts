@@ -160,10 +160,19 @@ function expenseLookback(
   expByRepYear: Map<string, EduFundExpenseAmounts>,
   code: string,
   settlementYear: number,
-): { fixedCheon: number; variableCheon: number } {
+): {
+  fixedCheon: number;
+  variableCheon: number;
+  laborCheon: number;
+  adminCheon: number;
+  nonEduCheon: number;
+} {
   const yearParts = (year: number) => {
     const exp = expByRepYear.get(`${code}::${year}`);
     return {
+      labor: exp?.labor ?? 0,
+      admin: exp?.admin ?? 0,
+      nonEdu: exp?.nonEdu ?? 0,
       fixed: exp ? exp.labor + exp.admin + exp.nonEdu : 0,
       variable: exp?.researchStudent ?? 0,
     };
@@ -174,6 +183,9 @@ function expenseLookback(
   return {
     fixedCheon: lookbackMaxAvg(c.fixed, b.fixed, a.fixed),
     variableCheon: lookbackMaxAvg(c.variable, b.variable, a.variable),
+    laborCheon: lookbackMaxAvg(c.labor, b.labor, a.labor),
+    adminCheon: lookbackMaxAvg(c.admin, b.admin, a.admin),
+    nonEduCheon: lookbackMaxAvg(c.nonEdu, b.nonEdu, a.nonEdu),
   };
 }
 
@@ -1031,12 +1043,12 @@ export async function loadFinancialProjectionBaseline(args: {
       }
     }
 
-    const { fixedCheon, variableCheon } = expenseLookback(
-      expByRepYear,
-      code,
-      settlementYear,
-    );
+    const { fixedCheon, variableCheon, laborCheon, adminCheon, nonEduCheon } =
+      expenseLookback(expByRepYear, code, settlementYear);
     const fixedCosts = cheonToWon(fixedCheon);
+    const fixedCostLabor = cheonToWon(laborCheon);
+    const fixedCostAdmin = cheonToWon(adminCheon);
+    const fixedCostNonEdu = cheonToWon(nonEduCheon);
     const variableCostPerStudent =
       currentStudents > 0 ? cheonToWon(variableCheon) / currentStudents : 0;
     const { otherRevenues, nationalScholarship } = otherAndScholarshipLookback(
@@ -1082,6 +1094,9 @@ export async function loadFinancialProjectionBaseline(args: {
       usableLiquidity: cheonToWon(usableCheon),
       tuitionPerStudent: Math.round(tuitionPerStudentBlended),
       fixedCosts,
+      fixedCostLabor,
+      fixedCostAdmin,
+      fixedCostNonEdu,
       variableCostPerStudent: Math.round(variableCostPerStudent),
       otherRevenues,
       nationalScholarship,

@@ -20,6 +20,13 @@ export function UniversityCompetitivenessUiMock() {
             >
               프로덕션 화면
             </Link>
+            {" · "}
+            <Link
+              href="/mockups/competitiveness-analysis/university-report-v2"
+              className="font-medium text-accent hover:underline"
+            >
+              v2 검토 목업
+            </Link>
           </span>
         </div>
       </div>

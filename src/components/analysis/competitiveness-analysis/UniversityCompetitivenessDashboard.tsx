@@ -45,6 +45,10 @@ import {
   type GroupIndexYearRow,
 } from "@/lib/competitiveness-analysis/university-detail-data";
 
+import { UniversityReportActions } from "@/components/analysis/competitiveness-analysis/UniversityReportActions";
+import { UniversityReportGuidelinesPanel } from "@/components/analysis/competitiveness-analysis/UniversityReportGuidelinesPanel";
+import { UniversityV2InsightsPanel } from "@/components/analysis/competitiveness-analysis/UniversityV2InsightsPanel";
+
 import "./university-competitiveness-dashboard.css";
 import "@/components/analysis/competitiveness-analysis/run-analytics.css";
 import "@/components/analysis/competitiveness-analysis/step3-composite-table.css";
@@ -401,6 +405,61 @@ function SchoolDetailPanel({
       : "4년제",
   );
 
+  const { indicatorSummaryRows, indicatorYearRowsById } = useMemo(() => {
+    const categoryLabels: Record<string, string> = {
+      "student-enrollment": "학생충원",
+      "univ-finance": "대학재정",
+      "corp-finance": "법인재정",
+    };
+    const summaryRows: {
+      categoryId: string;
+      categoryLabel: string;
+      indicatorId: string;
+      indicatorLabel: string;
+      rawValue: number | null;
+      indexScore: number | null;
+      rank: number | null;
+      dataMissing: boolean;
+      nationalIndexAvg: number | null;
+    }[] = [];
+    const yearById: Record<string, ReturnType<typeof buildIndicatorYearRows>> = {};
+
+    for (const [categoryId, indicators] of Object.entries(groupedIndicators)) {
+      for (const indicator of indicators) {
+        const yearRows = buildIndicatorYearRows(
+          series,
+          school.schoolCodeStd,
+          indicator.id,
+          enrolledByCode,
+        );
+        yearById[indicator.id] = yearRows;
+        const currentRow = yearRows.find((row) => row.analysisYear === analysisYear);
+        summaryRows.push({
+          categoryId,
+          categoryLabel: categoryLabels[categoryId] ?? categoryId,
+          indicatorId: indicator.id,
+          indicatorLabel: indicator.label,
+          rawValue: currentRow?.rawValue ?? null,
+          indexScore: currentRow?.indexScore ?? null,
+          rank: currentRow?.rank ?? null,
+          dataMissing: currentRow?.dataMissing ?? true,
+          nationalIndexAvg: currentRow?.national.indexAvg ?? null,
+        });
+      }
+    }
+    return { indicatorSummaryRows: summaryRows, indicatorYearRowsById: yearById };
+  }, [groupedIndicators, series, school.schoolCodeStd, enrolledByCode, analysisYear]);
+
+  const diagnosticGradeLabel = gradeResult
+    ? formatDiagnosticGradeLabel(
+        gradeResult.grade,
+        gradeResult.gradeCapped,
+        school.excludedFromRanking,
+      )
+    : school.excludedFromRanking
+      ? "등급제외"
+      : "—";
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-y-contain pr-1">
       <section className="rounded-xl border border-accent/40 bg-[var(--glow-panel-kpi)] p-5 shadow-[var(--glow-inset)]">
@@ -457,6 +516,18 @@ function SchoolDetailPanel({
           </div>
         </div>
       </section>
+
+      <UniversityV2InsightsPanel
+        analysisYear={analysisYear}
+        schoolName={school.schoolName}
+        compositeIndex={school.compositeIndex}
+        diagnosticGrade={diagnosticGradeLabel}
+        cohortSize={cohortSize}
+        groupIndexRows={groupRows}
+        indicatorSummaryRows={indicatorSummaryRows}
+        indicatorYearRowsById={indicatorYearRowsById}
+        settings={settings}
+      />
 
       <DetailTableSection title="그룹 지수 · 연도별 추세 (분석실행 2~3단계)">
         <ChartLegend scaleLabel={scale ? `${scale} 평균` : "규모 평균"} />
@@ -586,7 +657,7 @@ function SchoolDetailPanel({
         </div>
       </DetailTableSection>
 
-      <DetailTableSection title={`${analysisYear}년 전체 지표 요약`}>
+      <DetailTableSection title={`${analysisYear}년 전체 지표 요약 (표)`}>
         <div className="space-y-4">
           {(
             [
@@ -769,6 +840,12 @@ export function UniversityCompetitivenessDashboard() {
 
   return (
     <>
+        <UniversityReportGuidelinesPanel
+          analysisYear={analysisYear}
+          settings={settings}
+          hasRunResults={hasResults}
+        />
+
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
@@ -833,6 +910,15 @@ export function UniversityCompetitivenessDashboard() {
               분석실행으로 이동 →
             </Link>
           </section>
+        ) : null}
+
+        {!loading && hasResults && selectedSchool ? (
+          <UniversityReportActions
+            analysisYear={analysisYear}
+            schoolCodeStd={selectedSchool.schoolCodeStd}
+            schoolName={selectedSchool.schoolName}
+            hasRunResults={hasResults}
+          />
         ) : null}
 
         {!loading && hasResults ? (

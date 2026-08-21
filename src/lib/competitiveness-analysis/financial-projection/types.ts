@@ -80,6 +80,12 @@ export type UnivBaseData = {
   /** 교비자금(지출) 보수[1136]+관리운영비[1154]+교육외비용[1205] (원).
    * 기준 = max(결산연 포함 최근 3년 평균, 최근 2년 평균). 교비 없는 연도는 0. */
   fixedCosts: number;
+  /** 3·2년 평균 보수[1136] (원) — 고정비 합산 구성 */
+  fixedCostLabor: number;
+  /** 3·2년 평균 관리운영비[1154] (원) */
+  fixedCostAdmin: number;
+  /** 3·2년 평균 교육외비용[1205] (원) */
+  fixedCostNonEdu: number;
   /** 위와 같은 3·2년 평균의 연구학생경비[1186] ÷ 분석연도 재학생(계) (원) */
   variableCostPerStudent: number;
   /**

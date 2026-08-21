@@ -1,0 +1,9 @@
+{
+  "analysisYear": 2025,
+  "schoolCodeStd": "0000061",
+  "schoolName": "대구대학교",
+  "generatedAt": "2026-08-21T22:59:05.856Z",
+  "model": "gemini-3.6-flash",
+  "guidelinesVersion": "2.5.6",
+  "htmlFile": "report.html"
+}

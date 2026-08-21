@@ -60,6 +60,7 @@ import {
 import {
   BASELINE_INDICATOR_CATALOG,
   DEFAULT_ACCOUNT_MAP,
+  MOCK_DATA_CHECKS,
   MOCK_CPI_FORWARD_ASSUMPTION_PCT,
   MOCK_MACRO_NATIONAL,
   MOCK_PROJECTION_TARGETS,
@@ -1697,6 +1698,17 @@ function SettingsSection({
                   />
                 </div>
               </div>
+              {baselineReady ? (
+                <BaselineEditionSummary
+                  analysisYear={analysisYear}
+                  settlementYear={settlementYear}
+                  endYear={endYear}
+                  indexBaseYear={indexBaseYear}
+                  cpiPct={cpiPct}
+                  coverage={coverage}
+                  rowCount={baselineUnivs.length}
+                />
+              ) : null}
               {includedMissingCount(includedCount, baselineUnivs) > 0 ? (
                 <p className={FDB_TYPO.legend}>
                   결산·충원 매핑이 없는{" "}
@@ -1711,132 +1723,16 @@ function SettingsSection({
                     : `${targetCohort} 기초자료가 없습니다.`}
                 </p>
               ) : (
-              <div className="feam-table-wrap rounded-lg border border-border/60">
-                <table
-                  className={`w-full min-w-[1480px] border-collapse ${FDB_TYPO.tableBody}`}
-                >
-                  <thead>
-                    <tr className="border-b border-border bg-surface-2">
-                      {[
-                        { label: "학교", align: "left" as const },
-                        { label: "종류", align: "center" as const },
-                        { label: "소재지", align: "center" as const },
-                        { label: "학부재학생(계)", align: "right" as const },
-                        { label: "학부충원", align: "right" as const },
-                        { label: "학부중탈", align: "right" as const },
-                        { label: "대학원재학생", align: "right" as const },
-                        { label: "대학원충원", align: "right" as const },
-                        { label: "학부수업료", align: "right" as const },
-                        { label: "대학원수업료", align: "right" as const },
-                        {
-                          label: `${settlementYear}교비(억)`,
-                          align: "right" as const,
-                        },
-                        {
-                          label: `${analysisYear}추정(억)`,
-                          align: "right" as const,
-                        },
-                        { label: "국가장학금(억)", align: "right" as const },
-                        { label: "기타수입(억)", align: "right" as const },
-                        { label: "고정비(억)", align: "right" as const },
-                        { label: "변동비(만)", align: "right" as const },
-                        { label: `학령지수${endYear}`, align: "right" as const },
-                        { label: "가용(억)", align: "right" as const },
-                      ].map((col) => (
-                        <th
-                          key={col.label}
-                          className={fpTableHeadClass(col.align)}
-                        >
-                          {col.label}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleBaseline.map((u, i) => {
-                      const { undergrad, graduate } = resolveUnivSegments(u);
-                      const actualSettlement = (u.tuitionActuals ?? []).find(
-                        (row) =>
-                          row.year === (u.settlementYear ?? settlementYear),
-                      );
-                      const estimateAnalysis =
-                        undergrad.currentStudents * undergrad.tuitionPerStudent +
-                        (graduate?.currentStudents ?? 0) *
-                          (graduate?.tuitionPerStudent ?? 0);
-                      const schoolAgeEnd = schoolAgeIndexAtYear(
-                        u.schoolAgeDecline,
-                        endYear,
-                      );
-                      const metric = fpTableCellClass({
-                        mono: true,
-                        right: true,
-                      });
-                      return (
-                        <tr
-                          key={u.schoolCodeStd}
-                          className={`border-b border-border/40 ${
-                            i % 2 === 0 ? "bg-surface" : "bg-surface-2/30"
-                          }`}
-                        >
-                          <td className={fpTableCellClass({ school: true })}>
-                            {u.schoolName}
-                          </td>
-                          <td className={fpTableCellClass()}>{u.schoolKind}</td>
-                          <td className={fpTableCellClass()}>{u.region}</td>
-                          <td className={metric}>
-                            {undergrad.currentStudents.toLocaleString("ko-KR")}
-                          </td>
-                          <td className={metric}>
-                            {undergrad.freshmanFillRatePct}%
-                          </td>
-                          <td className={metric}>{undergrad.dropoutRatePct}%</td>
-                          <td className={metric}>
-                            {graduate
-                              ? graduate.currentStudents.toLocaleString("ko-KR")
-                              : "—"}
-                          </td>
-                          <td className={metric}>
-                            {graduate ? `${graduate.freshmanFillRatePct}%` : "—"}
-                          </td>
-                          <td className={metric}>
-                            {(undergrad.tuitionPerStudent / 10000).toFixed(0)}만
-                          </td>
-                          <td className={metric}>
-                            {graduate
-                              ? `${(graduate.tuitionPerStudent / 10000).toFixed(0)}만`
-                              : "—"}
-                          </td>
-                          <td className={metric}>
-                            {actualSettlement
-                              ? wonToEok(
-                                  actualSettlement.undergradWon +
-                                    actualSettlement.graduateWon,
-                                )
-                              : "—"}
-                            </td>
-                          <td className={metric}>{wonToEok(estimateAnalysis)}</td>
-                          <td className={metric}>
-                            {wonToEok(u.nationalScholarship ?? 0)}
-                          </td>
-                          <td className={metric}>{wonToEok(u.otherRevenues)}</td>
-                          <td className={metric}>{wonToEok(u.fixedCosts)}</td>
-                          <td className={metric}>
-                            {(u.variableCostPerStudent / 10000).toFixed(0)}만
-                          </td>
-                          <td className={metric}>
-                            {schoolAgeEnd != null
-                              ? schoolAgeEnd.toFixed(1)
-                              : "—"}
-                          </td>
-                          <td className={metric}>
-                            {wonToEok(u.usableLiquidity)}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                <>
+              <BaselineUnivTable
+                rows={visibleBaseline}
+                analysisYear={analysisYear}
+                settlementYear={settlementYear}
+                endYear={endYear}
+                indexBaseYear={indexBaseYear}
+              />
+              <BaselineDataSourceChecks />
+                </>
               )}
             </div>
         </FpSectionCard>
@@ -1857,6 +1753,383 @@ function SettingsSection({
           onCpiPct={onCpiPct}
         />
       ) : null}
+    </div>
+  );
+}
+
+function fmtSchoolAgeIdx(
+  series: UnivBaseData["schoolAgeDecline"],
+  year: number,
+): string {
+  const v = schoolAgeIndexAtYear(series, year);
+  return v != null ? v.toFixed(1) : "—";
+}
+
+function fmtFixedPartEok(
+  u: UnivBaseData,
+  part: number | undefined,
+): number | "—" {
+  if (part != null && part > 0) return wonToEok(part);
+  if (u.fixedCosts > 0) return "—";
+  return wonToEok(0);
+}
+
+function BaselineEditionSummary({
+  analysisYear,
+  settlementYear,
+  endYear,
+  indexBaseYear,
+  cpiPct,
+  coverage,
+  rowCount,
+}: {
+  analysisYear: number;
+  settlementYear: number;
+  endYear: number;
+  indexBaseYear: number;
+  cpiPct: number;
+  coverage: { hasTargetRoster: boolean; hasSchoolAge: boolean };
+  rowCount: number;
+}) {
+  const items = [
+    { label: "분석연도", value: String(analysisYear) },
+    { label: "결산연도", value: String(settlementYear) },
+    { label: "전망 끝", value: String(endYear) },
+    { label: "학령 기준연", value: `${indexBaseYear}(=100)` },
+    { label: "물가(CPI)", value: `${cpiPct.toFixed(1)}%`, note: "시나리오 탭 공통" },
+    { label: "생성 학교", value: `${rowCount.toLocaleString("ko-KR")}교` },
+    {
+      label: "학령 자료",
+      value: coverage.hasSchoolAge ? "있음" : "없음",
+      warn: !coverage.hasSchoolAge,
+    },
+    {
+      label: "대상 명부",
+      value: coverage.hasTargetRoster ? "있음" : "없음",
+      warn: !coverage.hasTargetRoster,
+    },
+  ];
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
+      {items.map((item) => (
+        <div
+          key={item.label}
+          className="rounded-lg border border-border/60 bg-surface-2 px-3 py-2"
+        >
+          <p className={`${FDB_TYPO.legend} text-muted`}>{item.label}</p>
+          <p
+            className={`mt-0.5 font-mono text-sm tabular-nums ${
+              item.warn ? "text-accent-orange" : "text-foreground"
+            }`}
+          >
+            {item.value}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function baselineSchoolAgeColumns(
+  analysisYear: number,
+  indexBaseYear: number,
+  endYear: number,
+): { id: string; label: string; year: number }[] {
+  const forecastYear = analysisYear + 1;
+  const cols: { id: string; label: string; year: number }[] = [
+    {
+      id: "school-age-base",
+      label: `학령${indexBaseYear}(100)`,
+      year: indexBaseYear,
+    },
+  ];
+  if (forecastYear !== indexBaseYear) {
+    cols.push({
+      id: "school-age-forecast",
+      label: `학령${forecastYear}`,
+      year: forecastYear,
+    });
+  }
+  const lastYear = cols[cols.length - 1]!.year;
+  if (endYear !== lastYear) {
+    cols.push({
+      id: "school-age-end",
+      label: `학령${endYear}`,
+      year: endYear,
+    });
+  }
+  return cols;
+}
+
+function BaselineUnivTable({
+  rows,
+  analysisYear,
+  settlementYear,
+  endYear,
+  indexBaseYear,
+}: {
+  rows: UnivBaseData[];
+  analysisYear: number;
+  settlementYear: number;
+  endYear: number;
+  indexBaseYear: number;
+}) {
+  const schoolAgeCols = baselineSchoolAgeColumns(
+    analysisYear,
+    indexBaseYear,
+    endYear,
+  );
+  const columns: {
+    id: string;
+    label: string;
+    align: "left" | "center" | "right";
+  }[] = [
+    { id: "code", label: "코드", align: "left" },
+    { id: "school", label: "학교", align: "left" },
+    { id: "kind", label: "종류", align: "center" },
+    { id: "region", label: "지역", align: "center" },
+    { id: "program-years", label: "학제", align: "center" },
+    { id: "grade", label: "경쟁력", align: "center" },
+    { id: "reputation", label: "평판%", align: "right" },
+    { id: "quota-total", label: "정원합", align: "right" },
+    { id: "quota-ug", label: "학부정원", align: "right" },
+    { id: "quota-gr", label: "대학원정원", align: "right" },
+    { id: "students-total", label: "재학합", align: "right" },
+    { id: "students-ug", label: "학부재학", align: "right" },
+    { id: "students-gr", label: "대학원재학", align: "right" },
+    { id: "fill-fresh-ug", label: "학부신입충원", align: "right" },
+    { id: "fill-enrolled-ug", label: "학부재학충원", align: "right" },
+    { id: "dropout-ug", label: "학부중탈", align: "right" },
+    { id: "fill-fresh-gr", label: "대학원신입충원", align: "right" },
+    { id: "fill-enrolled-gr", label: "대학원재학충원", align: "right" },
+    { id: "dropout-gr", label: "대학원중탈", align: "right" },
+    { id: "tuition-ug", label: "학부수업료", align: "right" },
+    { id: "tuition-gr", label: "대학원수업료", align: "right" },
+    {
+      id: "tuition-settlement",
+      label: `${settlementYear}교비`,
+      align: "right",
+    },
+    {
+      id: "tuition-analysis",
+      label: `${analysisYear}추정`,
+      align: "right",
+    },
+    { id: "scholarship", label: "국가장학", align: "right" },
+    { id: "other-revenue", label: "기타수입", align: "right" },
+    { id: "fixed-total", label: "고정비합", align: "right" },
+    { id: "fixed-labor", label: "보수", align: "right" },
+    { id: "fixed-admin", label: "관리운영", align: "right" },
+    { id: "fixed-nonedu", label: "교육외", align: "right" },
+    { id: "wage-cagr", label: "임금CAGR", align: "right" },
+    { id: "variable-per", label: "변동비1인", align: "right" },
+    { id: "variable-total", label: "변동비합", align: "right" },
+    ...schoolAgeCols.map((col) => ({
+      id: col.id,
+      label: col.label,
+      align: "right" as const,
+    })),
+    { id: "local-origin", label: "지역내%", align: "right" },
+    { id: "liquidity", label: "가용", align: "right" },
+  ];
+
+  return (
+    <div className="feam-table-wrap rounded-lg border border-border/60">
+      <table
+        className={`w-full min-w-[3200px] border-collapse ${FDB_TYPO.tableBody}`}
+      >
+        <thead>
+          <tr className="border-b border-border bg-surface-2">
+            {columns.map((col) => (
+              <th key={col.id} className={fpTableHeadClass(col.align)}>
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((u, i) => {
+            const { undergrad, graduate } = resolveUnivSegments(u);
+            const actualSettlement = (u.tuitionActuals ?? []).find(
+              (row) => row.year === (u.settlementYear ?? settlementYear),
+            );
+            const estimateAnalysis =
+              undergrad.currentStudents * undergrad.tuitionPerStudent +
+              (graduate?.currentStudents ?? 0) *
+                (graduate?.tuitionPerStudent ?? 0);
+            const variableTotal =
+              u.currentStudents * u.variableCostPerStudent;
+            const metric = fpTableCellClass({ mono: true, right: true });
+            const codeCell = fpTableCellClass({ mono: true });
+            return (
+              <tr
+                key={u.schoolCodeStd}
+                className={`border-b border-border/40 ${
+                  i % 2 === 0 ? "bg-surface" : "bg-surface-2/30"
+                }`}
+              >
+                <td className={codeCell}>{u.schoolCodeStd}</td>
+                <td className={fpTableCellClass({ school: true })}>
+                  {u.schoolName}
+                </td>
+                <td className={fpTableCellClass()}>{u.schoolKind}</td>
+                <td className={fpTableCellClass()}>{u.region}</td>
+                <td className={fpTableCellClass({ mono: true, right: true })}>
+                  {u.programYears}년
+                </td>
+                <td className={fpTableCellClass({ mono: true, right: true })}>
+                  {u.compositeGrade}
+                </td>
+                <td className={metric}>
+                  {(u.reputationRatio * 100).toFixed(1)}
+                </td>
+                <td className={metric}>
+                  {u.quota.toLocaleString("ko-KR")}
+                </td>
+                <td className={metric}>
+                  {undergrad.quota.toLocaleString("ko-KR")}
+                </td>
+                <td className={metric}>
+                  {graduate ? graduate.quota.toLocaleString("ko-KR") : "—"}
+                </td>
+                <td className={metric}>
+                  {u.currentStudents.toLocaleString("ko-KR")}
+                </td>
+                <td className={metric}>
+                  {undergrad.currentStudents.toLocaleString("ko-KR")}
+                </td>
+                <td className={metric}>
+                  {graduate
+                    ? graduate.currentStudents.toLocaleString("ko-KR")
+                    : "—"}
+                </td>
+                <td className={metric}>{undergrad.freshmanFillRatePct}%</td>
+                <td className={metric}>{undergrad.enrolledFillRatePct}%</td>
+                <td className={metric}>{undergrad.dropoutRatePct}%</td>
+                <td className={metric}>
+                  {graduate ? `${graduate.freshmanFillRatePct}%` : "—"}
+                </td>
+                <td className={metric}>
+                  {graduate ? `${graduate.enrolledFillRatePct}%` : "—"}
+                </td>
+                <td className={metric}>
+                  {graduate ? `${graduate.dropoutRatePct}%` : "—"}
+                </td>
+                <td className={metric}>
+                  {(undergrad.tuitionPerStudent / 10000).toFixed(0)}만
+                </td>
+                <td className={metric}>
+                  {graduate
+                    ? `${(graduate.tuitionPerStudent / 10000).toFixed(0)}만`
+                    : "—"}
+                </td>
+                <td className={metric}>
+                  {actualSettlement
+                    ? wonToEok(
+                        actualSettlement.undergradWon +
+                          actualSettlement.graduateWon,
+                      )
+                    : "—"}
+                </td>
+                <td className={metric}>{wonToEok(estimateAnalysis)}</td>
+                <td className={metric}>
+                  {wonToEok(u.nationalScholarship ?? 0)}
+                </td>
+                <td className={metric}>{wonToEok(u.otherRevenues)}</td>
+                <td className={metric}>{wonToEok(u.fixedCosts)}</td>
+                <td className={metric}>
+                  {fmtFixedPartEok(u, u.fixedCostLabor)}
+                </td>
+                <td className={metric}>
+                  {fmtFixedPartEok(u, u.fixedCostAdmin)}
+                </td>
+                <td className={metric}>
+                  {fmtFixedPartEok(u, u.fixedCostNonEdu)}
+                </td>
+                <td className={metric}>{u.laborCostCagrPct.toFixed(1)}%</td>
+                <td className={metric}>
+                  {(u.variableCostPerStudent / 10000).toFixed(0)}만
+                </td>
+                <td className={metric}>{wonToEok(variableTotal)}</td>
+                {schoolAgeCols.map((col) => (
+                  <td key={col.id} className={metric}>
+                    {fmtSchoolAgeIdx(u.schoolAgeDecline, col.year)}
+                  </td>
+                ))}
+                <td className={metric}>
+                  {(u.localOriginRatio * 100).toFixed(1)}
+                </td>
+                <td className={metric}>{wonToEok(u.usableLiquidity)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+const DATA_CHECK_STATUS_LABEL: Record<
+  "ok" | "warn" | "missing",
+  string
+> = {
+  ok: "있음",
+  warn: "참고",
+  missing: "없음",
+};
+
+function BaselineDataSourceChecks() {
+  return (
+    <div className="space-y-2 border-t border-border/60 pt-4">
+      <h3 className="text-sm font-semibold text-accent-cyan">
+        원천자료 점검 (에디션 공통)
+      </h3>
+      <p className={FDB_TYPO.legend}>
+        기초자료·시나리오·분석실행에 쓰이는 자료의 준비 상태입니다. 학교별
+        표와 함께 확인하세요.
+      </p>
+      <div className="feam-table-wrap rounded-lg border border-border/60">
+        <table
+          className={`w-full min-w-[640px] border-collapse ${FDB_TYPO.tableBody}`}
+        >
+          <thead>
+            <tr className="border-b border-border bg-surface-2">
+              {["원천", "연도", "상태", "비고"].map((label) => (
+                <th key={label} className={fpTableHeadClass("left")}>
+                  {label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {MOCK_DATA_CHECKS.map((row, i) => (
+              <tr
+                key={row.source}
+                className={`border-b border-border/40 ${
+                  i % 2 === 0 ? "bg-surface" : "bg-surface-2/30"
+                }`}
+              >
+                <td className={fpTableCellClass()}>{row.source}</td>
+                <td className={fpTableCellClass({ mono: true })}>
+                  {row.years}
+                </td>
+                <td
+                  className={`${fpTableCellClass()} ${
+                    row.status === "ok"
+                      ? "text-emerald-600"
+                      : row.status === "warn"
+                        ? "text-accent-orange"
+                        : "text-rose-600"
+                  }`}
+                >
+                  {DATA_CHECK_STATUS_LABEL[row.status]}
+                </td>
+                <td className={fpTableCellClass()}>{row.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -1943,7 +2216,7 @@ function ScenarioSection({
         />
       ) : null}
     <FpSectionCard
-      description={`${analysisYear}년 시나리오는 이 분석연도 대상대학 전체에 한 세트로 적용합니다. 칩을 누르면 기본값을 불러오고, 숫자 입력·슬라이더로 수정할 수 있습니다. 물가인상률은 이 화면에서 입력하며 전체 대학 변동비에 동일 적용합니다. 임금은 대학별 기초자료 보수 CAGR이며 여기서 학교별로 바꾸지 않습니다.`}
+      description={`${analysisYear}년 시나리오는 대상대학 전체에 한 세트로 적용합니다. 물가인상률은 변동비(연구학생경비)만, 고정비는 기초자료 「임금 CAGR(%)」와 「고정비 절감」으로 전망합니다. 임금 CAGR은 기초자료 생성 시 보수 5개년에서 자동 계산되며 이 화면에서 학교별로 바꾸지 않습니다. 고정비 절감 0이면 절감 없이 고정비 전체가 임금 CAGR만큼 복리 증가합니다(물가 아님).`}
       headerActions={
         <div className="flex flex-wrap items-center gap-2">
           <div
@@ -2089,11 +2362,10 @@ function ScenarioSection({
       </div>
       <div className="space-y-4 border-t border-border/60 pt-4">
         <p className="text-[13px] text-muted">
-          등록금수입 전망에는 소재 시도 학령인구 감소 지수를 씁니다. {analysisYear}년
-          탭의 고등학령 18세는 {indexBaseYear}년 대입 자원(지수 100)이며,
-          입학자원가중치(수능 지원자/17세)를 반영합니다. 지역소멸지수는 등록금 경로에
-          넣지 않습니다. 물가인상률은 {analysisYear}년 에디션 공통, 임금은 대학별 보수
-          CAGR입니다.
+          등록금수입 전망: 소재 시도 학령인구 감소 지수({indexBaseYear}=100, {analysisYear}년
+          18세=대입 자원). 지역소멸지수는 등록금 경로 미사용. 지출: 변동비=물가(CPI)×재학생,
+          고정비=기초 고정비×(1+임금 CAGR)^τ×(1−고정비절감)^τ. 임금 CAGR은 기초자료 표에서
+          확인(보수 5개년 자동 산출). 물가는 에디션 공통, 임금·고정비 기준액은 대학별.
         </p>
         {!coverage.hasSchoolAge ? (
           <p className={`${FDB_TYPO.legend} text-accent-orange`}>

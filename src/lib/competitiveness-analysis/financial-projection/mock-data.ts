@@ -149,8 +149,28 @@ function mockTuitionTrail(
   return { tuitionActuals, historyStudents };
 }
 
+function withFixedCostParts(
+  univ: Pick<UnivBaseData, "fixedCosts"> &
+    Partial<Pick<UnivBaseData, "fixedCostLabor" | "fixedCostAdmin" | "fixedCostNonEdu">>,
+): Pick<UnivBaseData, "fixedCostLabor" | "fixedCostAdmin" | "fixedCostNonEdu"> {
+  if (univ.fixedCostLabor != null && univ.fixedCostAdmin != null && univ.fixedCostNonEdu != null) {
+    return {
+      fixedCostLabor: univ.fixedCostLabor,
+      fixedCostAdmin: univ.fixedCostAdmin,
+      fixedCostNonEdu: univ.fixedCostNonEdu,
+    };
+  }
+  const labor = Math.round(univ.fixedCosts * 0.62);
+  const admin = Math.round(univ.fixedCosts * 0.28);
+  return {
+    fixedCostLabor: labor,
+    fixedCostAdmin: admin,
+    fixedCostNonEdu: univ.fixedCosts - labor - admin,
+  };
+}
+
 function withSegments(
-  univ: UnivBaseData,
+  univ: Omit<UnivBaseData, "fixedCostLabor" | "fixedCostAdmin" | "fixedCostNonEdu">,
   undergrad: ProgramSegmentBase,
   graduate: ProgramSegmentBase | null,
 ): UnivBaseData {
@@ -164,6 +184,7 @@ function withSegments(
   );
   return {
     ...univ,
+    ...withFixedCostParts(univ),
     quota: undergrad.quota + (graduate?.quota ?? 0),
     currentStudents:
       undergrad.currentStudents + (graduate?.currentStudents ?? 0),

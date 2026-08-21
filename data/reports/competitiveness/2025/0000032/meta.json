@@ -1,0 +1,9 @@
+{
+  "analysisYear": 2025,
+  "schoolCodeStd": "0000032",
+  "schoolName": "가야대학교",
+  "generatedAt": "2026-08-21T22:57:03.919Z",
+  "model": "gemini-3.6-flash",
+  "guidelinesVersion": "2.5.6",
+  "htmlFile": "report.html"
+}

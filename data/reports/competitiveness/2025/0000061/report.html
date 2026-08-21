@@ -1,0 +1,2871 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>대구대학교 2025년 대학별경쟁력 분석 보고서</title>
+  <style>:root {
+      color-scheme: light;
+      --a4-width: 210mm;
+      --a4-height: 297mm;
+      --a4-margin: 15mm;
+      --a4-margin-top: 25mm;
+      --a4-margin-bottom: 18mm;
+      --report-text: #334155;
+      --report-body-size: 10pt;
+      --report-line: 1.65;
+      --color-part: #0f172a;
+      --color-section: #0284c7;
+      --color-subsection: #0369a1;
+      --color-accent: #dc2626;
+      --color-accent-soft: #f8fafc;
+      --report-border: #e2e8f0;
+      --report-table-head: #0f6363;
+      --report-table-head-text: #ffffff;
+      --exec-teal: #0f6363;
+      --exec-teal-dark: #0a5249;
+      --exec-navy: #0f172a;
+      --exec-sky: #0284c7;
+      --exec-risk: #dc2626;
+      --exec-success: #059669;
+      --exec-warning: #d97706;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: var(--a4-margin-top) var(--a4-margin) var(--a4-margin-bottom);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #e2e8f0;
+    }
+
+    body {
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-size: var(--report-body-size);
+      line-height: var(--report-line);
+      color: var(--report-text);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .report-shell {
+      padding: 12mm 0 20mm;
+    }
+
+    .report-page {
+      width: var(--a4-width);
+      min-height: var(--a4-height);
+      margin: 0 auto 12mm;
+      padding: var(--a4-margin-top) var(--a4-margin) var(--a4-margin-bottom);
+      background: #fff;
+      box-shadow: 0 2px 16px rgba(15, 23, 42, 0.12);
+      position: relative;
+      box-sizing: border-box;
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .report-page-body {
+      max-width: var(--a4-width);
+      overflow-x: hidden;
+    }
+
+    .report-page-cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ── 표지 ── */
+    .report-cover {
+      text-align: center;
+      padding: 8mm 4mm 4mm;
+    }
+
+    .cover-accent-bar {
+      height: 4mm;
+      background: linear-gradient(90deg, #0f172a, #0284c7);
+      border-radius: 2px;
+      margin: 0 auto 10mm;
+      width: 100%;
+    }
+
+    .cover-eyebrow {
+      font-size: 10pt;
+      color: #64748b;
+      margin: 0 0 5mm;
+      letter-spacing: 0.02em;
+    }
+
+    .cover-main-title {
+      font-size: 22pt;
+      font-weight: 800;
+      color: var(--color-part);
+      line-height: 1.35;
+      margin: 0 0 8mm;
+    }
+
+    .cover-school-name {
+      font-size: 18pt;
+      font-weight: 700;
+      color: var(--color-accent);
+      margin: 0 0 10mm;
+    }
+
+    .cover-meta-box {
+      background: var(--color-accent-soft);
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 4mm;
+      margin: 0 0 6mm;
+      text-align: center;
+    }
+
+    .cover-meta-table {
+      width: 100%;
+      margin: 0;
+      font-size: 9.5pt;
+    }
+
+    .cover-meta-table th {
+      background: #1e40af;
+      color: #fff;
+      font-weight: 600;
+      width: 18%;
+    }
+
+    .cover-meta-table td {
+      background: #fff;
+      width: 32%;
+    }
+
+    .cover-highlight {
+      font-weight: 700;
+      color: #0f3460;
+    }
+
+    .cover-run-at,
+    .cover-generated-at {
+      font-size: 9pt;
+      color: #64748b;
+      margin: 2mm 0;
+    }
+
+    .cover-toc {
+      margin-top: 10mm;
+      text-align: left;
+      border-top: 2px solid var(--color-part);
+      padding-top: 6mm;
+    }
+
+    .cover-toc-title {
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--color-section);
+      margin: 0 0 4mm;
+    }
+
+    .cover-toc-list {
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+      font-size: 10pt;
+      line-height: 1.9;
+    }
+
+    .cover-toc-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 2mm;
+      margin: 1mm 0;
+    }
+
+    .cover-toc-entry {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cover-toc-list .toc-num {
+      color: var(--color-accent);
+      font-weight: 700;
+      margin-right: 2mm;
+    }
+
+    .cover-toc-leader {
+      flex: 0 1 12mm;
+      border-bottom: 1px dotted #cbd5e1;
+      margin: 0 2mm;
+      min-width: 4mm;
+      align-self: flex-end;
+      margin-bottom: 2px;
+    }
+
+    .cover-toc-page {
+      flex-shrink: 0;
+      min-width: 6mm;
+      text-align: right;
+      font-size: 9pt;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    /* ── 제목 체계 (주제목/부제목/소제목) ── */
+    .section-title,
+    h1.report-part-title {
+      font-size: 16pt;
+      font-weight: 800;
+      color: var(--color-part);
+      margin: 10mm 0 5mm;
+      padding-bottom: 3mm;
+      border-bottom: 3px solid var(--color-accent);
+      page-break-after: avoid;
+    }
+
+    .subsection-title,
+    h2.report-section-title {
+      font-size: 13pt;
+      font-weight: 700;
+      color: var(--color-section);
+      margin: 8mm 0 4mm;
+      page-break-after: avoid;
+    }
+
+    .subsubsection-title,
+    h3.report-subsection-title,
+    h4.report-subsubsection-title {
+      font-size: 11pt;
+      font-weight: 700;
+      color: var(--color-subsection);
+      margin: 6mm 0 3mm;
+      page-break-after: avoid;
+    }
+
+    /* 본문 다음 제목 시작 전 한 줄 여백 */
+    p + .section-title,
+    p + .subsection-title,
+    p + .subsubsection-title,
+    table + .section-title,
+    table + .subsection-title,
+    table + .subsubsection-title,
+    .report-chart + .subsection-title,
+    .report-chart-grid + .subsection-title,
+    ul + .section-title,
+    ol + .section-title {
+      margin-top: 10mm;
+    }
+
+    p, li {
+      font-size: var(--report-body-size);
+      line-height: var(--report-line);
+      margin: 3mm 0;
+    }
+
+    ul, ol {
+      margin: 4mm 0 5mm;
+      padding-left: 6mm;
+    }
+
+    /* ── KPI 카드 ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3mm;
+      margin: 5mm 0 7mm;
+    }
+
+    .kpi-card {
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+      padding: 3mm;
+      text-align: center;
+    }
+
+    .kpi-title {
+      font-size: 8.5pt;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 2mm;
+    }
+
+    .kpi-value {
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--color-part);
+      margin-bottom: 1mm;
+    }
+
+    .kpi-sub {
+      font-size: 8.5pt;
+      color: #64748b;
+    }
+
+    /* ── Executive Dashboard v2.5 (Canvas Navy & Slate) ── */
+    .report-executive-dashboard { margin-bottom: 8mm; }
+
+    /* ── v2 Insights Panel (대시보드 UniversityV2InsightsPanel) ── */
+    .report-v2-insights.rv2-panel {
+      border: 1px solid color-mix(in srgb, #0284c7 35%, var(--report-border));
+      border-radius: 8px;
+      background: color-mix(in srgb, #0284c7 4%, #fff);
+      padding: 4mm;
+      margin-bottom: 4mm;
+    }
+
+    .rv2-panel-head { margin-bottom: 3mm; }
+    .rv2-title { font-size: 11pt; font-weight: 700; color: #0284c7; margin: 0; }
+    .rv2-lead { font-size: 8pt; color: #64748b; margin: 1mm 0 0; }
+    .rv2-h4 { font-size: 9pt; font-weight: 600; color: #0369a1; margin: 0 0 2mm; }
+    .rv2-section-gap { margin-top: 4mm; }
+
+    .rv2-exec-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2mm;
+      margin-bottom: 3mm;
+    }
+
+    .rv2-exec-card {
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2.5mm 3mm;
+      background: #f8fafc;
+    }
+
+    .rv2-exec-grade { border-top: 2px solid #0f172a; }
+    .rv2-exec-strength { border-top: 2px solid #059669; }
+    .rv2-exec-risk { border-top: 2px solid #dc2626; }
+    .rv2-exec-label { font-size: 7pt; color: #64748b; font-weight: 600; margin: 0; }
+    .rv2-exec-value { font-size: 14pt; font-weight: 800; margin: 1mm 0; color: #0f172a; }
+    .rv2-exec-value-sm { font-size: 10pt; }
+    .rv2-exec-value-risk { color: #dc2626; }
+    .rv2-exec-sub { font-size: 7.5pt; color: #64748b; margin: 0; }
+
+    .rv2-callout {
+      border-left: 3px solid #0284c7;
+      background: #f8fafc;
+      padding: 2.5mm 3mm;
+      border-radius: 0 6px 6px 0;
+      font-size: 8.5pt;
+      line-height: 1.55;
+      margin-bottom: 3mm;
+    }
+
+    .rv2-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+    }
+
+    .rv2-card {
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2.5mm;
+      background: #fff;
+    }
+
+    .rv2-chart-slot .report-chart { margin: 0; }
+    .rv2-chart-slot .report-chart svg { max-height: 42mm; width: 100%; height: auto; }
+    .rv2-caption { font-size: 7.5pt; color: #64748b; margin: 2mm 0 0; }
+
+    .rv2-indicator-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2mm;
+    }
+
+    .rv2-indicator-card {
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2mm;
+      background: #fff;
+    }
+
+    .rv2-indicator-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.5pt;
+      font-weight: 600;
+      margin-bottom: 1.5mm;
+    }
+
+    .rv2-status {
+      font-size: 6.5pt;
+      padding: 0.3mm 1.5mm;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    .rv2-status-danger { background: #fef2f2; color: #dc2626; }
+    .rv2-status-warning { background: #fffbeb; color: #d97706; }
+    .rv2-status-success { background: #ecfdf5; color: #059669; }
+    .rv2-status-neutral { color: #94a3b8; background: #f1f5f9; }
+
+    .rv2-indicator-metrics {
+      display: flex;
+      gap: 3mm;
+      font-size: 7pt;
+      margin-bottom: 1.5mm;
+    }
+
+    .rv2-metric-label { display: block; color: #64748b; font-size: 6.5pt; }
+    .rv2-momentum-drop { color: #dc2626; }
+    .rv2-momentum-surge { color: #059669; }
+
+    .rv2-indicator-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2mm;
+    }
+
+    .rv2-gap {
+      flex: 1;
+      position: relative;
+      height: 14px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      font-size: 6.5pt;
+      display: flex;
+      align-items: center;
+      padding-left: 2mm;
+    }
+
+    .rv2-gap-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      opacity: 0.35;
+      border-radius: 3px;
+    }
+
+    .rv2-gap-pos { background: #059669; }
+    .rv2-gap-warn { background: #d97706; }
+    .rv2-gap-neg { background: #dc2626; }
+    .rv2-gap-neu { background: #94a3b8; }
+    .rv2-gap-empty, .rv2-spark-empty { font-size: 7pt; color: #94a3b8; }
+
+    .rv2-roadmap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5mm;
+    }
+
+    .rv2-roadmap-col {
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2.5mm;
+      font-size: 8pt;
+      background: #f8fafc;
+    }
+
+    .rv2-roadmap-col ul {
+      margin: 2mm 0 0;
+      padding-left: 4mm;
+      line-height: 1.5;
+    }
+
+    .exec-report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--exec-navy);
+      color: #fff;
+      padding: 3mm 4mm;
+      border-radius: 6px;
+      margin-bottom: 5mm;
+      font-size: 8.5pt;
+    }
+
+    .exec-brand {
+      background: #0284c7;
+      font-weight: 800;
+      font-size: 7pt;
+      padding: 1mm 2mm;
+      border-radius: 3px;
+      margin-right: 2mm;
+      letter-spacing: 0.04em;
+    }
+
+    .exec-report-title { font-weight: 700; }
+    .exec-report-header-right { color: #cbd5e1; text-align: right; }
+    .exec-header-sep { color: #475569; margin: 0 1.5mm; }
+
+    .exec-panel {
+      background: #fff;
+      border: 1px solid var(--report-border);
+      border-radius: 8px;
+      padding: 4mm;
+      margin-bottom: 5mm;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    .exec-panel-dark {
+      background: linear-gradient(135deg, var(--exec-teal) 0%, var(--exec-teal-dark) 100%);
+      border-color: var(--exec-teal-dark);
+      color: #f0fdfa;
+    }
+
+    .exec-panel-dark .exec-panel-head {
+      border-bottom-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .exec-panel-head { border-bottom: 1px solid #f1f5f9; padding-bottom: 3mm; margin-bottom: 4mm; }
+    .exec-panel-head-split { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 3mm; }
+
+    .exec-eyebrow {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--exec-sky);
+    }
+
+    .exec-eyebrow-light { color: #ccfbf1; }
+
+    .exec-h1 { font-size: 14pt; font-weight: 800; color: #0f172a; margin: 1mm 0 0; }
+    .exec-h2 { font-size: 12pt; font-weight: 800; color: #0f172a; margin: 1mm 0 0; }
+    .exec-h2-light { color: #fff; }
+    .exec-h3 { font-size: 10pt; font-weight: 700; color: #0f172a; margin: 0 0 2mm; }
+
+    .exec-meta-chips {
+      font-size: 8pt;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2mm 3mm;
+      border-radius: 6px;
+      align-self: flex-start;
+    }
+
+    .exec-chip-sep { color: #cbd5e1; margin: 0 1mm; }
+
+    .exec-narrative, .exec-lead {
+      font-size: 9pt;
+      color: #475569;
+      line-height: 1.65;
+      margin: 0 0 4mm;
+    }
+
+    .exec-lead-light { color: #ecfdf5; }
+    .exec-caption { font-size: 8pt; color: #64748b; margin: 2mm 0; }
+
+    .text-risk { color: var(--exec-risk); font-weight: 700; }
+    .text-success { color: var(--exec-success); font-weight: 700; }
+    .text-left { text-align: left !important; }
+    .font-semibold { font-weight: 600; }
+
+    .kpi-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2.5mm;
+      margin-bottom: 5mm;
+    }
+
+    .kpi-card {
+      border-radius: 8px;
+      padding: 3mm;
+      text-align: center;
+      border: 1px solid var(--report-border);
+    }
+
+    .kpi-risk { background: #fef2f2; border-color: #fecaca; }
+    .kpi-strength { background: #ecfdf5; border-color: #a7f3d0; }
+    .kpi-neutral { background: #f8fafc; border-color: #e2e8f0; }
+
+    .kpi-label { font-size: 7pt; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-value { font-size: 16pt; font-weight: 900; color: #0f172a; margin: 1mm 0; }
+    .kpi-unit { font-size: 9pt; font-weight: 400; }
+    .kpi-sub { font-size: 7.5pt; color: #64748b; }
+    .kpi-pill {
+      display: inline-block;
+      font-size: 7pt;
+      font-weight: 700;
+      padding: 0.5mm 2mm;
+      border-radius: 999px;
+      margin-top: 1mm;
+    }
+    .kpi-pill-risk { background: #fecaca; color: #991b1b; }
+
+    .exec-split-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4mm;
+      margin-top: 3mm;
+    }
+
+    .exec-chart-box {
+      background: #f8fafc;
+      border: 1px solid var(--report-border);
+      border-radius: 8px;
+      padding: 2mm;
+    }
+
+    .exec-chart-label {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 2mm;
+    }
+
+    .quad-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2mm;
+      background: #f1f5f9;
+      padding: 2mm;
+      border-radius: 8px;
+      border: 1px solid var(--report-border);
+    }
+
+    .quad-cell {
+      background: #fff;
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2.5mm;
+      position: relative;
+      min-height: 14mm;
+    }
+
+    .quad-cell-active {
+      background: #fef2f2;
+      border: 2px solid var(--exec-risk);
+    }
+
+    .quad-pin {
+      position: absolute;
+      top: 2mm;
+      right: 2mm;
+      background: var(--exec-risk);
+      color: #fff;
+      font-size: 6.5pt;
+      font-weight: 700;
+      padding: 0.5mm 1.5mm;
+      border-radius: 3px;
+    }
+
+    .quad-roman { font-size: 8pt; font-weight: 800; color: #334155; margin-bottom: 1mm; }
+    .quad-cell-active .quad-roman { color: #991b1b; }
+    .quad-desc { font-size: 7pt; color: #64748b; }
+
+    .exec-table-wrap { overflow: hidden; border-radius: 6px; border: 1px solid var(--report-border); }
+
+    .exec-indicator-table thead th {
+      background: var(--report-table-head);
+      color: var(--report-table-head-text);
+      font-size: 8pt;
+    }
+
+    /* v2 Deep-Dive + 지표표 병합(3쪽) — 차트·표가 A4 본문 높이를 채움 */
+    .report-page-merge-v2-deepdive {
+      --deepdive-body-h: calc(var(--a4-height) - var(--a4-margin-top) - var(--a4-margin-bottom));
+      --deepdive-chart-h: 62mm;
+      --deepdive-table-head-h: 8mm;
+      --deepdive-table-h: calc(var(--deepdive-body-h) - 26mm - var(--deepdive-chart-h) - 16mm);
+      --deepdive-row-h: calc((var(--deepdive-table-h) - var(--deepdive-table-head-h)) / 8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .report-page-merge-v2-deepdive .report-v2-continued,
+    .report-page-merge-v2-deepdive .exec-panel {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: var(--deepdive-body-h);
+      margin-bottom: 0;
+      box-sizing: border-box;
+    }
+
+    .report-page-merge-v2-deepdive .exec-panel-head {
+      flex-shrink: 0;
+      margin-bottom: 2mm;
+      padding-bottom: 2mm;
+    }
+
+    .report-page-merge-v2-deepdive .exec-lead {
+      margin-bottom: 2mm;
+    }
+
+    .report-page-merge-v2-deepdive .exec-split-charts {
+      flex-shrink: 0;
+      height: var(--deepdive-chart-h);
+      margin: 0 0 3mm;
+      gap: 3mm;
+      align-items: stretch;
+    }
+
+    .report-page-merge-v2-deepdive .exec-chart-box {
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5mm;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .report-page-merge-v2-deepdive .exec-chart-box .report-chart {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .report-page-merge-v2-deepdive .exec-chart-box .report-chart-title {
+      flex-shrink: 0;
+      font-size: 8pt;
+      margin: 0 0 1mm;
+      line-height: 1.25;
+    }
+
+    .report-page-merge-v2-deepdive .exec-chart-box .report-chart svg {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      max-height: none;
+      display: block;
+    }
+
+    .report-page-merge-v2-deepdive .exec-table-wrap {
+      flex-shrink: 0;
+      height: var(--deepdive-table-h);
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+    }
+
+    .report-page-merge-v2-deepdive .exec-indicator-table {
+      height: 100%;
+      width: 100%;
+      font-size: 7.5pt;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+
+    .report-page-merge-v2-deepdive .exec-indicator-table thead th {
+      font-size: 7.5pt;
+      padding: 1.5mm 1.5mm;
+      height: var(--deepdive-table-head-h);
+      vertical-align: middle;
+    }
+
+    .report-page-merge-v2-deepdive .exec-indicator-table tbody tr {
+      height: var(--deepdive-row-h);
+    }
+
+    .report-page-merge-v2-deepdive .exec-indicator-table th,
+    .report-page-merge-v2-deepdive .exec-indicator-table td {
+      padding: 1.5mm 1.5mm;
+      line-height: 1.2;
+      vertical-align: middle;
+    }
+
+    /* v2 Decision + SWOT 병합(4+5쪽) */
+    .report-page-merge-v2-decision-swot {
+      --decision-swot-body-h: calc(var(--a4-height) - var(--a4-margin-top) - var(--a4-margin-bottom));
+      display: flex;
+      flex-direction: column;
+      min-height: var(--decision-swot-body-h);
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-dark {
+      flex-shrink: 0;
+      margin-bottom: 3mm;
+      padding: 3mm 4mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-dark .exec-h2 {
+      font-size: 11pt;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-dark .exec-lead,
+    .report-page-merge-v2-decision-swot .exec-panel-dark .exec-tip {
+      font-size: 8pt;
+      margin-bottom: 2mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-priority-list {
+      font-size: 8pt;
+      margin: 0 0 2mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel:not(.exec-panel-dark) {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+      min-height: 0;
+      padding: 3mm 4mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-head {
+      flex-shrink: 0;
+      margin-bottom: 2mm;
+      padding-bottom: 2mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-head .exec-lead {
+      margin-bottom: 0;
+      font-size: 8pt;
+    }
+
+    .report-page-merge-v2-decision-swot .swot-grid {
+      flex: 1;
+      gap: 2.5mm;
+      align-content: stretch;
+      min-height: 0;
+    }
+
+    .report-page-merge-v2-decision-swot .swot-card {
+      padding: 2.5mm;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .report-page-merge-v2-decision-swot .swot-body {
+      font-size: 7.5pt;
+      line-height: 1.45;
+      flex: 1;
+    }
+
+    /* v2 Decision+SWOT+Roadmap 병합(레거시) */
+    .report-page-merge-v2-strategy .exec-panel,
+    .report-page-merge-v2-strategy .exec-panel-dark {
+      margin-bottom: 2mm;
+      padding-bottom: 2mm;
+    }
+    .report-page-merge-v2-strategy .swot-grid { gap: 2mm; }
+    .report-page-merge-v2-strategy .swot-card { padding: 2mm; }
+    .report-page-merge-v2-strategy .swot-body { font-size: 7.5pt; line-height: 1.45; }
+    .report-page-merge-v2-strategy .roadmap-list { gap: 2mm; }
+    .report-page-merge-v2-strategy .roadmap-item { padding: 2mm 3mm; }
+
+    .badge {
+      display: inline-block;
+      font-size: 7pt;
+      font-weight: 700;
+      padding: 0.5mm 2mm;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    .badge-danger { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .badge-warning { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    .badge-strength { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+    .badge-neutral { color: #94a3b8; }
+
+    .exec-priority-list {
+      margin: 3mm 0;
+      padding-left: 5mm;
+      font-size: 9pt;
+      color: #ecfdf5;
+    }
+
+    .exec-panel-dark .exec-priority-list strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .exec-tip {
+      font-size: 8pt;
+      color: #99f6e4;
+      border-top: 1px solid rgba(255, 255, 255, 0.28);
+      padding-top: 3mm;
+      margin: 3mm 0 0;
+    }
+
+    .swot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+    }
+
+    .swot-card {
+      border-radius: 8px;
+      padding: 3mm;
+      border: 1px solid var(--report-border);
+    }
+
+    .swot-so { background: #ecfdf5; border-color: #a7f3d0; }
+    .swot-st { background: #f0f9ff; border-color: #bae6fd; }
+    .swot-wo { background: #fffbeb; border-color: #fde68a; }
+    .swot-wt { background: #fef2f2; border-color: #fecaca; }
+
+    .swot-tag { font-size: 7pt; font-weight: 800; margin-bottom: 2mm; color: #475569; }
+    .swot-title { font-size: 9.5pt; font-weight: 700; color: #0f172a; margin: 0 0 2mm; }
+    .swot-body { font-size: 8pt; color: #64748b; line-height: 1.55; margin: 0; }
+
+    .roadmap-list { display: flex; flex-direction: column; gap: 3mm; }
+
+    .roadmap-item {
+      background: #f8fafc;
+      border: 1px solid var(--report-border);
+      border-left: 4px solid var(--exec-risk);
+      border-radius: 0 8px 8px 0;
+      padding: 3mm 4mm;
+    }
+
+    .roadmap-mid { border-left-color: var(--exec-sky); }
+
+    .roadmap-phase {
+      font-size: 7pt;
+      font-weight: 700;
+      color: #991b1b;
+      background: #fef2f2;
+      padding: 0.5mm 2mm;
+      border-radius: 4px;
+      margin-right: 2mm;
+    }
+
+    .roadmap-phase-mid { color: #075985; background: #e0f2fe; }
+
+    .roadmap-head { display: flex; flex-wrap: wrap; align-items: center; gap: 2mm; margin-bottom: 2mm; }
+    .roadmap-title { font-size: 10pt; font-weight: 700; color: #0f172a; margin: 0; }
+    .roadmap-body { font-size: 8pt; color: #64748b; margin: 0; }
+    .roadmap-kpi { font-size: 7.5pt; color: #475569; margin: 2mm 0 0; }
+
+    /* ── 제3부 A4 전용 ── */
+    .report-page-part3 {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .report-part-3 .section-title,
+    .report-part-3-continued .subsection-title:first-child {
+      margin-top: 0;
+    }
+
+    .report-part-3 .subsection-title {
+      font-size: 12pt;
+      margin-top: 6mm;
+    }
+
+    .report-part-3 p,
+    .report-part-3-continued p {
+      font-size: 9.5pt;
+      text-align: justify;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .report-part3-roadmap {
+      margin: 4mm 0 6mm;
+    }
+
+    .report-part3-roadmap .roadmap-item {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .report-part3-swot {
+      margin: 4mm 0 0;
+    }
+
+    .report-part3-swot .swot-card {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .report-part-3 .data-table {
+      font-size: 8pt;
+    }
+
+    .report-part-3 .data-table th,
+    .report-part-3 .data-table td {
+      padding: 1.5mm 2mm;
+      vertical-align: top;
+    }
+
+    .report-part3-note {
+      font-size: 8.5pt;
+      color: #64748b;
+      margin: 3mm 0 5mm;
+      padding: 2mm 3mm;
+      background: #f8fafc;
+      border-left: 3px solid var(--exec-sky);
+    }
+
+    @media print {
+      .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .exec-split-charts, .swot-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 180mm) {
+      .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* legacy v2 aliases */
+    .exec-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; }
+    .callout-ai {
+      border-left: 4px solid var(--exec-sky);
+      background: #f8fafc;
+      padding: 3mm 4mm;
+      margin: 4mm 0;
+      font-size: 9pt;
+    }
+
+    .status-danger { color: var(--exec-risk); font-weight: 700; }
+    .status-warning { color: var(--exec-warning); font-weight: 700; }
+    .status-success { color: var(--exec-success); font-weight: 700; }
+
+    /* ── 등급 뱃지 ── */
+    .grade-badge-S { background: #7c3aed; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-A { background: #2563eb; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-B { background: #059669; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-C { background: #d97706; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-D { background: #ea580c; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-E { background: #dc2626; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-none { background: #94a3b8; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+
+    /* ── 표 (전체 가운데 정렬) ── */
+    table,
+    .data-table,
+    .ucm-table {
+      width: 100%;
+      max-width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      margin: 5mm 0 7mm;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+
+    .data-table th,
+    .data-table td,
+    .ucm-table th,
+    .ucm-table td {
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+
+    th, td {
+      border: 1px solid var(--report-border);
+      padding: 2.5mm 2mm;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--report-table-head);
+      color: var(--report-table-head-text);
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* ── 차트 ── */
+    .report-chart {
+      margin: 5mm 0 7mm;
+      page-break-inside: avoid;
+    }
+
+    .report-chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4mm;
+      margin: 5mm 0 7mm;
+    }
+
+    .report-chart-card {
+      border: 1px solid var(--report-border);
+      border-radius: 4px;
+      padding: 3mm;
+      background: #fafafa;
+      page-break-inside: avoid;
+    }
+
+    .report-chart-title {
+      font-size: 9pt;
+      font-weight: 700;
+      color: var(--color-section);
+      margin: 0 0 2mm;
+      text-align: center;
+    }
+
+    .report-chart svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .report-chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 3mm 5mm;
+      margin-top: 2mm;
+      font-size: 7.5pt;
+      color: #475569;
+    }
+
+    .report-chart-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5mm;
+    }
+
+    .report-chart-legend-swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    [data-chart-id] {
+      border: none;
+      background: transparent;
+      padding: 0;
+    }
+
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+      height: 0;
+      margin: 0;
+    }
+
+    .page {
+      margin: 0;
+      padding: 0;
+    }
+
+    .report-page-footer {
+      position: absolute;
+      left: var(--a4-margin);
+      right: var(--a4-margin);
+      bottom: 8mm;
+      text-align: center;
+      font-size: 9pt;
+      color: #64748b;
+      border-top: 1px solid var(--report-border);
+      padding-top: 2mm;
+    }
+
+    .report-page-num {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    strong { color: #0f172a; }
+
+    @media print {
+      html, body { background: #fff; }
+      .report-shell { padding: 0; }
+      .no-print, .report-view-toolbar { display: none !important; }
+      .report-page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        page-break-after: always;
+      }
+      .report-page:last-child { page-break-after: auto; }
+    }</style>
+</head>
+<body>
+  <div class="report-shell">
+    <article class="report-page report-page-cover">
+      <section class="report-cover" aria-label="표지">
+  <div class="cover-accent-bar"></div>
+  <p class="cover-eyebrow">K-UniTrust 대학경쟁력 진단 리포트 (2025년 에디션)</p>
+  <h1 class="cover-main-title">대학별경쟁력<br />개별대학 종합분석 보고서</h1>
+  <p class="cover-school-name">대구대학교</p>
+  <div class="cover-meta-box">
+    <table class="cover-meta-table">
+      <tbody>
+        <tr>
+          <th>학교코드</th>
+          <td>0000061</td>
+          <th>설립구분</th>
+          <td>사립</td>
+        </tr>
+        <tr>
+          <th>학교종류</th>
+          <td>대학교 (4년제)</td>
+          <th>규모</th>
+          <td>대규모 · 16,976명</td>
+        </tr>
+        <tr>
+          <th>소재지</th>
+          <td>경북</td>
+          <th>권역</th>
+          <td>대경권</td>
+        </tr>
+        <tr>
+          <th>종합지수</th>
+          <td class="cover-highlight">45.0점</td>
+          <th>전국 순위</th>
+          <td>75위 / 151개교</td>
+        </tr>
+        <tr>
+          <th>진단등급</th>
+          <td colspan="3"><span class="grade-badge-C">C등급</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cover-run-at">분석실행일시: 2026. 8. 18. 오전 5:11:56</p>
+  <p class="cover-generated-at">보고서 생성일시: 2026. 8. 22. 오전 7:59:05</p>
+
+  <div class="cover-toc">
+    <h2 class="cover-toc-title">보고서 목차</h2>
+    <ol class="cover-toc-list"><li><span class="cover-toc-entry"><span class="toc-num">1.</span> Executive Summary (1페이지 진단 요약)</span><span class="cover-toc-leader" aria-hidden="true"></span><span class="cover-toc-page">1</span></li><li><span class="cover-toc-entry"><span class="toc-num">2.</span> 제1부 대학경쟁력 진단 대시보드</span><span class="cover-toc-leader" aria-hidden="true"></span><span class="cover-toc-page">6</span></li><li><span class="cover-toc-entry"><span class="toc-num">3.</span> 제2부 8대 핵심지표 심층 분석 (카드형)</span><span class="cover-toc-leader" aria-hidden="true"></span><span class="cover-toc-page">17</span></li><li><span class="cover-toc-entry"><span class="toc-num">4.</span> 제3부 전략적 종합 총평 및 실행 로드맵</span><span class="cover-toc-leader" aria-hidden="true"></span><span class="cover-toc-page">19</span></li><li><span class="cover-toc-entry"><span class="toc-num">5.</span> 부록 (평가 모델·가중치·데이터 원천)</span><span class="cover-toc-leader" aria-hidden="true"></span><span class="cover-toc-page">21</span></li></ol>
+  </div>
+</section>
+    </article>
+    <article class="report-page report-page-body" data-page-chunk="1"><section class="report-v2-screen report-executive-dashboard" data-report-v2-screen="true" aria-label="Executive Dashboard v2.5">
+
+  <header class="exec-report-header">
+    <div class="exec-report-header-left">
+      <span class="exec-brand">K-UniTrust v2.5</span>
+      <span class="exec-report-title">대구대학교 대학경쟁력 진단 대시보드</span>
+    </div>
+    <div class="exec-report-header-right">
+      <span>분석 2025년</span>
+      <span class="exec-header-sep">|</span>
+      <span>0000061</span>
+    </div>
+  </header>
+
+  <!-- §1 Executive Summary -->
+  <div class="exec-panel">
+    <div class="exec-panel-head exec-panel-head-split">
+      <div>
+        <span class="exec-eyebrow">Executive Summary</span>
+        <h1 class="exec-h1">대학 종합 경쟁력 진단 총평</h1>
+      </div>
+      <div class="exec-meta-chips">
+        <span>경북 · 대경권</span>
+        <span class="exec-chip-sep">|</span>
+        <span>대규모 (16,976명)</span>
+        <span class="exec-chip-sep">|</span>
+        <span>사립 · 대학교</span>
+      </div>
+    </div>
+
+    <p class="exec-narrative">대구대학교은 2025년 종합지수 45.0점·C등급등급·충원우수 재정취약형 구간입니다. 핵심 강점은 자금확보율(49위)입니다. 전략 포지셔닝은 <strong class="text-risk">충원우수 재정취약형</strong> 구간입니다.</p>
+
+    <div class="kpi-grid-4">
+      <div class="kpi-card kpi-neutral">
+        <div class="kpi-label">종합지수 / 진단등급</div>
+        <div class="kpi-value">45.0 <span class="kpi-unit">점</span></div>
+        <div class="kpi-pill kpi-pill-risk">C등급</div>
+      </div>
+      <div class="kpi-card kpi-neutral">
+        <div class="kpi-label">동종 전국 순위</div>
+        <div class="kpi-value">75위</div>
+        <div class="kpi-sub">151개교 중 상위 49.7%</div>
+      </div>
+      <div class="kpi-card kpi-risk">
+        <div class="kpi-label">고위험 지표 (Danger)</div>
+        <div class="kpi-value">0 <span class="kpi-unit">개</span></div>
+        <div class="kpi-sub">—</div>
+      </div>
+      <div class="kpi-card kpi-strength">
+        <div class="kpi-label">핵심 강점 (Strength)</div>
+        <div class="kpi-value">0 <span class="kpi-unit">개</span></div>
+        <div class="kpi-sub">—</div>
+      </div>
+    </div>
+
+    <div class="exec-split-charts">
+      <div class="exec-split-left">
+        <h3 class="exec-h3">대학 경쟁력 사분면 매트릭스</h3>
+        <p class="exec-caption">X=학생충원 54.3 · Y=재정건전성 35.7</p>
+        <div class="quad-matrix"><div class="quad-cell quad-cell-neutral"><div class="quad-roman">Ⅰ. 재정 우수형</div><div class="quad-desc">재정자산 높음 · 충원율 낮음</div></div><div class="quad-cell quad-cell-positive"><div class="quad-roman">Ⅱ. 안정 성장형</div><div class="quad-desc">재정자산 높음 · 충원율 높음</div></div><div class="quad-cell quad-cell-crisis"><div class="quad-roman">Ⅲ. 복합 구조위기형</div><div class="quad-desc">재정·충원 모두 하위</div></div><div class="quad-cell quad-cell-active"><span class="quad-pin">본교 위치</span><div class="quad-roman">Ⅳ. 충원 중심형</div><div class="quad-desc">재정자산 낮음 · 충원율 높음</div></div></div>
+        <p class="exec-caption">충원 양호·재정 취약</p>
+      </div>
+      <div class="exec-split-right exec-chart-box">
+        <div class="exec-chart-label">3대 핵심 부문별 환산 점수 균형도</div>
+        <figure class="report-chart" aria-label="레이더 차트">
+  <div class="report-chart-title">3대 핵심 부문별 환산 점수 균형도</div>
+  <svg viewBox="0 0 360 320" role="img">
+    <polygon points="180.0,142.5 203.8,183.8 156.2,183.8" fill="none" stroke="#e2e8f0" stroke-width="1" /><polygon points="180.0,115.0 227.6,197.5 132.4,197.5" fill="none" stroke="#e2e8f0" stroke-width="1" /><polygon points="180.0,87.5 251.4,211.3 108.6,211.3" fill="none" stroke="#e2e8f0" stroke-width="1" /><polygon points="180.0,60.0 275.3,225.0 84.7,225.0" fill="none" stroke="#e2e8f0" stroke-width="1" />
+    <line x1="180" y1="170" x2="180.0" y2="60.0" stroke="#cbd5e1" stroke-width="1" />
+      <text x="180.0" y="46.0" text-anchor="middle" font-size="9" fill="#64748b">학생충원 (50%)</text><line x1="180" y1="170" x2="275.3" y2="225.0" stroke="#cbd5e1" stroke-width="1" />
+      <text x="290.9" y="232.0" text-anchor="middle" font-size="9" fill="#64748b">대학재정 (40%)</text><line x1="180" y1="170" x2="84.7" y2="225.0" stroke="#cbd5e1" stroke-width="1" />
+      <text x="69.1" y="232.0" text-anchor="middle" font-size="9" fill="#64748b">법인재정 (10%)</text>
+    <polygon points="180.0,108.2 218.4,192.2 156.9,183.4" fill="#0284C7" fill-opacity="0.12" stroke="#0284C7" stroke-width="2" />
+    <polygon points="180.0,110.3 220.9,193.6 173.5,173.7" fill="#DC2626" fill-opacity="0.2" stroke="#DC2626" stroke-width="2" />
+  </svg>
+  <div class="report-chart-legend">
+    <span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#DC2626"></span>선택 대학</span>
+    <span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0284C7"></span>전국 평균</span>
+  </div>
+</figure>
+      </div>
+    </div>
+  </div>
+</section>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">1</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="2"><section class="report-v2-insights rv2-panel" data-report-v2-insights="true" aria-label="Executive Summary v2 Insights">
+  <div class="rv2-panel-head">
+    <h2 class="rv2-title">Executive Summary · v2</h2>
+    <p class="rv2-lead">3초 진단 · 레이더 · 포지셔닝 · 모멘텀 — 보고서 v2.0과 동일 데이터</p>
+  </div>
+
+  <div class="rv2-exec-cards">
+    <div class="rv2-exec-card rv2-exec-grade">
+      <p class="rv2-exec-label">종합 진단</p>
+      <p class="rv2-exec-value">45.0</p>
+      <p class="rv2-exec-sub">C등급 · 151개교 중</p>
+    </div>
+    <div class="rv2-exec-card rv2-exec-strength">
+      <p class="rv2-exec-label">핵심 강점</p>
+      <p class="rv2-exec-value rv2-exec-value-sm">자금확보율</p>
+      <p class="rv2-exec-sub">49위</p>
+    </div>
+    <div class="rv2-exec-card rv2-exec-risk">
+      <p class="rv2-exec-label">고위험 경보</p>
+      <p class="rv2-exec-value rv2-exec-value-risk">0개</p>
+      <p class="rv2-exec-sub">수익용재산확보율</p>
+    </div>
+  </div>
+
+  <div class="rv2-callout">대구대학교은 2025년 종합지수 45.0점·C등급등급·충원우수 재정취약형 구간입니다.</div>
+
+  <div class="rv2-grid-2">
+    <div class="rv2-card">
+      <h3 class="rv2-h4">8대 지표 균형 (Radar)</h3>
+      <div class="rv2-chart-slot"><figure class="report-chart" aria-label="레이더 차트">
+  <div class="report-chart-title">8대 지표 균형 (Radar)</div>
+  <svg viewBox="0 0 360 320" role="img">
+    <polygon points="180.0,142.5 199.4,150.6 207.5,170.0 199.4,189.4 180.0,197.5 160.6,189.4 152.5,170.0 160.6,150.6" fill="none" stroke="#e2e8f0" stroke-width="1" /><polygon points="180.0,115.0 218.9,131.1 235.0,170.0 218.9,208.9 180.0,225.0 141.1,208.9 125.0,170.0 141.1,131.1" fill="none" stroke="#e2e8f0" stroke-width="1" /><polygon points="180.0,87.5 238.3,111.7 262.5,170.0 238.3,228.3 180.0,252.5 121.7,228.3 97.5,170.0 121.7,111.7" fill="none" stroke="#e2e8f0" stroke-width="1" /><polygon points="180.0,60.0 257.8,92.2 290.0,170.0 257.8,247.8 180.0,280.0 102.2,247.8 70.0,170.0 102.2,92.2" fill="none" stroke="#e2e8f0" stroke-width="1" />
+    <line x1="180" y1="170" x2="180.0" y2="60.0" stroke="#cbd5e1" stroke-width="1" />
+      <text x="180.0" y="46.0" text-anchor="middle" font-size="9" fill="#64748b">신입생충원</text><line x1="180" y1="170" x2="257.8" y2="92.2" stroke="#cbd5e1" stroke-width="1" />
+      <text x="270.5" y="82.3" text-anchor="middle" font-size="9" fill="#64748b">재학생충원</text><line x1="180" y1="170" x2="290.0" y2="170.0" stroke="#cbd5e1" stroke-width="1" />
+      <text x="308.0" y="170.0" text-anchor="middle" font-size="9" fill="#64748b">중도탈락</text><line x1="180" y1="170" x2="257.8" y2="247.8" stroke="#cbd5e1" stroke-width="1" />
+      <text x="270.5" y="257.7" text-anchor="middle" font-size="9" fill="#64748b">자금확보</text><line x1="180" y1="170" x2="180.0" y2="280.0" stroke="#cbd5e1" stroke-width="1" />
+      <text x="180.0" y="294.0" text-anchor="middle" font-size="9" fill="#64748b">재정지원수혜</text><line x1="180" y1="170" x2="102.2" y2="247.8" stroke="#cbd5e1" stroke-width="1" />
+      <text x="89.5" y="257.7" text-anchor="middle" font-size="9" fill="#64748b">등록금의존</text><line x1="180" y1="170" x2="70.0" y2="170.0" stroke="#cbd5e1" stroke-width="1" />
+      <text x="52.0" y="170.0" text-anchor="middle" font-size="9" fill="#64748b">수익용재산확보</text><line x1="180" y1="170" x2="102.2" y2="92.2" stroke="#cbd5e1" stroke-width="1" />
+      <text x="89.5" y="82.3" text-anchor="middle" font-size="9" fill="#64748b">법인전입금비</text>
+    <polygon points="180.0,108.1 222.7,127.3 244.2,170.0 206.5,196.5 180.0,218.7 147.8,202.2 152.1,170.0 162.7,152.7" fill="#0284C7" fill-opacity="0.12" stroke="#0284C7" stroke-width="2" />
+    <polygon points="180.0,107.2 219.2,130.8 242.1,170.0 210.6,200.6 180.0,227.6 150.2,199.8 172.3,170.0 175.1,165.1" fill="#DC2626" fill-opacity="0.2" stroke="#DC2626" stroke-width="2" />
+  </svg>
+  <div class="report-chart-legend">
+    <span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#DC2626"></span>선택 대학</span>
+    <span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0284C7"></span>전국 평균</span>
+  </div>
+</figure></div>
+      <p class="rv2-caption">Balance Index: <strong>19.5</strong> · 기형적 불균형</p>
+    </div>
+    <div class="rv2-card">
+      <h3 class="rv2-h4">전략 포지셔닝 4분면</h3>
+      <div class="rv2-chart-slot"><figure class="report-chart" aria-label="전략 포지셔닝">
+  <div class="report-chart-title">전략 포지셔닝 4분면 · 충원우수 재정취약형</div>
+  <svg viewBox="0 0 320 240" role="img">
+    <rect x="28" y="28" width="264" height="184" fill="#f8fafc" stroke="#cbd5e1" />
+    <line x1="160" y1="28" x2="160" y2="212" stroke="#94a3b8" stroke-dasharray="4" />
+    <line x1="28" y1="120" x2="292" y2="120" stroke="#94a3b8" stroke-dasharray="4" />
+    <circle cx="171.4" cy="146.3" r="7" fill="#DC2626" stroke="#fff" stroke-width="2" />
+    <text x="32" y="40" font-size="8" fill="#64748b">충원↑</text>
+    <text x="288" y="208" text-anchor="end" font-size="8" fill="#64748b">재정→</text>
+  </svg>
+</figure></div>
+      <p class="rv2-caption">충원 양호·재정 취약</p>
+    </div>
+  </div>
+
+  <h3 class="rv2-h4 rv2-section-gap">8대 지표 콤팩트 카드</h3>
+  <div class="rv2-indicator-grid"><article class="rv2-indicator-card">
+  <div class="rv2-indicator-head">
+    <span>신입생충원율</span>
+    <span class="rv2-status rv2-status-neutral">—</span>
+  </div>
+  <div class="rv2-indicator-metrics">
+    <div><span class="rv2-metric-label">지수</span><strong>57.1</strong></div>
+    <div><span class="rv2-metric-label">순위</span><strong>80위</strong></div>
+    <div><span class="rv2-metric-label">3년 Δ</span><strong class="">+1.5</strong></div>
+  </div>
+  <div class="rv2-indicator-bottom">
+    <svg width="72" height="22" class="rv2-spark" aria-hidden="true"><polyline points="0.0,22.0 18.0,2.0 36.0,0.0 54.0,8.2 72.0,0.4" fill="none" stroke="#0284c7" stroke-width="1.5" /></svg>
+    <div class="rv2-gap"><div class="rv2-gap-fill rv2-gap-neu" style="width:1.6000000000000085%"></div><span>+0.8p</span></div>
+  </div>
+</article>
+<article class="rv2-indicator-card">
+  <div class="rv2-indicator-head">
+    <span>재학생충원율</span>
+    <span class="rv2-status rv2-status-neutral">—</span>
+  </div>
+  <div class="rv2-indicator-metrics">
+    <div><span class="rv2-metric-label">지수</span><strong>50.4</strong></div>
+    <div><span class="rv2-metric-label">순위</span><strong>90위</strong></div>
+    <div><span class="rv2-metric-label">3년 Δ</span><strong class="">-1.9</strong></div>
+  </div>
+  <div class="rv2-indicator-bottom">
+    <svg width="72" height="22" class="rv2-spark" aria-hidden="true"><polyline points="0.0,5.9 18.0,0.0 36.0,5.9 54.0,22.0 72.0,13.9" fill="none" stroke="#0284c7" stroke-width="1.5" /></svg>
+    <div class="rv2-gap"><div class="rv2-gap-fill rv2-gap-neu" style="width:9%"></div><span>-4.5p</span></div>
+  </div>
+</article>
+<article class="rv2-indicator-card">
+  <div class="rv2-indicator-head">
+    <span>중도탈락율</span>
+    <span class="rv2-status rv2-status-neutral">—</span>
+  </div>
+  <div class="rv2-indicator-metrics">
+    <div><span class="rv2-metric-label">지수</span><strong>56.5</strong></div>
+    <div><span class="rv2-metric-label">순위</span><strong>87위</strong></div>
+    <div><span class="rv2-metric-label">3년 Δ</span><strong class="rv2-momentum-drop">-11.8</strong></div>
+  </div>
+  <div class="rv2-indicator-bottom">
+    <svg width="72" height="22" class="rv2-spark" aria-hidden="true"><polyline points="0.0,8.6 18.0,0.0 36.0,9.9 54.0,22.0 72.0,17.9" fill="none" stroke="#0284c7" stroke-width="1.5" /></svg>
+    <div class="rv2-gap"><div class="rv2-gap-fill rv2-gap-neu" style="width:3.799999999999997%"></div><span>-1.9p</span></div>
+  </div>
+</article>
+<article class="rv2-indicator-card">
+  <div class="rv2-indicator-head">
+    <span>자금확보율</span>
+    <span class="rv2-status rv2-status-neutral">—</span>
+  </div>
+  <div class="rv2-indicator-metrics">
+    <div><span class="rv2-metric-label">지수</span><strong>39.4</strong></div>
+    <div><span class="rv2-metric-label">순위</span><strong>49위</strong></div>
+    <div><span class="rv2-metric-label">3년 Δ</span><strong class="">-7.0</strong></div>
+  </div>
+  <div class="rv2-indicator-bottom">
+    <svg width="72" height="22" class="rv2-spark" aria-hidden="true"><polyline points="0.0,0.0 18.0,6.9 36.0,11.7 54.0,22.0 72.0,18.8" fill="none" stroke="#0284c7" stroke-width="1.5" /></svg>
+    <div class="rv2-gap"><div class="rv2-gap-fill rv2-gap-neu" style="width:10.599999999999994%"></div><span>+5.3p</span></div>
+  </div>
+</article>
+<article class="rv2-indicator-card">
+  <div class="rv2-indicator-head">
+    <span>재정지원수혜율</span>
+    <span class="rv2-status rv2-status-neutral">—</span>
+  </div>
+  <div class="rv2-indicator-metrics">
+    <div><span class="rv2-metric-label">지수</span><strong>52.4</strong></div>
+    <div><span class="rv2-metric-label">순위</span><strong>59위</strong></div>
+    <div><span class="rv2-metric-label">3년 Δ</span><strong class="">+4.0</strong></div>
+  </div>
+  <div class="rv2-indicator-bottom">
+    <svg width="72" height="22" class="rv2-spark" aria-hidden="true"><polyline points="0.0,22.0 18.0,2.1 36.0,6.8 54.0,1.7 72.0,0.0" fill="none" stroke="#0284c7" stroke-width="1.5" /></svg>
+    <div class="rv2-gap"><div class="rv2-gap-fill rv2-gap-neu" style="width:16.200000000000003%"></div><span>+8.1p</span></div>
+  </div>
+</article>
+<article class="rv2-indicator-card">
+  <div class="rv2-indicator-head">
+    <span>등록금의존율</span>
+    <span class="rv2-status rv2-status-neutral">—</span>
+  </div>
+  <div class="rv2-indicator-metrics">
+    <div><span class="rv2-metric-label">지수</span><strong>38.3</strong></div>
+    <div><span class="rv2-metric-label">순위</span><strong>72위</strong></div>
+    <div><span class="rv2-metric-label">3년 Δ</span><strong class="">-8.7</strong></div>
+  </div>
+  <div class="rv2-indicator-bottom">
+    <svg width="72" height="22" class="rv2-spark" aria-hidden="true"><polyline points="0.0,9.9 18.0,0.0 36.0,22.0 54.0,15.9 72.0,19.5" fill="none" stroke="#0284c7" stroke-width="1.5" /></svg>
+    <div class="rv2-gap"><div class="rv2-gap-fill rv2-gap-neu" style="width:6.200000000000003%"></div><span>-3.1p</span></div>
+  </div>
+</article>
+<article class="rv2-indicator-card">
+  <div class="rv2-indicator-head">
+    <span>수익용재산확보율</span>
+    <span class="rv2-status rv2-status-warning">Warning</span>
+  </div>
+  <div class="rv2-indicator-metrics">
+    <div><span class="rv2-metric-label">지수</span><strong>7.0</strong></div>
+    <div><span class="rv2-metric-label">순위</span><strong>102위</strong></div>
+    <div><span class="rv2-metric-label">3년 Δ</span><strong class="">-0.8</strong></div>
+  </div>
+  <div class="rv2-indicator-bottom">
+    <svg width="72" height="22" class="rv2-spark" aria-hidden="true"><polyline points="0.0,8.5 18.0,4.2 36.0,0.0 54.0,22.0 72.0,11.0" fill="none" stroke="#0284c7" stroke-width="1.5" /></svg>
+    <div class="rv2-gap"><div class="rv2-gap-fill rv2-gap-warn" style="width:36.8%"></div><span>-18.4p</span></div>
+  </div>
+</article>
+<article class="rv2-indicator-card">
+  <div class="rv2-indicator-head">
+    <span>법인전입금비율</span>
+    <span class="rv2-status rv2-status-warning">Warning</span>
+  </div>
+  <div class="rv2-indicator-metrics">
+    <div><span class="rv2-metric-label">지수</span><strong>6.3</strong></div>
+    <div><span class="rv2-metric-label">순위</span><strong>84위</strong></div>
+    <div><span class="rv2-metric-label">3년 Δ</span><strong class="">+6.3</strong></div>
+  </div>
+  <div class="rv2-indicator-bottom">
+    <svg width="72" height="22" class="rv2-spark" aria-hidden="true"><polyline points="0.0,5.9 18.0,22.0 36.0,22.0 54.0,22.0 72.0,0.0" fill="none" stroke="#0284c7" stroke-width="1.5" /></svg>
+    <div class="rv2-gap"><div class="rv2-gap-fill rv2-gap-warn" style="width:31.799999999999997%"></div><span>-15.9p</span></div>
+  </div>
+</article></div>
+
+  <h3 class="rv2-h4 rv2-section-gap">실행 로드맵 (규칙 기반 초안 · 보고서 AI 보강)</h3>
+  <div class="rv2-roadmap">
+    <div class="rv2-roadmap-col">
+      <strong>단기 긴급 (1년)</strong>
+      <ul><li>충원우수·재정취약 — 법인재정·등록금 의존 구조 점검 TF 구성</li><li>수익용재산확보율 — 법인재정·전입 구조 개선</li><li>법인전입금비율 — 법인재정·전입 구조 개선</li></ul>
+    </div>
+    <div class="rv2-roadmap-col">
+      <strong>중장기 구조 (2~3년)</strong>
+      <ul><li>재학생충원율 개선 — 모집·유지 전략 점검</li><li>법인재정·수익용재산 기반 중장기 재정 건전성 로드맵 수립</li></ul>
+    </div>
+  </div>
+</section>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">2</span></footer></article>
+<article class="report-page report-page-body report-page-merge-v2-deepdive" data-page-chunk="3"><section class="report-v2-screen report-executive-dashboard report-v2-continued" data-report-v2-screen="true" aria-label="Executive Dashboard v2.5 (continued)">
+
+  <!-- §2 Indicator Deep-Dive -->
+  <div class="exec-panel">
+    <div class="exec-panel-head">
+      <span class="exec-eyebrow">Indicator Deep-Dive</span>
+      <h2 class="exec-h2">8대 핵심 평가 지표 상세</h2>
+      <p class="exec-lead">전국 평균 대비 Gap·환산지수·3년 모멘텀을 통합 검토합니다. Balance Index: <strong>19.5</strong></p>
+    </div>
+
+    <div class="exec-split-charts">
+      <div class="exec-chart-box"><figure class="report-chart" aria-label="전국 평균 대비 격차">
+  <div class="report-chart-title">지표별 전국 평균 대비 격차 (Gap p)</div>
+  <svg viewBox="0 0 360 280" preserveAspectRatio="xMidYMid meet" role="img">
+    <line x1="28" y1="132.0" x2="350.0" y2="132.0" stroke="#94a3b8" stroke-width="1.2" />
+    <rect x="30.5" y="127.4" width="35.3" height="4.6" fill="#10B981" rx="3" />
+        <text x="48.1" y="268.0" text-anchor="middle" font-size="9" fill="#64748b">신입생충원율</text><rect x="70.8" y="132.0" width="35.3" height="26.1" fill="#EF4444" rx="3" />
+        <text x="88.4" y="268.0" text-anchor="middle" font-size="9" fill="#64748b">재학생충원율</text><rect x="111.0" y="132.0" width="35.3" height="11.0" fill="#EF4444" rx="3" />
+        <text x="128.6" y="268.0" text-anchor="middle" font-size="9" fill="#64748b">중도탈락율</text><rect x="151.3" y="101.3" width="35.3" height="30.7" fill="#10B981" rx="3" />
+        <text x="168.9" y="268.0" text-anchor="middle" font-size="9" fill="#64748b">자금확보율</text><rect x="191.5" y="85.0" width="35.3" height="47.0" fill="#10B981" rx="3" />
+        <text x="209.1" y="268.0" text-anchor="middle" font-size="9" fill="#64748b">재정지원수혜율</text><rect x="231.8" y="132.0" width="35.3" height="18.0" fill="#EF4444" rx="3" />
+        <text x="249.4" y="268.0" text-anchor="middle" font-size="9" fill="#64748b">등록금의존율</text><rect x="272.0" y="132.0" width="35.3" height="106.7" fill="#EF4444" rx="3" />
+        <text x="289.6" y="268.0" text-anchor="middle" font-size="9" fill="#64748b">수익용재산확…</text><rect x="312.3" y="132.0" width="35.3" height="92.2" fill="#EF4444" rx="3" />
+        <text x="329.9" y="268.0" text-anchor="middle" font-size="9" fill="#64748b">법인전입금비율</text>
+  </svg>
+</figure></div>
+      <div class="exec-chart-box"><figure class="report-chart" aria-label="환산 지수">
+  <div class="report-chart-title">지표별 환산 점수 (100점 만점)</div>
+  <svg viewBox="0 0 360 280" preserveAspectRatio="xMidYMid meet" role="img">
+    <text x="77.0" y="29.9" text-anchor="end" font-size="9" fill="#475569">신입생충원율</text>
+        <rect x="82" y="13.0" width="151.9" height="26.8" fill="#0284C7" rx="3" />
+        <text x="238.9" y="29.9" font-size="9" fill="#0f172a">57.1</text><text x="77.0" y="62.6" text-anchor="end" font-size="9" fill="#475569">재학생충원율</text>
+        <rect x="82" y="45.8" width="134.1" height="26.8" fill="#0284C7" rx="3" />
+        <text x="221.1" y="62.6" font-size="9" fill="#0f172a">50.4</text><text x="77.0" y="95.4" text-anchor="end" font-size="9" fill="#475569">중도탈락율</text>
+        <rect x="82" y="78.5" width="150.3" height="26.8" fill="#0284C7" rx="3" />
+        <text x="237.3" y="95.4" font-size="9" fill="#0f172a">56.5</text><text x="77.0" y="128.1" text-anchor="end" font-size="9" fill="#475569">자금확보율</text>
+        <rect x="82" y="111.3" width="104.8" height="26.8" fill="#0284C7" rx="3" />
+        <text x="191.8" y="128.1" font-size="9" fill="#0f172a">39.4</text><text x="77.0" y="160.9" text-anchor="end" font-size="9" fill="#475569">재정지원수혜율</text>
+        <rect x="82" y="144.0" width="139.4" height="26.8" fill="#0284C7" rx="3" />
+        <text x="226.4" y="160.9" font-size="9" fill="#0f172a">52.4</text><text x="77.0" y="193.6" text-anchor="end" font-size="9" fill="#475569">등록금의존율</text>
+        <rect x="82" y="176.8" width="101.9" height="26.8" fill="#0284C7" rx="3" />
+        <text x="188.9" y="193.6" font-size="9" fill="#0f172a">38.3</text><text x="77.0" y="226.4" text-anchor="end" font-size="9" fill="#475569">수익용재산확보율</text>
+        <rect x="82" y="209.5" width="18.6" height="26.8" fill="#0284C7" rx="3" />
+        <text x="105.6" y="226.4" font-size="9" fill="#0f172a">7.0</text><text x="77.0" y="259.1" text-anchor="end" font-size="9" fill="#475569">법인전입금비율</text>
+        <rect x="82" y="242.3" width="16.8" height="26.8" fill="#0284C7" rx="3" />
+        <text x="103.8" y="259.1" font-size="9" fill="#0f172a">6.3</text>
+  </svg>
+</figure></div>
+    </div>
+<div class="exec-table-wrap">
+      <table class="data-table exec-indicator-table">
+        <thead>
+          <tr>
+            <th>부문</th>
+            <th>핵심 평가 지표</th>
+            <th>원지표</th>
+            <th>환산지수</th>
+            <th>동종 순위</th>
+            <th>전국 Gap</th>
+            <th>3년 모멘텀</th>
+            <th>위험도</th>
+          </tr>
+        </thead>
+        <tbody><tr>
+        <td>학생충원</td>
+        <td class="text-left font-semibold">신입생충원율</td>
+        <td>96.2%</td>
+        <td><strong>57.1</strong></td>
+        <td>80위</td>
+        <td class="text-success">+0.8 p</td>
+        <td>+1.5p (보류)</td>
+        <td><span class="badge badge-neutral">—</span></td>
+      </tr>
+<tr>
+        <td>학생충원</td>
+        <td class="text-left font-semibold">재학생충원율</td>
+        <td>97.9%</td>
+        <td><strong>50.4</strong></td>
+        <td>90위</td>
+        <td class="text-risk">-4.5 p</td>
+        <td>-1.9p (보류)</td>
+        <td><span class="badge badge-neutral">—</span></td>
+      </tr>
+<tr>
+        <td>학생충원</td>
+        <td class="text-left font-semibold">중도탈락율</td>
+        <td>7.0%</td>
+        <td><strong>56.5</strong></td>
+        <td>87위</td>
+        <td class="text-risk">-1.9 p</td>
+        <td>-11.8p (급락)</td>
+        <td><span class="badge badge-neutral">—</span></td>
+      </tr>
+<tr>
+        <td>대학재정</td>
+        <td class="text-left font-semibold">자금확보율</td>
+        <td>111.8%</td>
+        <td><strong>39.4</strong></td>
+        <td>49위</td>
+        <td class="text-success">+5.3 p</td>
+        <td>-7.0p (보류)</td>
+        <td><span class="badge badge-neutral">—</span></td>
+      </tr>
+<tr>
+        <td>대학재정</td>
+        <td class="text-left font-semibold">재정지원수혜율</td>
+        <td>47.1%</td>
+        <td><strong>52.4</strong></td>
+        <td>59위</td>
+        <td class="text-success">+8.1 p</td>
+        <td>+4.0p (보류)</td>
+        <td><span class="badge badge-neutral">—</span></td>
+      </tr>
+<tr>
+        <td>대학재정</td>
+        <td class="text-left font-semibold">등록금의존율</td>
+        <td>46.2%</td>
+        <td><strong>38.3</strong></td>
+        <td>72위</td>
+        <td class="text-risk">-3.1 p</td>
+        <td>-8.7p (보류)</td>
+        <td><span class="badge badge-neutral">—</span></td>
+      </tr>
+<tr>
+        <td>법인재정</td>
+        <td class="text-left font-semibold">수익용재산확보율</td>
+        <td>54.6%</td>
+        <td><strong>7.0</strong></td>
+        <td>102위</td>
+        <td class="text-risk">-18.4 p</td>
+        <td>-0.8p (보류)</td>
+        <td><span class="badge badge-warning">Warning</span></td>
+      </tr>
+<tr>
+        <td>법인재정</td>
+        <td class="text-left font-semibold">법인전입금비율</td>
+        <td>2.2%</td>
+        <td><strong>6.3</strong></td>
+        <td>84위</td>
+        <td class="text-risk">-15.9 p</td>
+        <td>+6.3p (보류)</td>
+        <td><span class="badge badge-warning">Warning</span></td>
+      </tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- §3 Decision Insight (정적 — 화면 What-If 시뮬레이터 요약) -->
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">3</span></footer></article>
+<article class="report-page report-page-body report-page-merge-v2-decision-swot" data-page-chunk="4"><div class="exec-panel exec-panel-dark">
+    <span class="exec-eyebrow exec-eyebrow-light">Decision Insight</span>
+    <h2 class="exec-h2 exec-h2-light">지표 개선 우선순위 (What-If 시뮬레이션 가이드)</h2>
+    <p class="exec-lead exec-lead-light">인터랙티브 슬라이더 시뮬레이터는 대학별경쟁력 화면에서 제공됩니다. 보고서에는 현재 진단 기준 우선 개선 3대 레버를 제시합니다.</p>
+    <ul class="exec-priority-list">
+      <li><strong>수익용재산확보율</strong> — Gap -18.4p · 102위 · -0.8p (보류)</li><li><strong>법인전입금비율</strong> — Gap -15.9p · 84위 · +6.3p (보류)</li><li><strong>재학생충원율</strong> — Gap -4.5p · 90위 · -1.9p (보류)</li>
+    </ul>
+    <p class="exec-tip">💡 충원·재정지원 수혜 지표 개선이 종합지수 상승에 가장 큰 영향을 미칩니다. 구체 목표치는 AI·경영진 협의 후 설정하십시오.</p>
+  </div>
+<div class="exec-panel">
+  <div class="exec-panel-head">
+    <span class="exec-eyebrow">Strategic Orientation</span>
+    <h2 class="exec-h2">SWOT 기반 전략 실행 매트릭스 (2×2)</h2>
+    <p class="exec-lead">내부 강·약점과 외부 기회·위협을 결합한 4대 실행 전략입니다. (보고서·PDF용 정적 전개)</p>
+  </div>
+  <div class="swot-grid">
+    <article class="swot-card swot-so">
+      <div class="swot-tag">SO · 강점 활용 — 기회 포착</div>
+      <h3 class="swot-title">자금확보율 기반 재투자</h3>
+      <p class="swot-body">자금확보율(49위) 등 상대 강점을 지역·산학 연계 기회와 연결합니다.</p>
+    </article>
+    <article class="swot-card swot-st">
+      <div class="swot-tag">ST · 강점 활용 — 위협 방어</div>
+      <h3 class="swot-title">재정·자산 완충력 활용</h3>
+      <p class="swot-body">학령인구 감소·충원 충격에 대비해 재정·자금 지표의 완충 역할을 극대화합니다.</p>
+    </article>
+    <article class="swot-card swot-wo">
+      <div class="swot-tag">WO · 약점 보완 — 기회 포착</div>
+      <h3 class="swot-title">수익용재산확보율 개선 · 국고·RISE 연계</h3>
+      <p class="swot-body">수익용재산확보율(102위) 등 취약 지표를 지자체·국고 사업 수주로 보완합니다.</p>
+    </article>
+    <article class="swot-card swot-wt">
+      <div class="swot-tag">WT · 약점 보완 — 위협 회피</div>
+      <h3 class="swot-title">구조조정 · 충원·유지 통합 대응</h3>
+      <p class="swot-body">충원우수 재정취약형 구간에 맞춰 정원·학과 구조조정과 이탈 방지를 병행합니다.</p>
+    </article>
+  </div>
+</div>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">4</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="5"><div class="exec-panel">
+  <div class="exec-panel-head">
+    <span class="exec-eyebrow">Action Roadmap</span>
+    <h2 class="exec-h2">단계별 핵심 실행 로드맵</h2>
+    <p class="exec-lead">대구대학교 2025년 진단 기반 단기·중장기 과제입니다.</p>
+  </div>
+  <div class="roadmap-list"><article class="roadmap-item roadmap-short">
+      <div class="roadmap-head">
+        <span class="roadmap-phase">단기 긴급 (1년 이내)</span>
+        <h3 class="roadmap-title">충원우수·재정취약 — 법인재정·등록금 의존 구조 점검 TF 구성</h3>
+      </div>
+      <p class="roadmap-body">우선순위 최상 (Urgent) · 즉시 이행·월간 모니터링</p>
+    </article><article class="roadmap-item roadmap-short">
+      <div class="roadmap-head">
+        <span class="roadmap-phase">단기 긴급 (1년 이내)</span>
+        <h3 class="roadmap-title">수익용재산확보율 — 법인재정·전입 구조 개선</h3>
+      </div>
+      <p class="roadmap-body">우선순위 상 (High) · 즉시 이행·월간 모니터링</p>
+    </article><article class="roadmap-item roadmap-short">
+      <div class="roadmap-head">
+        <span class="roadmap-phase">단기 긴급 (1년 이내)</span>
+        <h3 class="roadmap-title">법인전입금비율 — 법인재정·전입 구조 개선</h3>
+      </div>
+      <p class="roadmap-body">우선순위 상 (High) · 즉시 이행·월간 모니터링</p>
+    </article><article class="roadmap-item roadmap-mid">
+      <div class="roadmap-head">
+        <span class="roadmap-phase roadmap-phase-mid">중장기 구조 (2~3년)</span>
+        <h3 class="roadmap-title">재학생충원율 개선 — 모집·유지 전략 점검</h3>
+      </div>
+      <p class="roadmap-body">중장기 핵심 과제 · 구조개혁·재정 건전성 로드맵 연계</p>
+    </article><article class="roadmap-item roadmap-mid">
+      <div class="roadmap-head">
+        <span class="roadmap-phase roadmap-phase-mid">중장기 구조 (2~3년)</span>
+        <h3 class="roadmap-title">법인재정·수익용재산 기반 중장기 재정 건전성 로드맵 수립</h3>
+      </div>
+      <p class="roadmap-body">중장기 핵심 과제 · 구조개혁·재정 건전성 로드맵 연계</p>
+    </article></div>
+</div>
+
+</section>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">5</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="6"><h2 class="section-title">제1부 대학경쟁력 진단 대시보드</h2>
+
+<h3 class="subsection-title">1.1 대학 기본정보 및 진단 개요</h3>
+<p>본 보고서는 2025년 K-UniTrust 대학별경쟁력 진단 모델을 기반으로 대구대학교(대표학교코드: 0000061)의 학술·재정 여건과 법인 지원 역량을 종합 평가한 분석 결과입니다. 대구대학교는 경상북도에 소재한 사립 대규모 대학교로서, 2025년 기준 재학생 수 16,976명 규모입니다. 진단 결과 종합지수 45.0점(동종 사립 4년제 대학교 151개교 중 75위)을 기록하여 C등급으로 진단되었습니다. 해당 진단 연도에 절대지표 플래그(학자금대출제한, 임시이사 파견, 결산 미제출, 자금 부족)에 해당하는 항목은 없습니다.</p>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>학교명</th>
+      <th>대표학교코드</th>
+      <th>설립구분</th>
+      <th>학교종류</th>
+      <th>소재 시·도</th>
+      <th>권역</th>
+      <th>재학생 수</th>
+      <th>규모 구분</th>
+      <th>절대지표 플래그</th>
+      <th>종합지수</th>
+      <th>전국 순위</th>
+      <th>진단등급</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>대구대학교</td>
+      <td>0000061</td>
+      <td>사립</td>
+      <td>대학교</td>
+      <td>경북</td>
+      <td>대경권</td>
+      <td>16,976명</td>
+      <td>대규모</td>
+      <td>해당없음</td>
+      <td>45.0점</td>
+      <td>75위 / 151개교</td>
+      <td>C등급</td>
+    </tr>
+  </tbody>
+</table>
+<h3 class="subsection-title">1.2 영역별 그룹 지수 및 연도별 추세</h3>
+<p>최근 5개년(2021년~2025년) 대구대학교의 영역별 그룹 지수 추이를 살펴보면, 학생충원 부문 지수는 2021년 47.8점에서 2025년 54.3점으로 반등 흐름을 보였으며, 대학재정 부문 지수는 35.5점에서 42.9점으로 완만한 개선세를 기록하였습니다. 반면 법인재정 부문 지수는 2021년 6.5점에서 2024년 4.0점까지 하락한 후 2025년 6.8점에 머물러 극심한 법인 지원 열위 상태가 지속되고 있습니다. 이에 따라 종합지수는 2021년 38.7점(111위)에서 2022년 47.9점(80위)으로 상승한 이후 40점대 중반을 유지하며 2025년 45.0점(75위)을 기록하였습니다.</p>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>분석연도</th>
+      <th>학생충원 지수</th>
+      <th>대학재정 지수</th>
+      <th>법인재정 지수</th>
+      <th>종합지수</th>
+      <th>동종 순위</th>
+      <th>전국 종합평균</th>
+      <th>권역 종합평균</th>
+      <th>시·도 종합평균</th>
+      <th>규모 종합평균</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>2021년</td>
+      <td>47.8점</td>
+      <td>35.5점</td>
+      <td>6.5점</td>
+      <td>38.7점</td>
+      <td>111위</td>
+      <td>47.0점</td>
+      <td>37.8점</td>
+      <td>36.2점</td>
+      <td>57.7점</td>
+    </tr>
+    <tr>
+      <td>2022년</td>
+      <td>56.8점</td>
+      <td>47.2점</td>
+      <td>5.5점</td>
+      <td>47.9점</td>
+      <td>80위</td>
+      <td>49.8점</td>
+      <td>41.4점</td>
+      <td>40.0점</td>
+      <td>62.6점</td>
+    </tr>
+    <tr>
+      <td>2023년</td>
+      <td>56.0점</td>
+      <td>39.8점</td>
+      <td>5.8점</td>
+      <td>44.5점</td>
+      <td>92위</td>
+      <td>48.0점</td>
+      <td>40.6점</td>
+      <td>39.4점</td>
+      <td>60.9점</td>
+    </tr>
+    <tr>
+      <td>2024년</td>
+      <td>50.4점</td>
+      <td>42.0점</td>
+      <td>4.0점</td>
+      <td>42.4점</td>
+      <td>91위</td>
+      <td>46.6점</td>
+      <td>41.7점</td>
+      <td>40.8점</td>
+      <td>58.7점</td>
+    </tr>
+    <tr>
+      <td>2025년</td>
+      <td>54.3점</td>
+      <td>42.9점</td>
+      <td>6.8점</td>
+      <td>45.0점</td>
+      <td>75위</td>
+      <td>46.5점</td>
+      <td>44.9점</td>
+      <td>44.3점</td>
+      <td>58.4점</td>
+    </tr>
+  </tbody>
+</table>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">6</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="7"><div class="report-chart-grid"><div class="report-chart-card"><figure class="report-chart" aria-label="학생충원 지수 · 연도별 추세 (지수 0~100)">
+  <div class="report-chart-title">학생충원 지수 · 연도별 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,110.48 217.50,96.26 393.00,97.52 568.50,106.37 744.00,100.21" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,91.04 217.50,88.04 393.00,93.25 568.50,95.78 744.00,97.20" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,110.63 217.50,107.79 393.00,110.63 568.50,108.58 744.00,102.89" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,113.48 217.50,110.63 393.00,113.32 568.50,110.79 744.00,103.84" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,57.07 217.50,55.49 393.00,58.65 568.50,61.97 744.00,64.66" />
+    <circle cx="42.00" cy="110.48" r="2.8" fill="#059669" /><circle cx="217.50" cy="96.26" r="2.8" fill="#059669" /><circle cx="393.00" cy="97.52" r="2.8" fill="#059669" /><circle cx="568.50" cy="106.37" r="2.8" fill="#059669" /><circle cx="744.00" cy="100.21" r="2.8" fill="#059669" /><circle cx="42.00" cy="91.04" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="88.04" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="93.25" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="95.78" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="97.20" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="110.63" r="2.8" fill="#d97706" /><circle cx="217.50" cy="107.79" r="2.8" fill="#d97706" /><circle cx="393.00" cy="110.63" r="2.8" fill="#d97706" /><circle cx="568.50" cy="108.58" r="2.8" fill="#d97706" /><circle cx="744.00" cy="102.89" r="2.8" fill="#d97706" /><circle cx="42.00" cy="113.48" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="110.63" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="113.32" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="110.79" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="103.84" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="57.07" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="55.49" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="58.65" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="61.97" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="64.66" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure></div><div class="report-chart-card"><figure class="report-chart" aria-label="대학재정 지수 · 연도별 추세 (지수 0~100)">
+  <div class="report-chart-title">대학재정 지수 · 연도별 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,129.91 217.50,111.42 393.00,123.12 568.50,119.64 744.00,118.22" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,130.54 217.50,126.43 393.00,124.06 568.50,124.38 744.00,122.33" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,140.50 217.50,130.07 393.00,128.49 568.50,128.01 744.00,121.22" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,143.34 217.50,131.81 393.00,130.07 568.50,129.44 744.00,122.48" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,127.70 217.50,110.32 393.00,111.58 568.50,114.11 744.00,112.21" />
+    <circle cx="42.00" cy="129.91" r="2.8" fill="#059669" /><circle cx="217.50" cy="111.42" r="2.8" fill="#059669" /><circle cx="393.00" cy="123.12" r="2.8" fill="#059669" /><circle cx="568.50" cy="119.64" r="2.8" fill="#059669" /><circle cx="744.00" cy="118.22" r="2.8" fill="#059669" /><circle cx="42.00" cy="130.54" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="126.43" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="124.06" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="124.38" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="122.33" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="140.50" r="2.8" fill="#d97706" /><circle cx="217.50" cy="130.07" r="2.8" fill="#d97706" /><circle cx="393.00" cy="128.49" r="2.8" fill="#d97706" /><circle cx="568.50" cy="128.01" r="2.8" fill="#d97706" /><circle cx="744.00" cy="121.22" r="2.8" fill="#d97706" /><circle cx="42.00" cy="143.34" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="131.81" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="130.07" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="129.44" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="122.48" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="127.70" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="110.32" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="111.58" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="114.11" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="112.21" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure></div><div class="report-chart-card"><figure class="report-chart" aria-label="법인재정 지수 · 연도별 추세 (지수 0~100)">
+  <div class="report-chart-title">법인재정 지수 · 연도별 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,175.73 217.50,177.31 393.00,176.84 568.50,179.68 744.00,175.26" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,141.13 217.50,137.81 393.00,143.50 568.50,149.34 744.00,147.61" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,147.29 217.50,147.13 393.00,152.03 568.50,150.92 744.00,151.40" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,147.29 217.50,147.29 393.00,151.87 568.50,150.13 744.00,150.77" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,152.03 217.50,152.35 393.00,158.67 568.50,166.72 744.00,164.67" />
+    <circle cx="42.00" cy="175.73" r="2.8" fill="#059669" /><circle cx="217.50" cy="177.31" r="2.8" fill="#059669" /><circle cx="393.00" cy="176.84" r="2.8" fill="#059669" /><circle cx="568.50" cy="179.68" r="2.8" fill="#059669" /><circle cx="744.00" cy="175.26" r="2.8" fill="#059669" /><circle cx="42.00" cy="141.13" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="137.81" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="143.50" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="149.34" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="147.61" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="147.29" r="2.8" fill="#d97706" /><circle cx="217.50" cy="147.13" r="2.8" fill="#d97706" /><circle cx="393.00" cy="152.03" r="2.8" fill="#d97706" /><circle cx="568.50" cy="150.92" r="2.8" fill="#d97706" /><circle cx="744.00" cy="151.40" r="2.8" fill="#d97706" /><circle cx="42.00" cy="147.29" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="147.29" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="151.87" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="150.13" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="150.77" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="152.03" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="152.35" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="158.67" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="166.72" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="164.67" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure></div><div class="report-chart-card"><figure class="report-chart" aria-label="종합지수 · 연도별 추세 (지수 0~100)">
+  <div class="report-chart-title">종합지수 · 연도별 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,124.85 217.50,110.32 393.00,115.69 568.50,119.01 744.00,114.90" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,111.74 217.50,107.32 393.00,110.16 568.50,112.37 744.00,112.53" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,126.28 217.50,120.59 393.00,121.85 568.50,120.11 744.00,115.06" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,128.80 217.50,122.80 393.00,123.75 568.50,121.54 744.00,116.01" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,94.83 217.50,87.09 393.00,89.78 568.50,93.25 744.00,93.73" />
+    <circle cx="42.00" cy="124.85" r="2.8" fill="#059669" /><circle cx="217.50" cy="110.32" r="2.8" fill="#059669" /><circle cx="393.00" cy="115.69" r="2.8" fill="#059669" /><circle cx="568.50" cy="119.01" r="2.8" fill="#059669" /><circle cx="744.00" cy="114.90" r="2.8" fill="#059669" /><circle cx="42.00" cy="111.74" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="107.32" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="110.16" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="112.37" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="112.53" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="126.28" r="2.8" fill="#d97706" /><circle cx="217.50" cy="120.59" r="2.8" fill="#d97706" /><circle cx="393.00" cy="121.85" r="2.8" fill="#d97706" /><circle cx="568.50" cy="120.11" r="2.8" fill="#d97706" /><circle cx="744.00" cy="115.06" r="2.8" fill="#d97706" /><circle cx="42.00" cy="128.80" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="122.80" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="123.75" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="121.54" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="116.01" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="94.83" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="87.09" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="89.78" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="93.25" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="93.73" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure></div></div>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">7</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="8"><h3 class="subsection-title">1.3 8대 핵심지표 연도별 드릴다운 및 추세</h3>
+<p>대학경쟁력을 구성하는 8대 세부 지표의 5개년 변화 추이와 벤치마크 그룹(전국·권역·시도·규모) 대비 위치를 심층 분석합니다.</p>
+
+  <h4 class="subsubsection-title">(1) 신입생충원율 (학생충원 부문)</h4>
+  <p>2025년 신입생충원율 원지표는 96.2%로 환산지수 57.1점(80위)을 나타냈습니다. 이는 2021년 78.2%(36.6점) 대비 대폭 개선된 수치이며, 전국 평균 지수(56.3점) 및 권역 평균 지수(58.3점) 수준에 회복·진입하였습니다. 다만 대규모 대학 평균 지수(74.1점) 대비로는 여전히 열위에 있어 지속적인 입시 경쟁력 확보가 요구됩니다.</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>분석연도</th>
+        <th>원지표값</th>
+        <th>환산지수</th>
+        <th>동종 순위</th>
+        <th>전국 지수평균</th>
+        <th>권역 지수평균</th>
+        <th>시·도 지수평균</th>
+        <th>규모 지수평균</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2021년</td>
+        <td>78.2%</td>
+        <td>36.6점</td>
+        <td>123위</td>
+        <td>64.8점</td>
+        <td>60.3점</td>
+        <td>59.2점</td>
+        <td>83.6점</td>
+      </tr>
+      <tr>
+        <td>2022년</td>
+        <td>86.1%</td>
+        <td>55.6점</td>
+        <td>117위</td>
+        <td>68.0점</td>
+        <td>59.9점</td>
+        <td>58.7점</td>
+        <td>86.1점</td>
+      </tr>
+      <tr>
+        <td>2023년</td>
+        <td>90.3%</td>
+        <td>57.5점</td>
+        <td>106위</td>
+        <td>61.9점</td>
+        <td>55.7점</td>
+        <td>54.6점</td>
+        <td>81.1점</td>
+      </tr>
+      <tr>
+        <td>2024년</td>
+        <td>90.7%</td>
+        <td>49.7점</td>
+        <td>110위</td>
+        <td>59.6점</td>
+        <td>57.6점</td>
+        <td>57.0점</td>
+        <td>78.6점</td>
+      </tr>
+      <tr>
+        <td>2025년</td>
+        <td>96.2%</td>
+        <td>57.1점</td>
+        <td>80위</td>
+        <td>56.3점</td>
+        <td>58.3점</td>
+        <td>58.5점</td>
+        <td>74.1점</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="report-chart" aria-label="신입생충원율 · 연도별 지수 추세 (지수 0~100)">
+  <div class="report-chart-title">신입생충원율 · 연도별 지수 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,128.17 217.50,98.15 393.00,95.15 568.50,107.47 744.00,95.78" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,83.62 217.50,78.56 393.00,88.20 568.50,91.83 744.00,97.05" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,90.73 217.50,91.36 393.00,97.99 568.50,94.99 744.00,93.89" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,92.46 217.50,93.25 393.00,99.73 568.50,95.94 744.00,93.57" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,53.91 217.50,49.96 393.00,57.86 568.50,61.81 744.00,68.92" />
+    <circle cx="42.00" cy="128.17" r="2.8" fill="#059669" /><circle cx="217.50" cy="98.15" r="2.8" fill="#059669" /><circle cx="393.00" cy="95.15" r="2.8" fill="#059669" /><circle cx="568.50" cy="107.47" r="2.8" fill="#059669" /><circle cx="744.00" cy="95.78" r="2.8" fill="#059669" /><circle cx="42.00" cy="83.62" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="78.56" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="88.20" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="91.83" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="97.05" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="90.73" r="2.8" fill="#d97706" /><circle cx="217.50" cy="91.36" r="2.8" fill="#d97706" /><circle cx="393.00" cy="97.99" r="2.8" fill="#d97706" /><circle cx="568.50" cy="94.99" r="2.8" fill="#d97706" /><circle cx="744.00" cy="93.89" r="2.8" fill="#d97706" /><circle cx="42.00" cy="92.46" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="93.25" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="99.73" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="95.94" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="93.57" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="53.91" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="49.96" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="57.86" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="61.81" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="68.92" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">8</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="9"><h4 class="subsubsection-title">(2) 재학생충원율 (학생충원 부문)</h4>
+  <p>2025년 재학생충원율 원지표는 97.9%로 환산지수 50.4점(90위)을 기록하였습니다. 최근 5개년간 50점 내외의 정체된 흐름을 보이고 있으며, 전국 평균 지수(54.9점) 및 대규모 대학 평균 지수(74.4점) 대비 다소 하회하는 수준입니다. 학업 중도이탈 방지 및 재학생 만족도 제고 프로그램 강화가 필요합니다.</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>분석연도</th>
+        <th>원지표값</th>
+        <th>환산지수</th>
+        <th>동종 순위</th>
+        <th>전국 지수평균</th>
+        <th>권역 지수평균</th>
+        <th>시·도 지수평균</th>
+        <th>규모 지수평균</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2021년</td>
+        <td>100.0%</td>
+        <td>51.5점</td>
+        <td>85위</td>
+        <td>53.8점</td>
+        <td>37.8점</td>
+        <td>35.5점</td>
+        <td>76.6점</td>
+      </tr>
+      <tr>
+        <td>2022년</td>
+        <td>97.3%</td>
+        <td>52.3점</td>
+        <td>91위</td>
+        <td>55.8점</td>
+        <td>40.5점</td>
+        <td>38.2점</td>
+        <td>77.1점</td>
+      </tr>
+      <tr>
+        <td>2023년</td>
+        <td>97.0%</td>
+        <td>51.5점</td>
+        <td>85위</td>
+        <td>54.4점</td>
+        <td>40.1점</td>
+        <td>38.2점</td>
+        <td>76.2점</td>
+      </tr>
+      <tr>
+        <td>2024년</td>
+        <td>96.9%</td>
+        <td>49.3점</td>
+        <td>90위</td>
+        <td>53.4점</td>
+        <td>42.7점</td>
+        <td>41.3점</td>
+        <td>74.9점</td>
+      </tr>
+      <tr>
+        <td>2025년</td>
+        <td>97.9%</td>
+        <td>50.4점</td>
+        <td>90위</td>
+        <td>54.9점</td>
+        <td>51.2점</td>
+        <td>50.6점</td>
+        <td>74.4점</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="report-chart" aria-label="재학생충원율 · 연도별 지수 추세 (지수 0~100)">
+  <div class="report-chart-title">재학생충원율 · 연도별 지수 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,104.63 217.50,103.37 393.00,104.63 568.50,108.11 744.00,106.37" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,101.00 217.50,97.84 393.00,100.05 568.50,101.63 744.00,99.26" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,126.28 217.50,122.01 393.00,122.64 568.50,118.53 744.00,105.10" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,129.91 217.50,125.64 393.00,125.64 568.50,120.75 744.00,106.05" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,64.97 217.50,64.18 393.00,65.60 568.50,67.66 744.00,68.45" />
+    <circle cx="42.00" cy="104.63" r="2.8" fill="#059669" /><circle cx="217.50" cy="103.37" r="2.8" fill="#059669" /><circle cx="393.00" cy="104.63" r="2.8" fill="#059669" /><circle cx="568.50" cy="108.11" r="2.8" fill="#059669" /><circle cx="744.00" cy="106.37" r="2.8" fill="#059669" /><circle cx="42.00" cy="101.00" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="97.84" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="100.05" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="101.63" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="99.26" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="126.28" r="2.8" fill="#d97706" /><circle cx="217.50" cy="122.01" r="2.8" fill="#d97706" /><circle cx="393.00" cy="122.64" r="2.8" fill="#d97706" /><circle cx="568.50" cy="118.53" r="2.8" fill="#d97706" /><circle cx="744.00" cy="105.10" r="2.8" fill="#d97706" /><circle cx="42.00" cy="129.91" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="125.64" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="125.64" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="120.75" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="106.05" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="64.97" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="64.18" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="65.60" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="67.66" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="68.45" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">9</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="10"><h4 class="subsubsection-title">(3) 중도탈락율 (학생충원 부문 · 역방향)</h4>
+  <p>2024년 적용 중도탈락율 원지표는 7.0%로 환산지수 56.5점(87위)을 형성하였습니다. 역방향 지표 특성상 낮을수록 우수하며, 대경권 권역 평균 지수(43.9점) 및 경북 시·도 평균 지수(41.7점) 대비로는 상회하는 환산지수를 보였으나, 대규모 대학 평균 지수(87.2점) 대비 원지표 수준이 상대적으로 높아 전공 이탈 방지 관리가 요구됩니다.</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>분석연도</th>
+        <th>원지표값</th>
+        <th>환산지수</th>
+        <th>동종 순위</th>
+        <th>전국 지수평균</th>
+        <th>권역 지수평균</th>
+        <th>시·도 지수평균</th>
+        <th>규모 지수평균</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2021년</td>
+        <td>5.9%</td>
+        <td>62.6점</td>
+        <td>93위</td>
+        <td>64.0점</td>
+        <td>42.3점</td>
+        <td>39.9점</td>
+        <td>87.9점</td>
+      </tr>
+      <tr>
+        <td>2022년</td>
+        <td>5.8%</td>
+        <td>68.3점</td>
+        <td>80위</td>
+        <td>63.3점</td>
+        <td>46.9점</td>
+        <td>44.8점</td>
+        <td>86.8점</td>
+      </tr>
+      <tr>
+        <td>2023년</td>
+        <td>6.6%</td>
+        <td>61.8점</td>
+        <td>96위</td>
+        <td>63.1점</td>
+        <td>46.8점</td>
+        <td>44.6점</td>
+        <td>88.1점</td>
+      </tr>
+      <tr>
+        <td>2024년</td>
+        <td>7.2%</td>
+        <td>53.8점</td>
+        <td>96위</td>
+        <td>59.8점</td>
+        <td>47.2점</td>
+        <td>44.7점</td>
+        <td>85.7점</td>
+      </tr>
+      <tr>
+        <td>2025년</td>
+        <td>7.0%</td>
+        <td>56.5점</td>
+        <td>87위</td>
+        <td>58.4점</td>
+        <td>43.9점</td>
+        <td>41.7점</td>
+        <td>87.2점</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="report-chart" aria-label="중도탈락율 · 연도별 지수 추세 (지수 0~100)">
+  <div class="report-chart-title">중도탈락율 · 연도별 지수 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,87.09 217.50,78.09 393.00,88.36 568.50,101.00 744.00,96.73" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,84.88 217.50,85.99 393.00,86.30 568.50,91.52 744.00,93.73" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,119.17 217.50,111.90 393.00,112.06 568.50,111.42 744.00,116.64" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,122.96 217.50,115.22 393.00,115.53 568.50,115.37 744.00,120.11" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,47.12 217.50,48.86 393.00,46.80 568.50,50.59 744.00,48.22" />
+    <circle cx="42.00" cy="87.09" r="2.8" fill="#059669" /><circle cx="217.50" cy="78.09" r="2.8" fill="#059669" /><circle cx="393.00" cy="88.36" r="2.8" fill="#059669" /><circle cx="568.50" cy="101.00" r="2.8" fill="#059669" /><circle cx="744.00" cy="96.73" r="2.8" fill="#059669" /><circle cx="42.00" cy="84.88" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="85.99" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="86.30" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="91.52" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="93.73" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="119.17" r="2.8" fill="#d97706" /><circle cx="217.50" cy="111.90" r="2.8" fill="#d97706" /><circle cx="393.00" cy="112.06" r="2.8" fill="#d97706" /><circle cx="568.50" cy="111.42" r="2.8" fill="#d97706" /><circle cx="744.00" cy="116.64" r="2.8" fill="#d97706" /><circle cx="42.00" cy="122.96" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="115.22" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="115.53" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="115.37" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="120.11" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="47.12" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="48.86" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="46.80" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="50.59" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="48.22" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">10</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="11"><h4 class="subsubsection-title">(4) 자금확보율 (대학재정 부문)</h4>
+  <p>2024년 적용 자금확보율 원지표는 111.8%로 환산지수 39.4점(49위)을 받았습니다. 전국 평균 지수(34.1점), 권역 평균 지수(31.9점), 시·도 평균 지수(29.3점), 대규모 평균 지수(35.2점)를 모두 고르게 상회하여 대학재정 부문 내에서 상대적 우위를 확보하고 있는 강점 지표입니다.</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>분석연도</th>
+        <th>원지표값</th>
+        <th>환산지수</th>
+        <th>동종 순위</th>
+        <th>전국 지수평균</th>
+        <th>권역 지수평균</th>
+        <th>시·도 지수평균</th>
+        <th>규모 지수평균</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2021년</td>
+        <td>101.2%</td>
+        <td>50.5점</td>
+        <td>41위</td>
+        <td>35.6점</td>
+        <td>30.0점</td>
+        <td>26.7점</td>
+        <td>41.7점</td>
+      </tr>
+      <tr>
+        <td>2022년</td>
+        <td>101.0%</td>
+        <td>46.4점</td>
+        <td>47위</td>
+        <td>36.5점</td>
+        <td>30.9점</td>
+        <td>27.8점</td>
+        <td>39.1점</td>
+      </tr>
+      <tr>
+        <td>2023년</td>
+        <td>100.0%</td>
+        <td>43.6점</td>
+        <td>50위</td>
+        <td>35.9점</td>
+        <td>31.4점</td>
+        <td>28.3점</td>
+        <td>38.8점</td>
+      </tr>
+      <tr>
+        <td>2024년</td>
+        <td>105.6%</td>
+        <td>37.5점</td>
+        <td>48위</td>
+        <td>33.1점</td>
+        <td>30.0점</td>
+        <td>27.3점</td>
+        <td>34.4점</td>
+      </tr>
+      <tr>
+        <td>2025년</td>
+        <td>111.8%</td>
+        <td>39.4점</td>
+        <td>49위</td>
+        <td>34.1점</td>
+        <td>31.9점</td>
+        <td>29.3점</td>
+        <td>35.2점</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="report-chart" aria-label="자금확보율 · 연도별 지수 추세 (지수 0~100)">
+  <div class="report-chart-title">자금확보율 · 연도별 지수 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,106.21 217.50,112.69 393.00,117.11 568.50,126.75 744.00,123.75" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,129.75 217.50,128.33 393.00,129.28 568.50,133.70 744.00,132.12" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,138.60 217.50,137.18 393.00,136.39 568.50,138.60 744.00,135.60" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,143.81 217.50,142.08 393.00,141.29 568.50,142.87 744.00,139.71" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,120.11 217.50,124.22 393.00,124.70 568.50,131.65 744.00,130.38" />
+    <circle cx="42.00" cy="106.21" r="2.8" fill="#059669" /><circle cx="217.50" cy="112.69" r="2.8" fill="#059669" /><circle cx="393.00" cy="117.11" r="2.8" fill="#059669" /><circle cx="568.50" cy="126.75" r="2.8" fill="#059669" /><circle cx="744.00" cy="123.75" r="2.8" fill="#059669" /><circle cx="42.00" cy="129.75" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="128.33" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="129.28" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="133.70" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="132.12" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="138.60" r="2.8" fill="#d97706" /><circle cx="217.50" cy="137.18" r="2.8" fill="#d97706" /><circle cx="393.00" cy="136.39" r="2.8" fill="#d97706" /><circle cx="568.50" cy="138.60" r="2.8" fill="#d97706" /><circle cx="744.00" cy="135.60" r="2.8" fill="#d97706" /><circle cx="42.00" cy="143.81" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="142.08" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="141.29" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="142.87" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="139.71" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="120.11" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="124.22" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="124.70" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="131.65" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="130.38" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">11</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="12"><h4 class="subsubsection-title">(5) 재정지원수혜율 (대학재정 부문)</h4>
+  <p>2024년 적용 재정지원수혜율 원지표는 47.1%로 환산지수 52.4점(59위)을 기록하였습니다. 2021년 24.7%(10.9점) 대비 큰 폭으로 상승하였으며, 전국 평균 지수(44.3점) 및 권역 평균 지수(43.5점)를 수월하게 상회하며 정부 국책사업 지원금 확보에서 긍정적인 개선 성과를 나타내고 있습니다.</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>분석연도</th>
+        <th>원지표값</th>
+        <th>환산지수</th>
+        <th>동종 순위</th>
+        <th>전국 지수평균</th>
+        <th>권역 지수평균</th>
+        <th>시·도 지수평균</th>
+        <th>규모 지수평균</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2021년</td>
+        <td>24.7%</td>
+        <td>10.9점</td>
+        <td>102위</td>
+        <td>28.4점</td>
+        <td>20.3점</td>
+        <td>18.8점</td>
+        <td>19.7점</td>
+      </tr>
+      <tr>
+        <td>2022년</td>
+        <td>34.3%</td>
+        <td>48.4점</td>
+        <td>53위</td>
+        <td>38.4점</td>
+        <td>35.9점</td>
+        <td>36.1점</td>
+        <td>55.1점</td>
+      </tr>
+      <tr>
+        <td>2023년</td>
+        <td>31.9%</td>
+        <td>39.5점</td>
+        <td>78위</td>
+        <td>43.2점</td>
+        <td>41.8점</td>
+        <td>42.2점</td>
+        <td>58.5점</td>
+      </tr>
+      <tr>
+        <td>2024년</td>
+        <td>43.6%</td>
+        <td>49.2점</td>
+        <td>63위</td>
+        <td>42.6점</td>
+        <td>45.0점</td>
+        <td>45.6점</td>
+        <td>58.4점</td>
+      </tr>
+      <tr>
+        <td>2025년</td>
+        <td>47.1%</td>
+        <td>52.4점</td>
+        <td>59위</td>
+        <td>44.3점</td>
+        <td>43.5점</td>
+        <td>43.5점</td>
+        <td>60.4점</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="report-chart" aria-label="재정지원수혜율 · 연도별 지수 추세 (지수 0~100)">
+  <div class="report-chart-title">재정지원수혜율 · 연도별 지수 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,168.78 217.50,109.53 393.00,123.59 568.50,108.26 744.00,103.21" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,141.13 217.50,125.33 393.00,117.74 568.50,118.69 744.00,116.01" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,153.93 217.50,129.28 393.00,119.96 568.50,114.90 744.00,117.27" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,156.30 217.50,128.96 393.00,119.32 568.50,113.95 744.00,117.27" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,154.87 217.50,98.94 393.00,93.57 568.50,93.73 744.00,90.57" />
+    <circle cx="42.00" cy="168.78" r="2.8" fill="#059669" /><circle cx="217.50" cy="109.53" r="2.8" fill="#059669" /><circle cx="393.00" cy="123.59" r="2.8" fill="#059669" /><circle cx="568.50" cy="108.26" r="2.8" fill="#059669" /><circle cx="744.00" cy="103.21" r="2.8" fill="#059669" /><circle cx="42.00" cy="141.13" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="125.33" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="117.74" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="118.69" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="116.01" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="153.93" r="2.8" fill="#d97706" /><circle cx="217.50" cy="129.28" r="2.8" fill="#d97706" /><circle cx="393.00" cy="119.96" r="2.8" fill="#d97706" /><circle cx="568.50" cy="114.90" r="2.8" fill="#d97706" /><circle cx="744.00" cy="117.27" r="2.8" fill="#d97706" /><circle cx="42.00" cy="156.30" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="128.96" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="119.32" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="113.95" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="117.27" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="154.87" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="98.94" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="93.57" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="93.73" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="90.57" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">12</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="13"><h4 class="subsubsection-title">(6) 등록금의존율 (대학재정 부문 · 역방향)</h4>
+  <p>2024년 적용 등록금의존율 원지표는 46.2%로 환산지수 38.3점(72위)에 머물렀습니다. 역방향 지표로서 원지표 수치가 낮을수록 재정 자립도가 높은 평가를 받으나, 전국 평균 지수(41.4점) 및 권역 평균 지수(45.8점) 대비 다소 열위하여 등록금 수입에 대한 재정 의존도를 낮추는 다양화 전략이 요구됩니다.</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>분석연도</th>
+        <th>원지표값</th>
+        <th>환산지수</th>
+        <th>동종 순위</th>
+        <th>전국 지수평균</th>
+        <th>권역 지수평균</th>
+        <th>시·도 지수평균</th>
+        <th>규모 지수평균</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2021년</td>
+        <td>52.3%</td>
+        <td>42.6점</td>
+        <td>54위</td>
+        <td>39.0점</td>
+        <td>34.2점</td>
+        <td>33.3점</td>
+        <td>46.3점</td>
+      </tr>
+      <tr>
+        <td>2022년</td>
+        <td>49.9%</td>
+        <td>47.0점</td>
+        <td>52위</td>
+        <td>40.7점</td>
+        <td>38.5점</td>
+        <td>37.8점</td>
+        <td>49.1점</td>
+      </tr>
+      <tr>
+        <td>2023년</td>
+        <td>49.1%</td>
+        <td>37.2점</td>
+        <td>74위</td>
+        <td>39.4점</td>
+        <td>36.1점</td>
+        <td>35.7점</td>
+        <td>44.8점</td>
+      </tr>
+      <tr>
+        <td>2024년</td>
+        <td>46.4%</td>
+        <td>39.9점</td>
+        <td>67위</td>
+        <td>41.4점</td>
+        <td>41.6점</td>
+        <td>41.3점</td>
+        <td>44.2점</td>
+      </tr>
+      <tr>
+        <td>2025년</td>
+        <td>46.2%</td>
+        <td>38.3점</td>
+        <td>72위</td>
+        <td>41.4점</td>
+        <td>45.8점</td>
+        <td>45.7점</td>
+        <td>45.0점</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="report-chart" aria-label="등록금의존율 · 연도별 지수 추세 (지수 0~100)">
+  <div class="report-chart-title">등록금의존율 · 연도별 지수 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,118.69 217.50,111.74 393.00,127.22 568.50,122.96 744.00,125.49" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,124.38 217.50,121.69 393.00,123.75 568.50,120.59 744.00,120.59" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,131.96 217.50,125.17 393.00,128.96 568.50,120.27 744.00,113.64" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,133.39 217.50,126.28 393.00,129.59 568.50,120.75 744.00,113.79" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,112.85 217.50,108.42 393.00,115.22 568.50,116.16 744.00,114.90" />
+    <circle cx="42.00" cy="118.69" r="2.8" fill="#059669" /><circle cx="217.50" cy="111.74" r="2.8" fill="#059669" /><circle cx="393.00" cy="127.22" r="2.8" fill="#059669" /><circle cx="568.50" cy="122.96" r="2.8" fill="#059669" /><circle cx="744.00" cy="125.49" r="2.8" fill="#059669" /><circle cx="42.00" cy="124.38" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="121.69" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="123.75" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="120.59" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="120.59" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="131.96" r="2.8" fill="#d97706" /><circle cx="217.50" cy="125.17" r="2.8" fill="#d97706" /><circle cx="393.00" cy="128.96" r="2.8" fill="#d97706" /><circle cx="568.50" cy="120.27" r="2.8" fill="#d97706" /><circle cx="744.00" cy="113.64" r="2.8" fill="#d97706" /><circle cx="42.00" cy="133.39" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="126.28" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="129.59" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="120.75" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="113.79" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="112.85" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="108.42" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="115.22" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="116.16" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="114.90" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">13</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="14"><h4 class="subsubsection-title">(7) 수익용재산확보율 (법인재정 부문)</h4>
+  <p>2025년 수익용재산확보율 원지표는 54.6%로 환산지수 7.0점(102위)이라는 매우 취약한 점수를 기록하였습니다. 5개년간 5~8점대의 극도의 저조함을 면치 못하고 있으며, 전국 평균 지수(25.4점) 및 권역 평균 지수(22.6점)와 큰 격차를 보여 법인 자산 운용 구조의 근본적인 수술이 요구됩니다.</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>분석연도</th>
+        <th>원지표값</th>
+        <th>환산지수</th>
+        <th>동종 순위</th>
+        <th>전국 지수평균</th>
+        <th>권역 지수평균</th>
+        <th>시·도 지수평균</th>
+        <th>규모 지수평균</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2021년</td>
+        <td>37.7%</td>
+        <td>7.3점</td>
+        <td>101위</td>
+        <td>31.2점</td>
+        <td>26.7점</td>
+        <td>26.9점</td>
+        <td>22.8점</td>
+      </tr>
+      <tr>
+        <td>2022년</td>
+        <td>43.2%</td>
+        <td>7.8점</td>
+        <td>106위</td>
+        <td>32.3점</td>
+        <td>25.3점</td>
+        <td>25.3점</td>
+        <td>21.9점</td>
+      </tr>
+      <tr>
+        <td>2023년</td>
+        <td>47.3%</td>
+        <td>8.3점</td>
+        <td>100위</td>
+        <td>29.7점</td>
+        <td>22.5점</td>
+        <td>22.6점</td>
+        <td>18.6점</td>
+      </tr>
+      <tr>
+        <td>2024년</td>
+        <td>48.9%</td>
+        <td>5.7점</td>
+        <td>103위</td>
+        <td>25.1점</td>
+        <td>22.1점</td>
+        <td>22.4점</td>
+        <td>13.8점</td>
+      </tr>
+      <tr>
+        <td>2025년</td>
+        <td>54.6%</td>
+        <td>7.0점</td>
+        <td>102위</td>
+        <td>25.4점</td>
+        <td>22.6점</td>
+        <td>23.1점</td>
+        <td>14.0점</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="report-chart" aria-label="수익용재산확보율 · 연도별 지수 추세 (지수 0~100)">
+  <div class="report-chart-title">수익용재산확보율 · 연도별 지수 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,174.47 217.50,173.68 393.00,172.89 568.50,176.99 744.00,174.94" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,136.70 217.50,134.97 393.00,139.07 568.50,146.34 744.00,145.87" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,143.81 217.50,146.03 393.00,150.45 568.50,151.08 744.00,150.29" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,143.50 217.50,146.03 393.00,150.29 568.50,150.61 744.00,149.50" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,149.98 217.50,151.40 393.00,156.61 568.50,164.20 744.00,163.88" />
+    <circle cx="42.00" cy="174.47" r="2.8" fill="#059669" /><circle cx="217.50" cy="173.68" r="2.8" fill="#059669" /><circle cx="393.00" cy="172.89" r="2.8" fill="#059669" /><circle cx="568.50" cy="176.99" r="2.8" fill="#059669" /><circle cx="744.00" cy="174.94" r="2.8" fill="#059669" /><circle cx="42.00" cy="136.70" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="134.97" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="139.07" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="146.34" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="145.87" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="143.81" r="2.8" fill="#d97706" /><circle cx="217.50" cy="146.03" r="2.8" fill="#d97706" /><circle cx="393.00" cy="150.45" r="2.8" fill="#d97706" /><circle cx="568.50" cy="151.08" r="2.8" fill="#d97706" /><circle cx="744.00" cy="150.29" r="2.8" fill="#d97706" /><circle cx="42.00" cy="143.50" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="146.03" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="150.29" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="150.61" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="149.50" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="149.98" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="151.40" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="156.61" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="164.20" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="163.88" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">14</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="15"><h4 class="subsubsection-title">(8) 법인전입금비율 (법인재정 부문)</h4>
+  <p>2024년 적용 법인전입금비율 원지표는 2.2%로 환산지수 6.3점(84위)에 머물렀습니다. 2022~2023년 0.0~0.1% 수준(0.0점)에서 소폭 반등하였으나, 전국 평균 지수(22.2점) 및 권역 평균 지수(20.0점) 대비 현저히 열세여서 법인의 대학 전입금 확대 의지가 시급합니다.</p>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>분석연도</th>
+        <th>원지표값</th>
+        <th>환산지수</th>
+        <th>동종 순위</th>
+        <th>전국 지수평균</th>
+        <th>권역 지수평균</th>
+        <th>시·도 지수평균</th>
+        <th>규모 지수평균</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>2021년</td>
+        <td>1.3%</td>
+        <td>4.6점</td>
+        <td>89위</td>
+        <td>25.0점</td>
+        <td>19.3점</td>
+        <td>19.1점</td>
+        <td>18.4점</td>
+      </tr>
+      <tr>
+        <td>2022년</td>
+        <td>0.1%</td>
+        <td>0.0점</td>
+        <td>137위</td>
+        <td>27.7점</td>
+        <td>22.8점</td>
+        <td>22.5점</td>
+        <td>19.8점</td>
+      </tr>
+      <tr>
+        <td>2023년</td>
+        <td>0.0%</td>
+        <td>0.0점</td>
+        <td>138위</td>
+        <td>22.2점</td>
+        <td>19.2점</td>
+        <td>19.2점</td>
+        <td>14.2점</td>
+      </tr>
+      <tr>
+        <td>2024년</td>
+        <td>0.1%</td>
+        <td>0.0점</td>
+        <td>134위</td>
+        <td>18.8점</td>
+        <td>17.3점</td>
+        <td>17.7점</td>
+        <td>8.4점</td>
+      </tr>
+      <tr>
+        <td>2025년</td>
+        <td>2.2%</td>
+        <td>6.3점</td>
+        <td>84위</td>
+        <td>22.2점</td>
+        <td>20.0점</td>
+        <td>20.4점</td>
+        <td>12.3점</td>
+      </tr>
+    </tbody>
+  </table>
+  <figure class="report-chart" aria-label="법인전입금비율 · 연도별 지수 추세 (지수 0~100)">
+  <div class="report-chart-title">법인전입금비율 · 연도별 지수 추세 (지수 0~100)</div>
+  <svg viewBox="0 0 760 220" role="img" aria-hidden="true">
+    <rect x="0" y="0" width="760" height="220" fill="#ffffff" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="189.00" text-anchor="end" font-size="10" fill="#64748b">0</text><line x1="42" y1="154.40" x2="744.00" y2="154.40" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="157.40" text-anchor="end" font-size="10" fill="#64748b">20</text><line x1="42" y1="122.80" x2="744.00" y2="122.80" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="125.80" text-anchor="end" font-size="10" fill="#64748b">40</text><line x1="42" y1="91.20" x2="744.00" y2="91.20" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="94.20" text-anchor="end" font-size="10" fill="#64748b">60</text><line x1="42" y1="59.60" x2="744.00" y2="59.60" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="62.60" text-anchor="end" font-size="10" fill="#64748b">80</text><line x1="42" y1="28.00" x2="744.00" y2="28.00" stroke="#e2e8f0" stroke-width="1" /><text x="36.00" y="31.00" text-anchor="end" font-size="10" fill="#64748b">100</text>
+    <line x1="42" y1="28" x2="42" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <line x1="42" y1="186.00" x2="744.00" y2="186.00" stroke="#94a3b8" stroke-width="1" />
+    <polyline fill="none" stroke="#059669" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,178.73 217.50,186.00 393.00,186.00 568.50,186.00 744.00,176.05" /><polyline fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,146.50 217.50,142.23 393.00,150.92 568.50,156.30 744.00,150.92" /><polyline fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,155.51 217.50,149.98 393.00,155.66 568.50,158.67 744.00,154.40" /><polyline fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,155.82 217.50,150.45 393.00,155.66 568.50,158.03 744.00,153.77" /><polyline fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="42.00,156.93 217.50,154.72 393.00,163.56 568.50,172.73 744.00,166.57" />
+    <circle cx="42.00" cy="178.73" r="2.8" fill="#059669" /><circle cx="217.50" cy="186.00" r="2.8" fill="#059669" /><circle cx="393.00" cy="186.00" r="2.8" fill="#059669" /><circle cx="568.50" cy="186.00" r="2.8" fill="#059669" /><circle cx="744.00" cy="176.05" r="2.8" fill="#059669" /><circle cx="42.00" cy="146.50" r="2.8" fill="#2563eb" /><circle cx="217.50" cy="142.23" r="2.8" fill="#2563eb" /><circle cx="393.00" cy="150.92" r="2.8" fill="#2563eb" /><circle cx="568.50" cy="156.30" r="2.8" fill="#2563eb" /><circle cx="744.00" cy="150.92" r="2.8" fill="#2563eb" /><circle cx="42.00" cy="155.51" r="2.8" fill="#d97706" /><circle cx="217.50" cy="149.98" r="2.8" fill="#d97706" /><circle cx="393.00" cy="155.66" r="2.8" fill="#d97706" /><circle cx="568.50" cy="158.67" r="2.8" fill="#d97706" /><circle cx="744.00" cy="154.40" r="2.8" fill="#d97706" /><circle cx="42.00" cy="155.82" r="2.8" fill="#7c3aed" /><circle cx="217.50" cy="150.45" r="2.8" fill="#7c3aed" /><circle cx="393.00" cy="155.66" r="2.8" fill="#7c3aed" /><circle cx="568.50" cy="158.03" r="2.8" fill="#7c3aed" /><circle cx="744.00" cy="153.77" r="2.8" fill="#7c3aed" /><circle cx="42.00" cy="156.93" r="2.8" fill="#0ea5e9" /><circle cx="217.50" cy="154.72" r="2.8" fill="#0ea5e9" /><circle cx="393.00" cy="163.56" r="2.8" fill="#0ea5e9" /><circle cx="568.50" cy="172.73" r="2.8" fill="#0ea5e9" /><circle cx="744.00" cy="166.57" r="2.8" fill="#0ea5e9" />
+    <text x="42.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2021</text><text x="217.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2022</text><text x="393.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2023</text><text x="568.50" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2024</text><text x="744.00" y="210.00" text-anchor="middle" font-size="10" fill="#64748b">2025</text>
+  </svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>선택 대학</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#2563eb"></span>전국 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>권역 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>시·도 평균</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0ea5e9"></span>대규모 평균</span></div>
+</figure>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">15</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="16"><h3 class="subsection-title">1.4 2025년 전체 지표 요약</h3>
+<p>2025년 K-UniTrust 분석 결과에 포함된 대구대학교의 3개 부문 8대 핵심지표 종합 요약 표입니다.</p>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>부문명</th>
+      <th>세부 지표명</th>
+      <th>적용연도</th>
+      <th>원지표값</th>
+      <th>환산 지수</th>
+      <th>동종 순위</th>
+      <th>전국 지수평균</th>
+      <th>권역 지수평균</th>
+      <th>시·도 지수평균</th>
+      <th>규모 지수평균</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>학생충원</td>
+      <td>신입생충원율</td>
+      <td>2025년</td>
+      <td>96.2%</td>
+      <td>57.1점</td>
+      <td>80위</td>
+      <td>56.3점</td>
+      <td>58.3점</td>
+      <td>58.5점</td>
+      <td>74.1점</td>
+    </tr>
+    <tr>
+      <td>학생충원</td>
+      <td>재학생충원율</td>
+      <td>2025년</td>
+      <td>97.9%</td>
+      <td>50.4점</td>
+      <td>90위</td>
+      <td>54.9점</td>
+      <td>51.2점</td>
+      <td>50.6점</td>
+      <td>74.4점</td>
+    </tr>
+    <tr>
+      <td>학생충원</td>
+      <td>중도탈락율</td>
+      <td>2024년</td>
+      <td>7.0%</td>
+      <td>56.5점</td>
+      <td>87위</td>
+      <td>58.4점</td>
+      <td>43.9점</td>
+      <td>41.7점</td>
+      <td>87.2점</td>
+    </tr>
+    <tr>
+      <td>대학재정</td>
+      <td>자금확보율</td>
+      <td>2024년</td>
+      <td>111.8%</td>
+      <td>39.4점</td>
+      <td>49위</td>
+      <td>34.1점</td>
+      <td>31.9점</td>
+      <td>29.3점</td>
+      <td>35.2점</td>
+    </tr>
+    <tr>
+      <td>대학재정</td>
+      <td>재정지원수혜율</td>
+      <td>2024년</td>
+      <td>47.1%</td>
+      <td>52.4점</td>
+      <td>59위</td>
+      <td>44.3점</td>
+      <td>43.5점</td>
+      <td>43.5점</td>
+      <td>60.4점</td>
+    </tr>
+    <tr>
+      <td>대학재정</td>
+      <td>등록금의존율</td>
+      <td>2024년</td>
+      <td>46.2%</td>
+      <td>38.3점</td>
+      <td>72위</td>
+      <td>41.4점</td>
+      <td>45.8점</td>
+      <td>45.7점</td>
+      <td>45.0점</td>
+    </tr>
+    <tr>
+      <td>법인재정</td>
+      <td>수익용재산확보율</td>
+      <td>2025년</td>
+      <td>54.6%</td>
+      <td>7.0점</td>
+      <td>102위</td>
+      <td>25.4점</td>
+      <td>22.6점</td>
+      <td>23.1점</td>
+      <td>14.0점</td>
+    </tr>
+    <tr>
+      <td>법인재정</td>
+      <td>법인전입금비율</td>
+      <td>2024년</td>
+      <td>2.2%</td>
+      <td>6.3점</td>
+      <td>84위</td>
+      <td>22.2점</td>
+      <td>20.0점</td>
+      <td>20.4점</td>
+      <td>12.3점</td>
+    </tr>
+  </tbody>
+</table>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">16</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="17"><h2 class="section-title">제2부 8대 핵심지표 심층 분석</h2>
+<h3 class="subsection-title">2.1 학생충원 부문 분석 (부문 가중치: 50%, 부문지수: 54.3점)</h3>
+<p>학생충원 부문은 K-UniTrust 진단 모델에서 가장 높은 50%의 가중치를 보유하며, 대구대학교는 부문지수 54.3점을 얻어 전국 평균(56.2점) 및 대경권 권역 평균(52.6점) 수준의 방어력을 갖추고 있습니다.</p>
+<p><strong>[신입생충원율]</strong> 2025년 원지표 96.2%, 환산지수 57.1점(80위). 전국 평균 지수(56.3점) 대비 +0.8p 상회하며 권역 평균(58.3점) 및 시·도 평균(58.5점)과 유사한 수준을 기록하였습니다. 다만 대규모 대학 평균 지수(74.1점) 대비 -17.0p의 격차를 보여 규모 경쟁력 강화를 위한 추가 모집 전략이 필요합니다.</p>
+<p><strong>[재학생충원율]</strong> 2025년 원지표 97.9%, 환산지수 50.4점(90위). 전국 평균 지수(54.9점) 대비 -4.5p 열위에 위치하고 있으나, 권역 평균(51.2점) 및 시·도 평균(50.6점)과는 비슷한 수준입니다. 대규모 집단 평균(74.4점) 대비 하회하고 있어 재학생 이탈 방지 및 충원 관리가 지속되어야 합니다.</p>
+<p><strong>[중도탈락율]</strong> 2024년 원지표 7.0%, 환산지수 56.5점(87위). 역방향 지표로서 권역 평균(43.9점) 및 시·도 평균(41.7점) 대비 각각 +12.6p, +14.8p 우수한 환산지수를 형성하였습니다. 다만 전국 평균(58.4점) 및 대규모 평균(87.2점) 대비 열위하여 학습·생활 적응 케어를 통한 중도탈락 예방체계 보강이 시급합니다.</p>
+<h3 class="subsection-title">2.2 대학재정 부문 분석 (부문 가중치: 40%, 부문지수: 42.9점)</h3>
+<p>대학재정 부문은 40% 가중치가 부여되며, 대구대학교의 부문지수는 42.9점으로 전국 평균(40.3점), 권역 평균(41.0점), 시·도 평균(40.2점)을 모두 소폭 앞서고 있으나 구조적인 체질 개선이 병행되어야 합니다.</p>
+<p><strong>[자금확보율]</strong> 2024년 원지표 111.8%, 환산지수 39.4점(49위). 전국 평균 지수(34.1점) 대비 +5.3p, 권역 평균(31.9점), 시·도 평균(29.3점), 대규모 평균(35.2점)을 모두 상회하여 부문 내 상대적 우위를 확보하고 있습니다.</p>
+<p><strong>[재정지원수혜율]</strong> 2024년 원지표 47.1%, 환산지수 52.4점(59위). 전국 평균 지수(44.3점) 대비 +8.1p, 권역/시·도 평균(43.5점) 대비 +8.9p 우월한 수치를 보였습니다. 다만 대규모 평균(60.4점)에는 미달하여 정부 대형 국책사업 수주 확대 노력이 지속적으로 요구됩니다.</p>
+<p><strong>[등록금의존율]</strong> 2024년 원지표 46.2%, 환산지수 38.3점(72위). 역방향 지표로서 전국 평균 지수(41.4점), 권역 평균(45.8점), 시·도 평균(45.7점), 대규모 평균(45.0점) 대비 낮아 등록금 수입에 대한 재정 의존도가 높은 편으로 산학협력 및 수익사업 확충을 통한 세입 다변화가 필요합니다.</p>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">17</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="18"><h3 class="subsection-title">2.3 법인재정 부문 분석 (부문 가중치: 10%, 부문지수: 6.8점)</h3>
+<p>법인재정 부문은 10%의 가중치를 가지며, 대구대학교의 부문지수는 6.8점에 불과해 법인의 재정 지원 기능이 심각하게 위축되어 있습니다.</p>
+<p><strong>[수익용재산확보율]</strong> 2025년 원지표 54.6%, 환산지수 7.0점(102위). 전국 평균 지수(25.4점), 권역 평균(22.6점), 시·도 평균(23.1점), 대규모 평균(14.0점)을 크게 밑돌며 취약한 법인 재정 기반을 드러내고 있습니다.</p>
+<p><strong>[법인전입금비율]</strong> 2024년 원지표 2.2%, 환산지수 6.3점(84위). 전국 평균 지수(22.2점), 권역 평균(20.0점), 시·도 평균(20.4점), 대규모 평균(12.3점) 대비 현저히 낮은 수준으로 법인의 전입금 확충 및 법인 재정 지원 구조 개선이 절실합니다.</p>
+<h3 class="subsection-title">2.4 종합지수 및 진단등급 종합 평가</h3>
+<p>대구대학교는 2025년 종합지수 45.0점을 받아 동종 사립 대학교 151개교 중 75위, C등급에 위치하였습니다. 사분면 진단상 ‘충원우수 재정취약형(enrollment-strong)’으로 분류되며, 부문 간 불균형 지수(Balance Index)는 19.48을 보였습니다. 학생충원 부문(54.3점)과 대학재정 부문(42.9점)이 일정한 선전으로 대학의 종합점수를 이끌고 있으나, 법인재정 부문(6.8점)의 심각한 열세가 상위 등급 진입을 가로막는 주요 요인으로 작용하고 있습니다.</p>
+<p>특히 수익용재산확보율(7.0점, 102위)과 법인전입금비율(6.3점, 84위) 2개 법인 지표가 현저한 경고/취약 상태에 노출되어 있습니다. 대학의 재정 건강도 점수는 35.68점에 그쳐 등록금 의존도 완화와 법인 수익 자산의 고수익 구조 전환 없이는 향후 급격한 학령인구 감소기에 심각한 재정 위험을 맞이할 수 있으므로 강도 높은 체질 개선조치가 요구됩니다.</p>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">18</span></footer></article>
+<article class="report-page report-page-body report-page-part3" data-page-chunk="19"><div class="report-part report-part-3">
+<h2 class="section-title">제3부 전략적 종합 총평 및 실행 로드맵</h2>
+<h3 class="subsection-title">3.1 전략적 종합 총평</h3>
+<p>대구대학교는 2025년 K-UniTrust 대학경쟁력 평가에서 종합지수 45.0점, 전국 75위, C등급으로 ‘충원우수 재정취약형’ 사분면에 안착하였습니다. 신입생충원율(57.1점) 및 재정지원수혜율(52.4점) 등 학술·국책사업 수주에서는 비교적 양호한 성과를 거두고 있으나, 법인재정 부문(6.8점)의 극단적인 약세가 대학 전체의 경쟁력 상승을 저해하고 있습니다.</p>
+<p>따라서 대구대학교는 학생 모집 및 충원 우수성을 재정적 자립으로 연결하는 전략이 시급합니다. 재정지원수혜율의 상승 모멘텀을 고도화하여 대형 국책사업 수주를 확대하는 한편, 법인재정 전입 구조 개선과 등록금 의존율(38.3점) 개선을 위한 수익원 다변화 TF를 조속히 가동해야 합니다.</p>
+
+<h3 class="subsection-title">3.2 SWOT 분석 AI 보강 서술</h3>
+<p>K-UniTrust 진단 결과를 바탕으로 대구대학교의 내부 강·약점과 외부 기회·위기를 종합 분석하여 실행 가능한 전략 프레임워크를 도출합니다.</p>
+<p>K-UniTrust 진단 결과를 바탕으로 대구대학교의 내부 강·약점과 외부 기회·위기를 종합 분석하여 실행 가능한 전략 프레임워크를 도출합니다.</p>
+<p><strong>[강점 (Strengths)]</strong> 96.2%의 견조한 신입생충원율(57.1점)과 111.8%의 자금확보율(39.4점, 전국 49위), 지속 상승세를 나타내는 재정지원수혜율(52.4점, 전국 59위)이 대학 운영의 핵심 동력입니다.</p>
+<p><strong>[약점 (Weaknesses)]</strong> 법인재정 부문의 극심한 부실(부문지수 6.8점), 수익용재산확보율(7.0점, 102위) 및 법인전입금비율(6.3점, 84위)의 저조함, 등록금의존율(38.3점)의 비중 과다가 주요 취약점입니다.</p>
+<p><strong>[기회 (Opportunities)]</strong> 정부 및 지자체의 지역 혁신 재정지원사업 확대, 대경권 연계 산학협력 수요 증가, 국책사업 수주실적(47.1%) 상승세를 발판으로 한 연구 비등록금 수입 확충 기회가 존재합니다.</p>
+<p><strong>[위기 (Threats)]</strong> 학령인구 급감에 따른 학부 재학생 충원 압박(재학생충원율 50.4점), 대학 간 입시 경쟁 격화, 법인의 재정 지원 능력 한계에 따른 시설·학술 투자 위축 위험이 대두됩니다.</p>
+
+
+
+
+
+
+<div class="swot-grid report-part3-swot"><article class="swot-card swot-so">
+      <div class="swot-tag">SO</div>
+      <h3 class="swot-title">[SO 전략 (강점-기회 활용)]</h3>
+      <p class="swot-body">양호한 신입생 충원력과 국책사업 수주 역량을 결합하여 지자체-대학 협력기반 지역혁신 사업(RISE) 등 대형 재정지원사업을 집중 수주하고 산학협력 수익을 극대화합니다.</p>
+    </article><article class="swot-card swot-st">
+      <div class="swot-tag">ST</div>
+      <h3 class="swot-title">[ST 전략 (강점-위기 극복)]</h3>
+      <p class="swot-body">높은 자금확보율과 국책사업 인프라를 바탕으로 학생 맞춤형 장학·학습지원체계를 강화하여 중도탈락율(7.0%)을 lowering하고 재학생 이탈 위험을 차단합니다.</p>
+    </article><article class="swot-card swot-wo">
+      <div class="swot-tag">WO</div>
+      <h3 class="swot-title">[WO 전략 (약점-기회 활용)]</h3>
+      <p class="swot-body">법인 재정의 전입 한계를 극복하기 위해 대학 자체의 산학협력단 유휴 자산 수익화, 기술지주회사 설립 및 수익사업 확충을 추진하여 등록금 의존도를 단계적으로 낮춥니다.</p>
+    </article><article class="swot-card swot-wt">
+      <div class="swot-tag">WT</div>
+      <h3 class="swot-title">[WT 전략 (약점-위기 극복)]</h3>
+      <p class="swot-body">법인 차원의 유휴 수익용재산 구조조정과 고수익 자산 재투자를 조속히 실행하고, 법인전입금 확충을 위한 중장기 이행 협약을 체결하여 재정 위험을 예방합니다.</p>
+    </article></div>
+</div>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">19</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="20"><div class="report-part report-part-3-continued">
+<h3 class="subsection-title">3.3 실행 로드맵 AI 보강 서술</h3>
+<p>진단 결과를 바탕으로 대구대학교가 추진해야 할 단계별 핵심 추진 과제를 제시합니다.</p>
+<p><strong>[단기 비상 대응 과제 (1년 이내)]</strong></p>
+<p>① <strong>충원우수·재정취약 대응 법인재정·등록금 의존 구조 점검 TF 구성:</strong> 법인 전입금 확충 방안 마련 및 대학 비등록금 수입 비중 확대를 위한 대학-법인 합동 전담 조직을 발족합니다.</p>
+<p>② <strong>수익용재산확보율 실태조사 및 수익성 제고:</strong> 54.6%에 불과한 수익용 재산의 수익성을 전수 조사하고 부실 자산 매각 및 고수익 자산 전환 계획을 수립합니다.</p>
+<p>③ <strong>법인전입금비율 단계적 이행계획 수립:</strong> 법인 전입금 비율(2.2%)을 상향 평준화하기 위한 법인의 연차별 출연 확약 조치를 추진합니다.</p>
+<p><strong>[중장기 구조개혁 과제 (2~3년 이내)]</strong></p>
+<p>① <strong>재학생충원율 및 중도탈락 예방체계 고도화:</strong> 97.9%의 재학생충원율 제고를 위해 AI 기반 조기경보 시스템을 구축하고 전공 이탈 방지 케어를 강화합니다.</p>
+<p>② <strong>법인재정·수익용재산 기반 중장기 재정 건전성 로드맵 수립:</strong> 법인 자산의 고수익 구조전환과 대학 재정 구조 개혁을 연계하여 종합지수를 50점 이상 B등급대로 도약시킵니다.</p>
+</div>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">20</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="21"><h2 class="section-title">부록: 평가 모델·가중치·데이터 원천</h2>
+<h3 class="subsection-title">1. 평가 개요 및 일반 원칙</h3>
+<p>1.1 평가 목적: 사립 대학 및 전문대학의 학생 모집·유지력, 대학 재정 건전성, 법인의 지원 역량을 종합적으로 지수화하여 대학 간 상대적 경쟁력 위치와 위험군을 정밀하게 진단합니다.</p>
+<p>1.2 기본 원칙: 일반대학(4년제)과 전문대학은 코호트를 분리하여 독립 평가를 실시합니다. 대표학교 단위 조회를 원칙으로 하며, 동적 임계치(P10/P90) 선형 보간법을 적용하여 0~100점 지수로 환산합니다.</p>
+<h3 class="subsection-title">2. 평가지표 체계 및 가중치 (2025년 실행 설정 기준)</h3>
+<p>K-UniTrust 2025년 에디션에 적용된 3개 부문 8대 핵심지표 및 가중치 체계입니다.</p>
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>부문(가중치)</th>
+      <th>세부지표</th>
+      <th>부문내 비중</th>
+      <th>배점</th>
+      <th>임계치(하한/상한)</th>
+      <th>지표 방향</th>
+      <th>적용 연도</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td rowspan="3">학생충원 (50%)</td>
+      <td>신입생충원율</td>
+      <td>40%</td>
+      <td>20점</td>
+      <td>P10 / P90</td>
+      <td>정방향 (+)</td>
+      <td>2025년</td>
+    </tr>
+    <tr>
+      <td>재학생충원율</td>
+      <td>40%</td>
+      <td>20점</td>
+      <td>P10 / P90</td>
+      <td>정방향 (+)</td>
+      <td>2025년</td>
+    </tr>
+    <tr>
+      <td>중도탈락율</td>
+      <td>20%</td>
+      <td>10점</td>
+      <td>P10 / P90</td>
+      <td>역방향 (-)</td>
+      <td>2024년</td>
+    </tr>
+    <tr>
+      <td rowspan="3">대학재정 (40%)</td>
+      <td>자금확보율</td>
+      <td>30%</td>
+      <td>12점</td>
+      <td>P10 / P90</td>
+      <td>정방향 (+)</td>
+      <td>2024년</td>
+    </tr>
+    <tr>
+      <td>재정지원수혜율</td>
+      <td>30%</td>
+      <td>12점</td>
+      <td>P10 / P90</td>
+      <td>정방향 (+)</td>
+      <td>2024년</td>
+    </tr>
+    <tr>
+      <td>등록금의존율</td>
+      <td>40%</td>
+      <td>16점</td>
+      <td>P10 / P90</td>
+      <td>역방향 (-)</td>
+      <td>2024년</td>
+    </tr>
+    <tr>
+      <td rowspan="2">법인재정 (10%)</td>
+      <td>수익용재산확보율</td>
+      <td>70%</td>
+      <td>7점</td>
+      <td>P10 / P90</td>
+      <td>정방향 (+)</td>
+      <td>2025년</td>
+    </tr>
+    <tr>
+      <td>법인전입금비율</td>
+      <td>30%</td>
+      <td>3점</td>
+      <td>P10 / P90</td>
+      <td>정방향 (+)</td>
+      <td>2024년</td>
+    </tr>
+  </tbody>
+</table>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">21</span></footer></article>
+<article class="report-page report-page-body" data-page-chunk="22"><h3 class="subsection-title">3. 세부 산출 공식 (절대평가형 선형 보간법)</h3>
+<p>원천 수치 X, 집단 백분위 하한 P10, 상한 P90, 지표 배점 M 산식:</p>
+<p>· 정방향 지표: X ≥ P90 이면 S = M; P10 &lt; X &lt; P90 이면 S = M × (X - P10) / (P90 - P10); X ≤ P10 이면 S = 0</p>
+<p>· 역방향 지표: X ≤ P10 이면 S = M; P10 &lt; X &lt; P90 이면 S = M × (P90 - X) / (P90 - P10); X ≥ P90 이면 S = 0</p>
+<p>· 100점 만점 환산지수 = (S / M) × 100</p>
+<h3 class="subsection-title">4. 부문별 및 최종 종합점수 산출</h3>
+<p>· 학생충원 부문점수 = S_신입×2.5 + S_재학×2.5 + S_중도탈락×5.0</p>
+<p>· 대학재정 부문점수 = S_자금확보×3.33 + S_재정지원×3.33 + S_등록금×2.5</p>
+<p>· 법인재정 부문점수 = S_수익재산×14.28 + S_법인전입×33.33</p>
+<p>· 최종 종합점수 = (학생충원 부문점수 × 0.50) + (대학재정 부문점수 × 0.40) + (법인재정 부문점수 × 0.10)</p>
+<h3 class="subsection-title">5. 진단 등급 산정 기준 및 등급상한 규칙</h3>
+<p>종합점수에 따라 S등급(≥77점), A등급(≥65점), B등급(≥56점), C등급(≥44점), D등급(≥30점), E등급(&lt;30점)을 부여합니다. 단, 동종 집단 하위 7% 이내 고위험 지표가 2개 이상 발생할 경우 지표 불균형 등급상한 규칙에 따라 S/A/B등급 진입이 제한되고 C등급으로 조정됩니다.</p>
+<h3 class="subsection-title">6. 분석 실행 메타데이터</h3>
+<p>· 분석 실행 일시: 2026. 8. 18. 오전 5:11:56</p>
+<p>· 대표학교코드: 0000061</p>
+<p>· 학교명: 대구대학교 (4년제 대학교, 경북 대경권, 사립, 대규모)</p>
+<p>· 분석연도 에디션: 2025년 분석에디션 v2.5.6</p>
+<footer class="report-page-footer" aria-label="페이지 번호"><span class="report-page-num">22</span></footer></article>
+  </div>
+</body>
+</html>
