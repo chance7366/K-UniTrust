@@ -25,14 +25,17 @@ export function useVirtualRowRange(
     if (!el) return;
 
     function update() {
+      const container = wrapRef.current;
+      if (!container) return;
       const start = Math.max(
         0,
-        Math.floor(el.scrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN,
+        Math.floor(container.scrollTop / VIRTUAL_ROW_HEIGHT) - VIRTUAL_OVERSCAN,
       );
       const end = Math.min(
         rowCount,
-        Math.ceil((el.scrollTop + el.clientHeight) / VIRTUAL_ROW_HEIGHT) +
-          VIRTUAL_OVERSCAN,
+        Math.ceil(
+          (container.scrollTop + container.clientHeight) / VIRTUAL_ROW_HEIGHT,
+        ) + VIRTUAL_OVERSCAN,
       );
       setRange((prev) =>
         prev.start === start && prev.end === end ? prev : { start, end },

@@ -206,8 +206,9 @@ export function DropoutRateDataTable({
           {visibleRows.map((row, visibleIndex) => {
             const i = virt.rowIndex(visibleIndex);
             const campusCount =
-
-              "campusCount" in row ? row.campusCount : undefined;
+              "campusCount" in row && typeof row.campusCount === "number"
+                ? row.campusCount
+                : undefined;
 
 
 

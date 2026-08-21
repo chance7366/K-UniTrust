@@ -127,7 +127,8 @@ function headerClass(
     : "";
   const schoolNameClass =
     kind === "grad" &&
-    (colIndex === cols.schoolRep || colIndex === cols.gradName)
+    (colIndex === FRESHMAN_ENROLLMENT_ALIMI_COL.grad.schoolRep ||
+      colIndex === FRESHMAN_ENROLLMENT_ALIMI_COL.grad.gradName)
       ? "min-w-[16rem] w-[16rem]"
       : "";
 
@@ -183,7 +184,8 @@ function cellClass(
     : "";
   const schoolNameWidth =
     kind === "grad" &&
-    (colIndex === cols.schoolRep || colIndex === cols.gradName)
+    (colIndex === FRESHMAN_ENROLLMENT_ALIMI_COL.grad.schoolRep ||
+      colIndex === FRESHMAN_ENROLLMENT_ALIMI_COL.grad.gradName)
       ? "min-w-[16rem] w-[16rem]"
       : "";
 
@@ -270,9 +272,11 @@ export function FreshmanEnrollmentAlimiRawTable({
               if (i === cols.year) width = UNIV_ALIMI_IDENTITY_WIDTH_CSS.year;
               else if (i === cols.estb) width = UNIV_ALIMI_IDENTITY_WIDTH_CSS.estb;
               else if (
-                i === cols.schoolName ||
+                (kind === "undergrad" &&
+                  i === FRESHMAN_ENROLLMENT_ALIMI_COL.undergrad.schoolName) ||
                 (kind === "grad" &&
-                  (i === cols.schoolRep || i === cols.gradName))
+                  (i === FRESHMAN_ENROLLMENT_ALIMI_COL.grad.schoolRep ||
+                    i === FRESHMAN_ENROLLMENT_ALIMI_COL.grad.gradName))
               ) {
                 width = UNIV_ALIMI_IDENTITY_WIDTH_CSS.schoolName;
               } else if (i >= cols.firstMetric) {
