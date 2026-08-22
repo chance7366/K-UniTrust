@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 
 import {
-  ensureFpReportPdf,
-  fpReportPdfFilename,
-} from "@/lib/competitiveness-analysis/financial-projection/report/ensure-fp-report-pdf";
-import {
   loadFpReportHtml,
   loadFpReportMeta,
 } from "@/lib/competitiveness-analysis/financial-projection/report/fp-report-store";
@@ -73,6 +69,9 @@ export async function GET(
 
     if (format === "pdf") {
       try {
+        const { ensureFpReportPdf, fpReportPdfFilename } = await import(
+          "@/lib/competitiveness-analysis/financial-projection/report/ensure-fp-report-pdf"
+        );
         const pdf = await ensureFpReportPdf(analysisYear, schoolCode);
         const filename = fpReportPdfFilename({
           analysisYear: meta.analysisYear,

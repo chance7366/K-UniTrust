@@ -4,12 +4,24 @@ import {
   loadUniversityReportHtml,
   loadUniversityReportMeta,
 } from "@/lib/competitiveness-analysis/university-report/report-store";
-import { ensureUniversityReportPdf } from "@/lib/competitiveness-analysis/university-report/ensure-university-report-pdf";
-import { universityReportPdfFilename } from "@/lib/competitiveness-analysis/university-report/html-to-pdf";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
+
+function injectReportToolbar(
+  html: string,
+  analysisYear: number,
+  schoolCodeStd: string,
+): string {
+  const pdfUrl = `/api/competitiveness-analysis/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}?format=pdf`;
+  const toolbar = `<div class="report-view-toolbar no-print" style="position:sticky;top:0;z-index:9999;display:flex;gap:8px;justify-content:flex-end;padding:8px 12px;background:#1e293b;color:#fff;font-size:13px;">
+  <button type="button" onclick="window.print()" style="padding:6px 12px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer;">인쇄</button>
+  <a href="${pdfUrl}" style="padding:6px 12px;border-radius:6px;background:#ea580c;color:#fff;text-decoration:none;">PDF 저장</a>
+</div>`;
+  if (html.includes('class="report-view-toolbar"')) return html;
+  return html.replace("<body>", `<body>${toolbar}`);
+}
 
 export async function GET(
   request: Request,
@@ -33,20 +45,6 @@ export async function GET(
     const url = new URL(request.url);
     const format = url.searchParams.get("format");
 
-function injectReportToolbar(
-  html: string,
-  analysisYear: number,
-  schoolCodeStd: string,
-): string {
-  const pdfUrl = `/api/competitiveness-analysis/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}?format=pdf`;
-  const toolbar = `<div class="report-view-toolbar no-print" style="position:sticky;top:0;z-index:9999;display:flex;gap:8px;justify-content:flex-end;padding:8px 12px;background:#1e293b;color:#fff;font-size:13px;">
-  <button type="button" onclick="window.print()" style="padding:6px 12px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer;">인쇄</button>
-  <a href="${pdfUrl}" style="padding:6px 12px;border-radius:6px;background:#ea580c;color:#fff;text-decoration:none;">PDF 저장</a>
-</div>`;
-  if (html.includes('class="report-view-toolbar"')) return html;
-  return html.replace("<body>", `<body>${toolbar}`);
-}
-
     if (format === "html") {
       const html = await loadUniversityReportHtml(analysisYear, schoolCode);
       if (!html) {
@@ -66,6 +64,12 @@ function injectReportToolbar(
 
     if (format === "pdf") {
       try {
+        const { ensureUniversityReportPdf } = await import(
+          "@/lib/competitiveness-analysis/university-report/ensure-university-report-pdf"
+        );
+        const { universityReportPdfFilename } = await import(
+          "@/lib/competitiveness-analysis/university-report/html-to-pdf"
+        );
         const pdf = await ensureUniversityReportPdf(analysisYear, schoolCode);
         const filename = universityReportPdfFilename({
           analysisYear: meta.analysisYear,

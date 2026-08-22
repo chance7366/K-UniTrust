@@ -9,6 +9,17 @@ const nextConfig: NextConfig = {
     root: projectRoot,
   },
   allowedDevOrigins: ["192.168.6.111"],
+  // Vercel serverless: fs.readFile로 읽는 data/reports·data/json을 번들에 포함
+  outputFileTracingIncludes: {
+    "/api/competitiveness-analysis/**": [
+      "./data/reports/competitiveness/**/*",
+      "./data/json/competitiveness-editions/**/*",
+    ],
+    "/api/financial-projection/**": [
+      "./data/reports/financial-projection/**/*",
+      "./data/json/financial-projection/**/*",
+    ],
+  },
 };
 
 export default nextConfig;

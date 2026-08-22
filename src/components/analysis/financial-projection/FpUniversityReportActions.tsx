@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { GlassActionButton } from "@/components/analysis/GlassHelpButton";
 import { useAccessRole } from "@/components/auth/AccessRoleProvider";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
+import { readApiJson } from "@/lib/api/read-api-json";
 import { buildFpReportGuidelines } from "@/lib/competitiveness-analysis/financial-projection/report/generation-guidelines";
 import type { FpReportMeta } from "@/lib/competitiveness-analysis/financial-projection/report/fp-report-store";
 
@@ -43,15 +44,16 @@ export function FpUniversityReportActions({
     try {
       const res = await fetch(
         `/api/financial-projection/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}`,
+        { credentials: "same-origin" },
       );
       if (res.status === 404) {
         setMeta(null);
         return;
       }
-      const data = (await res.json()) as {
+      const data = await readApiJson<{
         meta?: FpReportMeta;
         error?: string;
-      };
+      }>(res);
       if (!res.ok) {
         throw new Error(data.error ?? "보고서 상태를 불러오지 못했습니다.");
       }

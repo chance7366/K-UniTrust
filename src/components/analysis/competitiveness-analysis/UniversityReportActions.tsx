@@ -7,6 +7,7 @@ import {
 } from "@/components/analysis/GlassHelpButton";
 import { useAccessRole } from "@/components/auth/AccessRoleProvider";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
+import { readApiJson } from "@/lib/api/read-api-json";
 import type { UniversityReportMeta } from "@/lib/competitiveness-analysis/university-report/report-store";
 
 export function UniversityReportActions({
@@ -37,15 +38,16 @@ export function UniversityReportActions({
     try {
       const res = await fetch(
         `/api/competitiveness-analysis/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}`,
+        { credentials: "same-origin" },
       );
       if (res.status === 404) {
         setMeta(null);
         return;
       }
-      const data = (await res.json()) as {
+      const data = await readApiJson<{
         meta?: UniversityReportMeta;
         error?: string;
-      };
+      }>(res);
       if (!res.ok) {
         throw new Error(data.error ?? "보고서 상태를 불러오지 못했습니다.");
       }
@@ -88,11 +90,11 @@ export function UniversityReportActions({
           }),
         },
       );
-      const data = (await res.json()) as {
+      const data = await readApiJson<{
         ok?: boolean;
         meta?: UniversityReportMeta;
         error?: string;
-      };
+      }>(res);
       if (!res.ok) {
         throw new Error(data.error ?? "보고서 생성에 실패했습니다.");
       }
