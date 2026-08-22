@@ -756,11 +756,26 @@ export function UniversityCompetitivenessDashboard() {
   }, [analysisYear, lastRunAt]);
 
   const analysisSchools = useMemo(() => {
-    if (!runResults?.length) return [];
-    return [...runResults].sort((a, b) =>
-      a.schoolName.localeCompare(b.schoolName, "ko"),
-    );
-  }, [runResults]);
+    if (runResults?.length) {
+      return [...runResults].sort((a, b) =>
+        a.schoolName.localeCompare(b.schoolName, "ko"),
+      );
+    }
+    return settings.targetUniversities
+      .map((row) => ({
+        schoolCodeStd: row.schoolCodeStd,
+        schoolName: row.schoolName,
+        estb: row.estb,
+        schoolKind: row.schoolKind,
+        region: row.region,
+        indicators: [],
+        compositeIndex: Number.NaN,
+        compositeRank: 0,
+        absoluteLabels: [],
+        excludedFromRanking: true,
+      }))
+      .sort((a, b) => a.schoolName.localeCompare(b.schoolName, "ko"));
+  }, [runResults, settings.targetUniversities]);
 
   const kindCounts = useMemo(
     () => countSchoolKinds(analysisSchools),
@@ -837,6 +852,7 @@ export function UniversityCompetitivenessDashboard() {
 
   const loading = editionsLoading || trendLoading;
   const hasResults = Boolean(runResults?.length);
+  const canBrowseSchools = analysisSchools.length > 0;
 
   return (
     <>
@@ -894,7 +910,7 @@ export function UniversityCompetitivenessDashboard() {
           </p>
         ) : null}
 
-        {!loading && !hasResults ? (
+        {!loading && !canBrowseSchools ? (
           <section className="rounded-xl border border-dashed border-border bg-surface-2/50 px-5 py-12 text-center">
             <p className="text-sm font-medium">
               {analysisYear}년 분석결과가 없습니다.
@@ -912,7 +928,14 @@ export function UniversityCompetitivenessDashboard() {
           </section>
         ) : null}
 
-        {!loading && hasResults && selectedSchool ? (
+        {!loading && !hasResults && canBrowseSchools ? (
+          <p className="rounded-lg border border-border/70 bg-surface-2/50 px-4 py-3 text-sm text-muted">
+            {analysisYear}년 분석 차트는 아직 없지만, 생성된 개별대학 보고서는
+            아래에서 열람할 수 있습니다.
+          </p>
+        ) : null}
+
+        {!loading && selectedSchool ? (
           <UniversityReportActions
             analysisYear={analysisYear}
             schoolCodeStd={selectedSchool.schoolCodeStd}
@@ -921,7 +944,7 @@ export function UniversityCompetitivenessDashboard() {
           />
         ) : null}
 
-        {!loading && hasResults ? (
+        {!loading && canBrowseSchools ? (
           <div className="grid gap-4 lg:grid-cols-[324px_minmax(0,1fr)] lg:items-start">
             <aside className="flex max-h-[50vh] min-h-0 flex-col overflow-hidden rounded-xl border border-border bg-surface lg:h-[calc(100dvh-13rem)] lg:max-h-[780px]">
               <div className="border-b border-border px-4 py-3">
@@ -1025,7 +1048,7 @@ export function UniversityCompetitivenessDashboard() {
             </aside>
 
             <div className="flex min-h-[480px] min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-surface p-4 lg:h-[calc(100dvh-13rem)] lg:max-h-[780px]">
-              {selectedSchool ? (
+              {selectedSchool && hasResults ? (
                 <SchoolDetailPanel
                   school={selectedSchool}
                   analysisYear={analysisYear}
@@ -1049,6 +1072,13 @@ export function UniversityCompetitivenessDashboard() {
                   }
                   enrolledByCode={enrolledByCode}
                 />
+              ) : selectedSchool ? (
+                <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+                  <p className={FDB_TYPO.bodyText}>
+                    {selectedSchool.schoolName}의 분석 차트는 분석실행 완료 후
+                    표시됩니다. 생성된 보고서는 상단에서 열람할 수 있습니다.
+                  </p>
+                </div>
               ) : (
                 <div className="flex flex-1 items-center justify-center px-6 text-center">
                   <p className={FDB_TYPO.bodyText}>

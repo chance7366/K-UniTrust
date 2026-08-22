@@ -1,11 +1,12 @@
-import { readFile, stat, writeFile } from "fs/promises";
+import { stat } from "fs/promises";
 
 import { htmlToPdfBuffer } from "@/lib/competitiveness-analysis/university-report/html-to-pdf";
 import {
   loadUniversityReportHtml,
   loadUniversityReportMeta,
+  loadUniversityReportPdf,
+  saveUniversityReportPdf,
   universityReportHtmlPath,
-  universityReportMetaPath,
   universityReportPdfPath,
 } from "@/lib/competitiveness-analysis/university-report/report-store";
 
@@ -19,38 +20,32 @@ export async function ensureUniversityReportPdf(
     throw new Error("보고서 HTML을 찾을 수 없습니다.");
   }
 
-  const htmlPath = universityReportHtmlPath(analysisYear, schoolCodeStd);
-  const pdfPath = universityReportPdfPath(analysisYear, schoolCodeStd);
-  const htmlStat = await stat(htmlPath);
+  const meta = await loadUniversityReportMeta(analysisYear, schoolCodeStd);
+  const cachedPdf = await loadUniversityReportPdf(analysisYear, schoolCodeStd);
+  if (cachedPdf && meta?.pdfGeneratedAt && meta.generatedAt) {
+    const pdfAt = Date.parse(meta.pdfGeneratedAt);
+    const htmlAt = Date.parse(meta.generatedAt);
+    if (Number.isFinite(pdfAt) && Number.isFinite(htmlAt) && pdfAt >= htmlAt) {
+      return cachedPdf;
+    }
+  }
 
   try {
-    const pdfStat = await stat(pdfPath);
+    const htmlStat = await stat(universityReportHtmlPath(analysisYear, schoolCodeStd));
+    const pdfStat = await stat(universityReportPdfPath(analysisYear, schoolCodeStd));
     if (pdfStat.mtimeMs >= htmlStat.mtimeMs) {
-      return readFile(pdfPath);
+      const localPdf = await loadUniversityReportPdf(analysisYear, schoolCodeStd);
+      if (localPdf) return localPdf;
     }
   } catch {
-    /* PDF 없음 — 생성 */
+    if (cachedPdf) {
+      return cachedPdf;
+    }
   }
 
   const pdf = await htmlToPdfBuffer(html);
-  await writeFile(pdfPath, pdf);
-
-  const meta = await loadUniversityReportMeta(analysisYear, schoolCodeStd);
   if (meta) {
-    const metaPath = universityReportMetaPath(analysisYear, schoolCodeStd);
-    await writeFile(
-      metaPath,
-      JSON.stringify(
-        {
-          ...meta,
-          pdfFile: "report.pdf",
-          pdfGeneratedAt: new Date().toISOString(),
-        },
-        null,
-        2,
-      ),
-      "utf8",
-    );
+    await saveUniversityReportPdf(analysisYear, schoolCodeStd, pdf, meta);
   }
 
   return pdf;

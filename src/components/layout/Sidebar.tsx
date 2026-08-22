@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 
 import { AiStatusBadge } from "@/components/layout/AiStatusBadge";
+import { clearUserAnalysisDrafts } from "@/lib/analysis/clear-user-drafts";
 import { SidebarBrand } from "@/components/layout/SidebarBrand";
 import { SidebarNav, SidebarNavFallback } from "@/components/layout/SidebarNav";
 import type { AccessRole } from "@/lib/auth/access";
@@ -105,9 +106,11 @@ export function Sidebar({
               type="button"
               className="mb-1.5 text-[11px] font-semibold text-muted hover:text-foreground"
               onClick={() => {
-                void fetch("/api/auth/logout", { method: "POST" }).then(() => {
-                  window.location.href = "/";
-                });
+                void clearUserAnalysisDrafts().then(() =>
+                  fetch("/api/auth/logout", { method: "POST" }).then(() => {
+                    window.location.href = "/";
+                  }),
+                );
               }}
             >
               로그아웃

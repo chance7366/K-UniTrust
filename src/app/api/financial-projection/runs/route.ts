@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 
 import { computeFpRunEdition } from "@/lib/competitiveness-analysis/financial-projection/compute-run-edition";
 import { loadFinancialProjectionBootstrap } from "@/lib/competitiveness-analysis/financial-projection/load-live";
-import { assertFpYear } from "@/lib/competitiveness-analysis/financial-projection/server-store";
+import {
+  assertFpYear,
+  readFpServerRun,
+  readFpServerSession,
+  writeFpServerRun,
+  writeFpServerSession,
+} from "@/lib/competitiveness-analysis/financial-projection/server-store";
+import { readAccessRole } from "@/lib/auth/session";
 import {
   FP_HISTORY_START_YEAR,
   projectionEndYearOf,
@@ -24,7 +31,8 @@ export async function GET(request: Request) {
     if (year == null) {
       return NextResponse.json({ error: "분석연도가 올바르지 않습니다." }, { status: 400 });
     }
-    return NextResponse.json({ analysisYear: year, edition: null });
+    const edition = await readFpServerRun(year);
+    return NextResponse.json({ analysisYear: year, edition });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "분석결과를 불러오지 못했습니다.";
@@ -71,10 +79,31 @@ export async function POST(request: Request) {
       startYear: FP_HISTORY_START_YEAR,
       endYear: projectionEndYearOf(year),
     });
+    const lastRunAt = new Date().toLocaleString("ko-KR");
+    const role = await readAccessRole();
+    if (role === "admin") {
+      await writeFpServerRun(year, edition);
+      const prev = await readFpServerSession(year);
+      await writeFpServerSession({
+        analysisYear: year,
+        universities,
+        baselineReady: true,
+        hasRun: true,
+        lastRunAt,
+        cpiPct,
+        params: runParams,
+        lookupCode:
+          prev?.lookupCode ??
+          universities[0]?.schoolCodeStd ??
+          "",
+        updatedAt: new Date().toISOString(),
+      });
+    }
     return NextResponse.json({
       analysisYear: year,
-      lastRunAt: new Date().toLocaleString("ko-KR"),
+      lastRunAt,
       edition,
+      published: role === "admin",
     });
   } catch (err) {
     const message =

@@ -20,6 +20,37 @@ function fpKey(year: number): string {
 }
 
 const memory = new Map<string, FpRunEdition>();
+const publishedByYear = new Map<number, FpRunEdition>();
+
+export function setFpPublishedRunEdition(
+  year: number,
+  edition: FpRunEdition | null,
+): void {
+  if (edition?.v === 3) publishedByYear.set(year, edition);
+  else publishedByYear.delete(year);
+}
+
+export async function hydrateFpPublishedRunFromServer(
+  year: number,
+): Promise<FpRunEdition | null> {
+  if (typeof fetch === "undefined") return null;
+  try {
+    const res = await fetch(`/api/financial-projection/runs?year=${year}`);
+    if (!res.ok) return null;
+    const json = (await res.json()) as { edition?: FpRunEdition | null };
+    if (json.edition?.v === 3 && json.edition.signature) {
+      setFpPublishedRunEdition(year, json.edition);
+      return json.edition;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+export function clearFpPublishedRunCache(): void {
+  publishedByYear.clear();
+}
 
 export const FP_RUN_SCENARIOS: SimulationScenario[] = [
   "best",
@@ -228,17 +259,22 @@ export function fpStoredRunSignature(year: number): string | null {
 export function readFpRunEdition(year: number): FpRunEdition | null {
   const hit = memory.get(fpKey(year));
   if (hit?.v === 3) return hit;
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") {
+    return publishedByYear.get(year) ?? null;
+  }
   try {
     const raw = localStorage.getItem(STORE_PREFIX + fpKey(year));
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as FpRunEdition;
-    if (parsed?.v !== 3 || !parsed.signature) return null;
-    memory.set(fpKey(year), parsed);
-    return parsed;
+    if (raw) {
+      const parsed = JSON.parse(raw) as FpRunEdition;
+      if (parsed?.v === 3 && parsed.signature) {
+        memory.set(fpKey(year), parsed);
+        return parsed;
+      }
+    }
   } catch {
-    return null;
+    /* fallback */
   }
+  return publishedByYear.get(year) ?? null;
 }
 
 export function writeFpRunEdition(

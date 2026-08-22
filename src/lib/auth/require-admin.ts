@@ -10,3 +10,12 @@ export async function requireAdminUpload(): Promise<NextResponse | null> {
     { status: 403 },
   );
 }
+
+export async function requireAdminReportGenerate(): Promise<NextResponse | null> {
+  const role = await readAccessRole();
+  if (role === "admin") return null;
+  return NextResponse.json(
+    { error: "관리자만 보고서를 생성할 수 있습니다." },
+    { status: 403 },
+  );
+}

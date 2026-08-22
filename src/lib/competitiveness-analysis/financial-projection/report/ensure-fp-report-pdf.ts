@@ -1,13 +1,14 @@
-import { readFile, stat, writeFile } from "fs/promises";
+import { stat } from "fs/promises";
 
 import { htmlToPdfBuffer } from "@/lib/competitiveness-analysis/university-report/html-to-pdf";
 
 import {
   fpReportHtmlPath,
-  fpReportMetaPath,
   fpReportPdfPath,
   loadFpReportHtml,
   loadFpReportMeta,
+  loadFpReportPdf,
+  saveFpReportPdf,
 } from "./fp-report-store";
 
 export function fpReportPdfFilename(args: {
@@ -29,36 +30,41 @@ export async function ensureFpReportPdf(
     throw new Error("보고서 HTML을 찾을 수 없습니다.");
   }
 
-  const htmlStat = await stat(fpReportHtmlPath(analysisYear, schoolCodeStd));
-  const pdfPath = fpReportPdfPath(analysisYear, schoolCodeStd);
+  const meta = await loadFpReportMeta(analysisYear, schoolCodeStd);
+  const cachedPdf = await loadFpReportPdf(analysisYear, schoolCodeStd);
+  if (cachedPdf && meta?.pdfGeneratedAt && meta.generatedAt) {
+    const pdfAt = Date.parse(meta.pdfGeneratedAt);
+    const htmlAt = Date.parse(meta.generatedAt);
+    if (Number.isFinite(pdfAt) && Number.isFinite(htmlAt) && pdfAt >= htmlAt) {
+      return cachedPdf;
+    }
+  }
 
+  let needsGenerate = true;
   try {
-    const pdfStat = await stat(pdfPath);
-    if (pdfStat.mtimeMs >= htmlStat.mtimeMs) {
-      return readFile(pdfPath);
+    const htmlStat = await stat(fpReportHtmlPath(analysisYear, schoolCodeStd));
+    const pdfStat = await stat(fpReportPdfPath(analysisYear, schoolCodeStd));
+    needsGenerate = pdfStat.mtimeMs < htmlStat.mtimeMs;
+    if (!needsGenerate) {
+      const localPdf = await loadFpReportPdf(analysisYear, schoolCodeStd);
+      if (localPdf) return localPdf;
     }
   } catch {
-    /* PDF 없음 — 생성 */
+    if (cachedPdf) {
+      return cachedPdf;
+    }
   }
 
   const pdf = await htmlToPdfBuffer(html);
-  await writeFile(pdfPath, pdf);
-
-  const meta = await loadFpReportMeta(analysisYear, schoolCodeStd);
   if (meta) {
-    await writeFile(
-      fpReportMetaPath(analysisYear, schoolCodeStd),
-      JSON.stringify(
-        {
-          ...meta,
-          pdfFile: "report.pdf",
-          pdfGeneratedAt: new Date().toISOString(),
-        },
-        null,
-        2,
-      ),
-      "utf8",
-    );
+    await saveFpReportPdf(analysisYear, schoolCodeStd, pdf, meta);
+  } else {
+    try {
+      const { writeFile } = await import("fs/promises");
+      await writeFile(fpReportPdfPath(analysisYear, schoolCodeStd), pdf);
+    } catch {
+      /* read-only FS */
+    }
   }
 
   return pdf;

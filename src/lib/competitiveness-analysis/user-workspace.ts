@@ -159,6 +159,36 @@ export async function writeCaUserWorkspace(
   return next;
 }
 
+export async function clearCaUserDraftWorkspaces(): Promise<void> {
+  if (typeof indexedDB === "undefined") return;
+  const prefix = "user:";
+  try {
+    const db = await openDb();
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(IDB_STORE, "readwrite");
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.getAllKeys();
+      req.onsuccess = () => {
+        for (const key of req.result) {
+          if (String(key).startsWith(prefix)) {
+            store.delete(key);
+          }
+        }
+      };
+      tx.oncomplete = () => {
+        db.close();
+        resolve();
+      };
+      tx.onerror = () => {
+        db.close();
+        reject(tx.error ?? new Error("IndexedDB clear failed"));
+      };
+    });
+  } catch {
+    /* private mode */
+  }
+}
+
 export async function loadLocalEditionTrendSeries(): Promise<
   EditionTrendPoint[]
 > {

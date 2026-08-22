@@ -50,6 +50,8 @@ import {
 import type { PostRunValidationReport } from "@/lib/competitiveness-analysis/post-run-validation/types";
 
 import { PostRunValidationDialog } from "@/components/analysis/competitiveness-analysis/PostRunValidationDialog";
+import { useAccessRole } from "@/components/auth/AccessRoleProvider";
+import type { AccessRole } from "@/lib/auth/access";
 import {
   applyCaWeights,
   extractCaWeights,
@@ -307,8 +309,9 @@ type EditionRunState = ReturnType<typeof applyEditionToState>;
 function resolveEditionRunState(
   server: EditionRunState,
   local: Awaited<ReturnType<typeof readCaUserWorkspace>>,
+  role: AccessRole | null | undefined,
 ): EditionRunState {
-  if (local?.results?.runResults?.length) {
+  if (role === "user" && local?.results?.runResults?.length) {
     return {
       ...server,
       rawResults: local.results.step1RawResults,
@@ -321,6 +324,11 @@ function resolveEditionRunState(
     };
   }
   return server;
+}
+
+/** 로그아웃 시 클라이언트 캐시 초기화 */
+export function resetCompetitivenessClientCache(): void {
+  editionClientCache = null;
 }
 
 type EditionClientCache = {
@@ -346,6 +354,7 @@ export function CompetitivenessSettingsProvider({
 }: {
   children: ReactNode;
 }) {
+  const accessRole = useAccessRole();
   const indicators = useMemo(() => getCompetitivenessIndicators(), []);
   const defaultYear = new Date().getFullYear();
   const cached = editionClientCache;
@@ -452,7 +461,7 @@ export function CompetitivenessSettingsProvider({
       const settings = local?.weights
         ? applyCaWeights(applied.settings, local.weights)
         : applied.settings;
-      const resolved = resolveEditionRunState(applied, local);
+      const resolved = resolveEditionRunState(applied, local, accessRole);
       writeStoredAnalysisYear(year);
       setAnalysisYearState(year);
       setSettings(settings);
@@ -469,7 +478,7 @@ export function CompetitivenessSettingsProvider({
         hasRunResults: Boolean(resolved.runResults?.length),
       });
     },
-    [indicators],
+    [accessRole, indicators],
   );
 
   const persistResults = useCallback(
@@ -506,10 +515,12 @@ export function CompetitivenessSettingsProvider({
         });
       }
 
+      const publishToServer = accessRole === "admin";
       if (
-        payload.runResults?.length ||
-        payload.step1RawResults?.length ||
-        payload.step2IndexResults?.length
+        publishToServer &&
+        (payload.runResults?.length ||
+          payload.step1RawResults?.length ||
+          payload.step2IndexResults?.length)
       ) {
         try {
           const res = await fetch(
@@ -535,7 +546,7 @@ export function CompetitivenessSettingsProvider({
         }
       }
     },
-    [refreshEditions, settings],
+    [accessRole, refreshEditions, settings],
   );
 
   useEffect(() => {
@@ -784,6 +795,21 @@ export function CompetitivenessSettingsProvider({
     setSettingsSaveError(null);
     try {
       const savedAt = new Date().toISOString();
+      if (accessRole === "admin") {
+        const res = await fetch(
+          `/api/competitiveness-analysis/editions/${analysisYear}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ settings }),
+          },
+        );
+        if (!res.ok) {
+          const body = (await res.json().catch(() => ({}))) as { error?: string };
+          throw new Error(body.error ?? "기본설정 저장에 실패했습니다.");
+        }
+        await refreshEditions();
+      }
       const saved = await writeCaUserWorkspace(analysisYear, {
         weights: extractCaWeights(settings),
         settingsSavedAt: savedAt,
@@ -802,7 +828,7 @@ export function CompetitivenessSettingsProvider({
     } finally {
       setSettingsSavePending(false);
     }
-  }, [analysisYear, settings]);
+  }, [accessRole, analysisYear, refreshEditions, settings]);
 
   const runStep1 = useCallback(async () => {
     setStep1Pending(true);

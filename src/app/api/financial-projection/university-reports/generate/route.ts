@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { requireAdminUpload } from "@/lib/auth/require-admin";
+import { requireAdminReportGenerate } from "@/lib/auth/require-admin";
 import { generateFpReport } from "@/lib/competitiveness-analysis/financial-projection/report/generate-fp-report";
 
 export const runtime = "nodejs";
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 300;
 
 export async function POST(request: Request) {
-  const denied = await requireAdminUpload();
+  const denied = await requireAdminReportGenerate();
   if (denied) return denied;
 
   try {

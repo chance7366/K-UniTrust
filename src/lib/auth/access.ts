@@ -16,6 +16,13 @@ export function isExcelUploadApiPath(pathname: string): boolean {
   return pathname.includes("/upload") || pathname.endsWith("/consolidate");
 }
 
+export function isReportGenerateApiPath(pathname: string): boolean {
+  return (
+    pathname === "/api/competitiveness-analysis/university-reports/generate" ||
+    pathname === "/api/financial-projection/university-reports/generate"
+  );
+}
+
 export function getAccessSecret(): string {
   const explicit = process.env.KUNITRUST_AUTH_SECRET?.trim();
   if (explicit) return explicit;

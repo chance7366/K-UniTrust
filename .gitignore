@@ -32,8 +32,7 @@ yarn-error.log*
 # 업로드 원본 스냅샷(용량·중복). 운영 CSV는 data/csv 유지
 data/01_raw/api/
 
-# 실행 결과 JSON — 재정추계는 로컬 전용, 경쟁력 에디션은 배포 시 포함
-data/json/financial-projection/**/*.json
+# (관리자 기준 분석·추계 JSON은 data/json/ 아래 Git에 포함하여 Vercel 배포)
 
 # vercel
 .vercel

@@ -141,7 +141,9 @@ export function FpUniversityReportActions({
     }
   }
 
-  if (!hasRunResults || !schoolCodeStd || !schoolName) return null;
+  if (!schoolCodeStd || !schoolName) return null;
+
+  const canGenerate = isAdmin && hasRunResults;
 
   return (
     <div className="rounded-lg border border-border/70 bg-surface-2/60 px-4 py-3">
@@ -159,6 +161,11 @@ export function FpUniversityReportActions({
                 ? " · 미생성"
                 : null}
           </p>
+          {!hasRunResults && meta ? (
+            <p className={`mt-1 ${FDB_TYPO.legend} text-muted`}>
+              추계 차트 없이도 저장된 보고서를 열람할 수 있습니다.
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {meta ? (
@@ -175,7 +182,7 @@ export function FpUniversityReportActions({
               </GlassActionButton>
             </>
           ) : null}
-          {isAdmin ? (
+          {canGenerate ? (
             <>
               <GlassActionButton
                 tone="green"
@@ -195,6 +202,11 @@ export function FpUniversityReportActions({
           ) : null}
         </div>
       </div>
+      {isAdmin && !hasRunResults && !meta ? (
+        <p className={`mt-2 ${FDB_TYPO.legend} text-muted`}>
+          보고서 생성은 {analysisYear}년 재정추계 분석실행을 완료한 뒤 가능합니다.
+        </p>
+      ) : null}
       {error ? <p className="mt-2 text-xs text-danger">{error}</p> : null}
       {generating ? (
         <p className={`mt-2 ${FDB_TYPO.legend} text-muted`}>

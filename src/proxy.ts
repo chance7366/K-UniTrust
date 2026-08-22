@@ -4,6 +4,7 @@ import type { NextRequest } from "next/server";
 import {
   ACCESS_COOKIE,
   isExcelUploadApiPath,
+  isReportGenerateApiPath,
   parseAccessToken,
 } from "@/lib/auth/access";
 
@@ -21,9 +22,17 @@ export async function proxy(request: NextRequest) {
       request.method === "POST" ||
       request.method === "PUT" ||
       request.method === "PATCH";
-    if (mutating && isExcelUploadApiPath(pathname) && role !== "admin") {
+    if (
+      mutating &&
+      (isExcelUploadApiPath(pathname) || isReportGenerateApiPath(pathname)) &&
+      role !== "admin"
+    ) {
       return NextResponse.json(
-        { error: "관리자만 데이터를 업로드할 수 있습니다." },
+        {
+          error: isReportGenerateApiPath(pathname)
+            ? "관리자만 보고서를 생성할 수 있습니다."
+            : "관리자만 데이터를 업로드할 수 있습니다.",
+        },
         { status: 403 },
       );
     }

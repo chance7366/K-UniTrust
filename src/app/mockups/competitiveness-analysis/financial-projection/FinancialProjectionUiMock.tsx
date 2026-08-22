@@ -134,6 +134,7 @@ import {
   FP_RUN_SCENARIOS,
   fpRunSignature,
   fpUnisSignature,
+  hydrateFpPublishedRunFromServer,
   loadFpRunEditionIntoMemory,
   markFpRunPending,
   readFpSchoolRun,
@@ -142,6 +143,8 @@ import {
   fpRunYearHasResults,
   fpStoredRunSignature,
 } from "@/lib/competitiveness-analysis/financial-projection/run-results-cache";
+import { workspaceScope } from "@/lib/auth/local-workspace";
+import type { FpServerSession } from "@/lib/competitiveness-analysis/financial-projection/server-store";
 import {
   CLASS_LABEL,
   FpAnalysisYearBar,
@@ -591,14 +594,57 @@ export function FinancialProjectionUiMock({
 
         const liveTargets = json.targets ?? [];
         const liveCodes = new Set(liveTargets.map((t) => t.schoolCodeStd));
+        const userHasLocalDraft =
+          workspaceScope() === "user" &&
+          Boolean(saved.hasRun && fpRunYearHasResults(analysisYear));
+
+        let serverSession: FpServerSession | null = null;
+        if (!userHasLocalDraft) {
+          try {
+            const sessionRes = await fetch(
+              `/api/financial-projection/session?year=${analysisYear}`,
+            );
+            if (sessionRes.ok) {
+              const sessionJson = (await sessionRes.json()) as {
+                session?: FpServerSession | null;
+              };
+              serverSession = sessionJson.session ?? null;
+            }
+          } catch {
+            /* fallback to local */
+          }
+        }
+
+        const publishedUnivs =
+          !userHasLocalDraft && serverSession?.universities?.length
+            ? serverSession.universities.filter(
+                (u) =>
+                  liveCodes.has(u.schoolCodeStd) &&
+                  (u.analysisYear ?? analysisYear) === analysisYear,
+              )
+            : [];
         const localUnivs = saved.universities.filter(
           (u) =>
             liveCodes.has(u.schoolCodeStd) &&
             (u.analysisYear ?? analysisYear) === analysisYear,
         );
-        const univs = localUnivs;
-        const baselineReady = Boolean(univs.length && saved.baselineReady);
-        const hasRun = Boolean(univs.length && saved.hasRun);
+        const univs = userHasLocalDraft
+          ? localUnivs
+          : publishedUnivs.length
+            ? publishedUnivs
+            : localUnivs;
+        const baselineReady = Boolean(
+          univs.length &&
+            (userHasLocalDraft
+              ? saved.baselineReady
+              : (serverSession?.baselineReady ?? saved.baselineReady)),
+        );
+        const hasRun = Boolean(
+          univs.length &&
+            (userHasLocalDraft
+              ? saved.hasRun
+              : (serverSession?.hasRun ?? saved.hasRun)),
+        );
         setTargets(liveTargets);
         setNationalMacro(json.nationalMacro);
         setSchoolAgeLive(json.schoolAge ?? null);
@@ -614,17 +660,44 @@ export function FinancialProjectionUiMock({
         setUniversities(univs);
         setBaselineReady(baselineReady);
         setHasRun(hasRun);
-        setLastRunAt(univs.length > 0 ? saved.lastRunAt : null);
-        setCpiPct(saved.cpiPct);
-        setParams(saved.params);
-        setResultViewScenario(saved.params.scenario);
+        setLastRunAt(
+          userHasLocalDraft
+            ? saved.lastRunAt
+            : (serverSession?.lastRunAt ?? (univs.length ? saved.lastRunAt : null)),
+        );
+        setCpiPct(
+          userHasLocalDraft
+            ? saved.cpiPct
+            : (serverSession?.cpiPct ?? saved.cpiPct),
+        );
+        setParams(
+          userHasLocalDraft
+            ? saved.params
+            : (serverSession?.params ?? saved.params),
+        );
+        setResultViewScenario(
+          (userHasLocalDraft
+            ? saved.params
+            : (serverSession?.params ?? saved.params)
+          ).scenario,
+        );
         setLookupCode(
-          liveCodes.has(saved.lookupCode)
-            ? saved.lookupCode
+          liveCodes.has(
+            userHasLocalDraft
+              ? saved.lookupCode
+              : (serverSession?.lookupCode ?? saved.lookupCode),
+          )
+            ? userHasLocalDraft
+              ? saved.lookupCode
+              : (serverSession?.lookupCode ?? saved.lookupCode)
             : (liveTargets.find((t) => t.included)?.schoolCodeStd ?? ""),
         );
         setLoadError(null);
-        await loadFpRunEditionIntoMemory(analysisYear);
+        if (userHasLocalDraft) {
+          await loadFpRunEditionIntoMemory(analysisYear);
+        } else {
+          await hydrateFpPublishedRunFromServer(analysisYear);
+        }
         if (cancelled) return;
         if (fpRunYearHasResults(analysisYear) && univs.length) {
           setHasRun(true);
@@ -1258,7 +1331,7 @@ export function FinancialProjectionUiMock({
                 {batchProgress.total.toLocaleString("ko-KR")} (낙관·기본·비관·한계)
               </p>
             </div>
-          ) : !hasRun || !lookupUniv ? (
+          ) : !lookupUniv || !baselineUnivs.length ? (
             <div className="fpm-chart-card">
               <p className={CHART_TYPO.bodyText}>
                 개별대학 추계는 {analysisYear}년 기본설정·시나리오를 확정한 뒤 시나리오
@@ -1272,20 +1345,32 @@ export function FinancialProjectionUiMock({
                 시나리오로 이동
               </button>
             </div>
-          ) : !storedSchool || storedSchool.rows.length === 0 || !projection ? (
-            <div className="fpm-chart-card">
-              <p className={CHART_TYPO.bodyText}>
-                저장된 추계 시계열이 없습니다. 분석결과·대학별추계는 계산하지 않으므로
-                기본설정 시나리오 탭에서 <strong>분석실행</strong>을 다시 눌러 주세요.
-              </p>
-              <button
-                type="button"
-                className="mt-3 rounded-md border border-accent bg-accent/10 px-3 py-1.5 text-sm font-semibold text-accent"
-                onClick={() => go("scenario")}
+          ) : !hasRun || !storedSchool || storedSchool.rows.length === 0 || !projection ? (
+            <>
+              {!hasRun ? (
+                <p className="fpm-chart-card mb-4 text-sm text-muted">
+                  {analysisYear}년 추계 차트는 분석실행 후 표시됩니다. 생성된
+                  개별대학 보고서는 아래에서 열람할 수 있습니다.
+                </p>
+              ) : null}
+              <FpUniversityLookupPanel
+                universities={baselineUnivs}
+                targets={targets}
+                analysisYear={analysisYear}
+                scenario={resultViewScenario}
+                onScenario={setResultViewScenario}
+                lookupTab={lookupTab}
+                onLookupTab={setLookupTab}
+                runTab={runTab}
+                onRunTab={setRunTab}
+                selectedCode={lookupUniv.schoolCodeStd}
+                onSelectCode={setLookupCode}
+                listStages={listStages}
+                projection={null}
               >
-                시나리오로 이동
-              </button>
-            </div>
+                {null}
+              </FpUniversityLookupPanel>
+            </>
           ) : (
             <FpUniversityLookupPanel
               universities={baselineUnivs}

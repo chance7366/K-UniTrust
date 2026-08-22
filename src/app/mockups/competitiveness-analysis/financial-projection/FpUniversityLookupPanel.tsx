@@ -499,6 +499,26 @@ export function FpUniversityLookupPanel({
                 {children}
               </div>
             </div>
+          ) : selectedUniv ? (
+            <div className="flex min-h-0 flex-1 flex-col gap-4">
+              <section className="rounded-xl border border-accent/40 bg-[var(--glow-panel-kpi)] p-5 shadow-[var(--glow-inset)]">
+                <h2 className="text-xl font-bold">{selectedUniv.schoolName}</h2>
+                <p className="mt-1 text-sm text-muted">
+                  {selectedUniv.region}
+                  {selectedTarget?.estb ? ` · ${selectedTarget.estb}` : ""}
+                </p>
+              </section>
+              <FpUniversityReportActions
+                analysisYear={analysisYear}
+                schoolCodeStd={selectedUniv.schoolCodeStd}
+                schoolName={selectedUniv.schoolName}
+                hasRunResults={Boolean(projection)}
+              />
+              <p className={`${CHART_TYPO.bodyText} text-muted`}>
+                추계 차트는 {analysisYear}년 분석실행을 완료한 뒤 표시됩니다.
+                생성된 보고서는 위에서 열람할 수 있습니다.
+              </p>
+            </div>
           ) : (
             <div className="flex flex-1 items-center justify-center px-6 text-center">
               <p className={CHART_TYPO.bodyText}>
