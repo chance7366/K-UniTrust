@@ -162,6 +162,32 @@ export async function writeCaUserWorkspace(
 export async function loadLocalEditionTrendSeries(): Promise<
   EditionTrendPoint[]
 > {
+  const local = await loadEditionTrendSeriesFromIndexedDb();
+  if (typeof fetch === "undefined") return local;
+
+  try {
+    const res = await fetch("/api/competitiveness-analysis/trend");
+    if (!res.ok) return local;
+    const data = (await res.json()) as { series?: EditionTrendPoint[] };
+    const server = data.series ?? [];
+    if (!server.length) return local;
+
+    const byYear = new Map<number, EditionTrendPoint>();
+    for (const point of server) {
+      byYear.set(point.analysisYear, point);
+    }
+    for (const point of local) {
+      byYear.set(point.analysisYear, point);
+    }
+    return [...byYear.values()].sort((a, b) => a.analysisYear - b.analysisYear);
+  } catch {
+    return local;
+  }
+}
+
+async function loadEditionTrendSeriesFromIndexedDb(): Promise<
+  EditionTrendPoint[]
+> {
   if (typeof indexedDB === "undefined") return [];
   const scope = workspaceScope();
   try {

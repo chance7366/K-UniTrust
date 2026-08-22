@@ -30,6 +30,7 @@ import { SoftMintChartTooltip } from "@/components/analysis/SoftMintChartTooltip
 import { ANALYTICS_ZONE_STROKES } from "@/lib/analysis/korea-analytics-zones";
 import { CHART_TYPO } from "@/lib/analysis/finance-charts-typography";
 import { CHART_THEME } from "@/lib/theme/teal-glow";
+import { subjectParticle } from "@/lib/korean-particle";
 import { DIAGNOSTIC_GRADE_CUTOFFS } from "@/lib/competitiveness-analysis/diagnostic-grade";
 import {
   ANALYTICS_ZONES,
@@ -769,7 +770,7 @@ export function IndicatorCompetitivenessTab({
               subtitle={`대규모·중규모·소규모 평균 ${indicator.scoreName} · ${yearRangeLabel}`}
               help={{
                 title: "규모별 추이",
-                body: `소규모 대학의 ${indicator.scoreName}가 중·대규모보다 가파르게 내려가는지 봅니다.`,
+                body: `소규모 대학의 ${indicator.scoreName}${subjectParticle(indicator.scoreName)} 중·대규모보다 가파르게 내려가는지 봅니다.`,
               }}
             >
               <div className="h-[320px] w-full">

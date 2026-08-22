@@ -302,6 +302,27 @@ function applyEditionToState(
   };
 }
 
+type EditionRunState = ReturnType<typeof applyEditionToState>;
+
+function resolveEditionRunState(
+  server: EditionRunState,
+  local: Awaited<ReturnType<typeof readCaUserWorkspace>>,
+): EditionRunState {
+  if (local?.results?.runResults?.length) {
+    return {
+      ...server,
+      rawResults: local.results.step1RawResults,
+      runResults: local.results.runResults,
+      lastRunAt: local.results.lastRunAt,
+      step1RawResults: local.results.step1RawResults,
+      step1LastRunAt: local.results.step1At,
+      step2IndexResults: local.results.step2IndexResults,
+      step2LastRunAt: local.results.step2At,
+    };
+  }
+  return server;
+}
+
 type EditionClientCache = {
   analysisYear: number;
   editions: EditionSummary[];
@@ -431,21 +452,21 @@ export function CompetitivenessSettingsProvider({
       const settings = local?.weights
         ? applyCaWeights(applied.settings, local.weights)
         : applied.settings;
-      const results = local?.results;
+      const resolved = resolveEditionRunState(applied, local);
       writeStoredAnalysisYear(year);
       setAnalysisYearState(year);
       setSettings(settings);
-      setRawResults(results?.step1RawResults ?? null);
-      setRunResults(results?.runResults ?? null);
-      setLastRunAt(results?.lastRunAt ?? null);
-      setStep1RawResults(results?.step1RawResults ?? null);
-      setStep1LastRunAt(results?.step1At ?? null);
-      setStep2IndexResults(results?.step2IndexResults ?? null);
-      setStep2LastRunAt(results?.step2At ?? null);
+      setRawResults(resolved.rawResults);
+      setRunResults(resolved.runResults);
+      setLastRunAt(resolved.lastRunAt);
+      setStep1RawResults(resolved.step1RawResults);
+      setStep1LastRunAt(resolved.step1LastRunAt);
+      setStep2IndexResults(resolved.step2IndexResults);
+      setStep2LastRunAt(resolved.step2LastRunAt);
       setLocalMeta({
         settingsSavedAt: local?.settingsSavedAt ?? null,
         runSettingsSavedAt: local?.runSettingsSavedAt ?? null,
-        hasRunResults: Boolean(results?.runResults?.length),
+        hasRunResults: Boolean(resolved.runResults?.length),
       });
     },
     [indicators],
@@ -484,8 +505,37 @@ export function CompetitivenessSettingsProvider({
           hasRunResults: Boolean(saved.results.runResults?.length),
         });
       }
+
+      if (
+        payload.runResults?.length ||
+        payload.step1RawResults?.length ||
+        payload.step2IndexResults?.length
+      ) {
+        try {
+          const res = await fetch(
+            `/api/competitiveness-analysis/editions/${year}/results`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                step1RawResults: payload.step1RawResults,
+                step1At: payload.step1At,
+                step2IndexResults: payload.step2IndexResults,
+                step2At: payload.step2At,
+                runResults: payload.runResults,
+                lastRunAt: payload.lastRunAt,
+              }),
+            },
+          );
+          if (res.ok) {
+            await refreshEditions();
+          }
+        } catch {
+          /* serverless read-only FS 등 — 브라우저 저장은 이미 완료 */
+        }
+      }
     },
-    [settings],
+    [refreshEditions, settings],
   );
 
   useEffect(() => {

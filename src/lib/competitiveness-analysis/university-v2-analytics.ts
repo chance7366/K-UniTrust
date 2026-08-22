@@ -8,6 +8,7 @@ import type {
   GroupIndexYearRow,
   IndicatorYearRow,
 } from "@/lib/competitiveness-analysis/university-detail-data";
+import { topicParticle } from "@/lib/korean-particle";
 
 export type IndicatorStatus = "danger" | "warning" | "success" | "neutral";
 
@@ -204,8 +205,9 @@ function buildOneLineSummary(args: {
   highRiskCount: number;
   weakestLabel: string | null;
 }): string {
+  // diagnosticGrade는 "E등급"·"C (지표 불균형)"처럼 이미 완성된 라벨이므로 "등급"을 덧붙이지 않는다.
   const parts = [
-    `${args.schoolName}은 ${args.analysisYear}년 종합지수 ${args.compositeIndex?.toFixed(1) ?? "—"}점·${args.diagnosticGrade}등급·${args.quadrantLabel} 구간입니다.`,
+    `${args.schoolName}${topicParticle(args.schoolName)} ${args.analysisYear}년 종합지수 ${args.compositeIndex?.toFixed(1) ?? "—"}점·${args.diagnosticGrade}·${args.quadrantLabel} 구간입니다.`,
   ];
   if (args.highRiskCount > 0) {
     parts.push(

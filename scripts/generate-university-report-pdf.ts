@@ -5,6 +5,7 @@
 import "dotenv/config";
 
 import { ensureUniversityReportPdf } from "@/lib/competitiveness-analysis/university-report/ensure-university-report-pdf";
+import { closePdfBrowser } from "@/lib/competitiveness-analysis/university-report/html-to-pdf";
 import {
   loadUniversityReportMeta,
   universityReportPdfPath,
@@ -34,7 +35,9 @@ async function main() {
   console.log(`School: ${meta.schoolName}`);
 }
 
-main().catch((err) => {
-  console.error(err instanceof Error ? err.message : err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error(err instanceof Error ? err.message : err);
+    process.exitCode = 1;
+  })
+  .finally(closePdfBrowser);

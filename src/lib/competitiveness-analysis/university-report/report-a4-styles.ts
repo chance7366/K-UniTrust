@@ -310,15 +310,15 @@ export function reportA4Styles(): string {
       border: 1px solid color-mix(in srgb, #0284c7 35%, var(--report-border));
       border-radius: 8px;
       background: color-mix(in srgb, #0284c7 4%, #fff);
-      padding: 4mm;
-      margin-bottom: 4mm;
+      padding: 3mm;
+      margin-bottom: 3mm;
     }
 
-    .rv2-panel-head { margin-bottom: 3mm; }
+    .rv2-panel-head { margin-bottom: 2.5mm; }
     .rv2-title { font-size: 11pt; font-weight: 700; color: #0284c7; margin: 0; }
     .rv2-lead { font-size: 8pt; color: #64748b; margin: 1mm 0 0; }
     .rv2-h4 { font-size: 9pt; font-weight: 600; color: #0369a1; margin: 0 0 2mm; }
-    .rv2-section-gap { margin-top: 4mm; }
+    .rv2-section-gap { margin-top: 3mm; }
 
     .rv2-exec-cards {
       display: grid;
@@ -367,28 +367,32 @@ export function reportA4Styles(): string {
     }
 
     .rv2-chart-slot .report-chart { margin: 0; }
-    .rv2-chart-slot .report-chart svg { max-height: 42mm; width: 100%; height: auto; }
-    .rv2-caption { font-size: 7.5pt; color: #64748b; margin: 2mm 0 0; }
+    .rv2-chart-slot .report-chart svg { max-height: 38mm; width: 100%; height: auto; }
+    .rv2-caption { font-size: 7.5pt; color: #64748b; margin: 1.5mm 0 0; }
 
     .rv2-indicator-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 2mm;
     }
 
     .rv2-indicator-card {
       border: 1px solid var(--report-border);
       border-radius: 6px;
-      padding: 2mm;
+      padding: 1.8mm;
       background: #fff;
+      min-width: 0;
     }
 
     .rv2-indicator-head {
       display: flex;
       justify-content: space-between;
-      font-size: 7.5pt;
+      align-items: center;
+      gap: 1mm;
+      font-size: 7pt;
       font-weight: 600;
-      margin-bottom: 1.5mm;
+      margin-bottom: 1.2mm;
+      white-space: nowrap;
     }
 
     .rv2-status {
@@ -405,9 +409,9 @@ export function reportA4Styles(): string {
 
     .rv2-indicator-metrics {
       display: flex;
-      gap: 3mm;
+      gap: 2mm;
       font-size: 7pt;
-      margin-bottom: 1.5mm;
+      margin-bottom: 1.2mm;
     }
 
     .rv2-metric-label { display: block; color: #64748b; font-size: 6.5pt; }
@@ -982,6 +986,47 @@ export function reportA4Styles(): string {
       vertical-align: top;
     }
 
+    /* ── 제1부 첫 페이지(1.1 기본정보 + 1.2 그룹지수 표) — 표 압축 ── */
+    .report-page-part1-lead .data-table,
+    .report-page-part1-lead table {
+      font-size: 8pt;
+      margin: 3.5mm 0 5mm;
+    }
+
+    .report-page-part1-lead th,
+    .report-page-part1-lead td {
+      padding: 1.5mm 1.2mm;
+    }
+
+    /* ── 부록 페이지 — 표·본문 압축(A4 오버플로 방지) ── */
+    .report-page-appendix p,
+    .report-page-appendix li {
+      font-size: 8.5pt;
+      line-height: 1.5;
+      margin: 1.5mm 0;
+    }
+
+    .report-page-appendix .data-table,
+    .report-page-appendix table {
+      font-size: 8pt;
+      margin: 3mm 0 4mm;
+    }
+
+    .report-page-appendix th,
+    .report-page-appendix td {
+      padding: 1.5mm 1.5mm;
+    }
+
+    .report-page-appendix .subsection-title {
+      margin-top: 5mm;
+      margin-bottom: 2.5mm;
+    }
+
+    .report-page-appendix .subsubsection-title {
+      margin-top: 3.5mm;
+      margin-bottom: 2mm;
+    }
+
     .report-part3-note {
       font-size: 8.5pt;
       color: #64748b;
@@ -1068,19 +1113,28 @@ export function reportA4Styles(): string {
       page-break-inside: avoid;
     }
 
+    /* 그룹 추세 차트 4종 — 전폭 1열(판독성·페이지 채움) */
     .report-chart-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4mm;
-      margin: 5mm 0 7mm;
+      grid-template-columns: 1fr;
+      gap: 3mm;
+      margin: 4mm 0 5mm;
     }
 
     .report-chart-card {
       border: 1px solid var(--report-border);
       border-radius: 4px;
-      padding: 3mm;
+      padding: 2mm 3mm;
       background: #fafafa;
       page-break-inside: avoid;
+    }
+
+    .report-chart-card .report-chart {
+      margin: 0;
+    }
+
+    .report-chart-card .report-chart-legend {
+      margin-top: 1mm;
     }
 
     .report-chart-title {

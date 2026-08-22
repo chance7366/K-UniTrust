@@ -32,8 +32,8 @@ function statusLabel(status: IndicatorStatus): string {
 
 function sparklineSvg(values: number[]): string {
   if (values.length < 2) return `<span class="rv2-spark-empty">—</span>`;
-  const w = 72;
-  const h = 22;
+  const w = 52;
+  const h = 18;
   const min = Math.min(...values);
   const max = Math.max(...values);
   const span = max - min || 1;
@@ -142,12 +142,10 @@ export function buildReportV2InsightsHtml(
 
   <div class="rv2-grid-2">
     <div class="rv2-card">
-      <h3 class="rv2-h4">8대 지표 균형 (Radar)</h3>
       <div class="rv2-chart-slot">${radarChart}</div>
       <p class="rv2-caption">Balance Index: <strong>${v2.balanceIndex?.toFixed(1) ?? "—"}</strong>${balanceNote}</p>
     </div>
     <div class="rv2-card">
-      <h3 class="rv2-h4">전략 포지셔닝 4분면</h3>
       <div class="rv2-chart-slot">${quadrantChart}</div>
       <p class="rv2-caption">${escapeHtml(STRATEGIC_QUADRANT_LABELS[v2.strategicQuadrant].desc)}</p>
     </div>

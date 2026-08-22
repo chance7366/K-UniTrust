@@ -7,7 +7,7 @@
  * · GEMINI_API_KEY 기반 AI 서술은 본 지침과 동일 JSON 입력을 사용
  */
 
-export const UNIVERSITY_REPORT_GUIDELINES_VERSION = "2.5.6";
+export const UNIVERSITY_REPORT_GUIDELINES_VERSION = "2.6.0";
 
 /** Canvas Executive Navy & Slate 디자인 토큰 */
 export const UNIVERSITY_REPORT_EXECUTIVE_DESIGN = {
@@ -121,9 +121,9 @@ export const SCREEN_MIRROR_CHECKLIST = {
     "사분면 2×2 quad-matrix(본교 위치 핀) + chart-pillar-radar(3부문)",
   ],
   v2Insights: [
-    "UniversityV2InsightsPanel 정적 HTML — report-v2-insights 섹션(2쪽 단독)",
-    "진단 요약·핵심 지표·단기/중장기 로드맵 요약 — 시스템 buildReportV2InsightsHtml",
-    "Gemini 중복 작성 금지 · reinject 시 stripReportV2Insights로 제거 후 재주입",
+    "v2 Insights 패널 정적 HTML — report-v2-insights 섹션(2쪽 단독)",
+    "진단 요약 3카드 · 레이더/4분면 · 8대 지표 콤팩트 카드(4열 2행) · 로드맵 요약 — 시스템 자동 생성",
+    "Gemini 중복 작성 금지 (재주입 시 시스템이 자동 갱신)",
   ],
   v2IndicatorDeep: [
     "Indicator Deep-Dive: chart-gap-bar · chart-score-bar SVG",
@@ -131,7 +131,7 @@ export const SCREEN_MIRROR_CHECKLIST = {
     "Balance Index 수치 표기",
   ],
   v2DecisionInsight: [
-    "Decision Insight 녹청 패널(exec-panel-dark, #0F6363) — 우선 개선 3대 레버( Danger→Warning→Gap 열위, selectImprovementLevers )",
+    "Decision Insight 녹청 패널(exec-panel-dark, #0F6363) — 우선 개선 3대 레버(Danger→Warning→전국 Gap 열위 순으로 최대 3개 자동 선정)",
     "인터랙티브 슬라이더는 화면 전용, 보고서는 가이드만",
   ],
   v2Swot: [
@@ -148,8 +148,8 @@ export const SCREEN_MIRROR_CHECKLIST = {
   ],
   v2Roadmap: [
     "Action Roadmap — roadmap-item 타임라인(단기 rose / 중장기 sky 좌측 보더)",
-    "5쪽 단독: 단기 3건 + 중장기 1~2건 — payload.v2Analytics.shortTermTasks / midLongTermTasks",
-    "사분면별 1번 과제 + selectImprovementLevers 상위 3개 지표 과제 (가야대 0000032 레퍼런스)",
+    "5쪽 단독: 단기 3건 + 중장기 1~2건 — 시스템이 진단 데이터로 자동 생성",
+    "1순위는 전략 사분면별 대표 과제, 2~3순위는 우선 개선 3대 레버 지표 과제",
     "단기 roadmap-phase: 「단기 긴급 (1년 이내)」 · roadmap-body: 우선순위·이행 주기 문구",
   ],
   footerMeta: [
@@ -211,15 +211,16 @@ export const OVERALL_ASSESSMENT_RULES = {
 } as const;
 
 /**
- * 제2부 심층 분석 — 가야대학교(0000032) 레퍼런스 형식
+ * 제2부 심층 분석 — 표준 형식 (모든 대학 동일)
  * 금지: 부문당 1개 장문 단락으로 8지표를 뭉개서 서술
  */
 export const PART2_DEEP_ANALYSIS_SPEC = {
-  reference: "가야대학교 0000032 · 2025 — 제2부 17~18쪽",
+  reference: "표준 제2부 형식 — 부문 intro + 지표별 라벨 단락 + 종합 평가 2문단",
   antiPatterns: [
-    "2.1~2.3을 부문당 1문단으로만 작성 (대구대 0000061 유형 — 금지)",
+    "2.1~2.3을 부문당 1문단으로만 작성 (지표별 단락 생략 금지)",
     "지표별 [지표명] 라벨·원지표·환산지수·순위·Gap 누락",
     "2.4에 Balance Index·고위험/강점 지표 개수·사분면명 누락",
+    "동일 문단을 연속으로 중복 출력",
   ],
   sectorIntro: {
     template:
@@ -254,14 +255,16 @@ export const PART2_DEEP_ANALYSIS_SPEC = {
 } as const;
 
 /**
- * 제3부 총평·SWOT·로드맵 — 가야대학교(0000032) 레퍼런스 형식
+ * 제3부 총평·SWOT·로드맵 — 표준 형식 (모든 대학 동일)
  */
 export const PART3_STRATEGY_ROADMAP_SPEC = {
-  reference: "가야대학교 0000032 · 2025 — 제3부 19~20쪽",
+  reference:
+    "표준 제3부 형식 — 총평 2문단 + SWOT 4문단·전략 4문단 + 로드맵 단기 3·중장기 2",
   antiPatterns: [
     "3.1을 1문단으로만 작성",
     "3.2 SWOT을 「강점 (Strengths):」 한 줄 나열 — [SO/ST/WO/WT] 전략 문단 누락",
-    "3.3을 「진단 결과를 바탕으로…」 2문장으로만 작성 (대구대 0000061 유형 — 금지)",
+    "3.3을 「진단 결과를 바탕으로…」 2문장으로만 작성 (과제별 ①②③ 단락 생략 금지)",
+    "3.2 intro 문단을 두 번 반복 출력",
   ],
   section31: {
     minParagraphs: 2,
@@ -284,7 +287,7 @@ export const PART3_STRATEGY_ROADMAP_SPEC = {
       "<p><strong>[WO 전략 (약점-기회 활용)]</strong> …</p>",
       "<p><strong>[WT 전략 (약점-위기 극복)]</strong> …</p>",
     ],
-    note: "SO/ST/WO/WT 4문단은 normalizePart3Content가 swot-grid 카드로 변환 — 반드시 포함",
+    note: "SO/ST/WO/WT 4문단은 시스템이 swot-grid 2×2 카드로 자동 변환 — 반드시 포함",
   },
   section33: {
     intro:
@@ -311,7 +314,7 @@ export const PART3_STRATEGY_ROADMAP_SPEC = {
 
 /** 5쪽 v2 Action Roadmap — 시스템 생성 (Gemini 작성 금지) */
 export const V2_ACTION_ROADMAP_PAGE_SPEC = {
-  reference: "가야대학교 0000032 · 2025 — 5쪽 단독",
+  reference: "본문 5쪽 단독 페이지 — 시스템 자동 생성",
   structure: {
     shortTermCount: 3,
     midLongCount: 1,
@@ -323,9 +326,9 @@ export const V2_ACTION_ROADMAP_PAGE_SPEC = {
     bodyMid: "중장기 핵심 과제 · 구조개혁·재정 건전성 로드맵 연계",
   },
   taskSource: [
-    "1순위: strategicQuadrant별 TF·점검 과제",
-    "2~3순위: selectImprovementLevers 상위 지표 과제",
-    "중장기: quadrantMidTask + 잔여 레버",
+    "1순위: 전략 사분면별 TF·점검 과제",
+    "2~3순위: 우선 개선 3대 레버 상위 지표 과제",
+    "중장기: 사분면별 중장기 과제 + 잔여 레버",
   ],
 } as const;
 
@@ -406,11 +409,11 @@ export const BENCHMARK_NARRATIVE_LABELS = {
 } as const;
 
 /**
- * Gemini HTML 본문 골격 — 가야대학교(0000032)·2025년 보고서 기준(레퍼런스)
+ * Gemini HTML 본문 골격 — 표준 골격 (모든 대학 동일)
  * 시스템 v2·Insights·Deep-Dive·Decision·SWOT·Roadmap 제외 · Gemini 작성 구간만
  */
 export const UNIVERSITY_REPORT_GEMINI_BODY_SPEC = {
-  reference: "가야대학교 0000032 · 2025 — 시스템 분할·병합 후 본문 약 22쪽",
+  reference: "표준 본문 골격 — 시스템 A4 분할·병합 후 본문 약 22쪽 (모든 대학 동일)",
   forbidden: [
     "style=\"…\" 등 inline style 속성 (A4 page-break 분할 실패 원인)",
     "제목 클래스명 임의 변경(subsection-title / subsubsection-title 고정)",
@@ -485,64 +488,43 @@ export const UNIVERSITY_REPORT_GEMINI_BODY_SPEC = {
   ],
 } as const;
 
-/** A4 본문 페이지 배치 — 세분 분할 후 청크 병합(report-page-merge-config.ts) */
+/** A4 본문 페이지 배치 — 페이지별 내용과 레이아웃 품질 원칙 */
 export const UNIVERSITY_REPORT_PAGE_LAYOUT = {
   /** 표지 제외 본문 페이지 번호 → 내용 */
   bodyPages: [
     "1: §1 Executive Summary (KPI·사분면·레이더)",
-    "2: v2 Insights (UniversityV2InsightsPanel)",
-    "3: Indicator Deep-Dive — Gap·Score 차트 + 8대 지표 표 (병합)",
-    "4: Decision Insight + SWOT 2×2 (병합)",
+    "2: v2 Insights (진단 요약·콤팩트 카드·로드맵 요약)",
+    "3: Indicator Deep-Dive — Gap·Score 차트 + 8대 지표 표",
+    "4: Decision Insight + SWOT 2×2",
     "5: Action Roadmap",
-    "6+: 제1부(1.1+1.2 병합) → chart-grid → 지표 h4×8 → 1.4 → 제2부(2.1+2.2, 2.3+2.4 병합) → 제3부 → 부록",
+    "6+: 제1부(1.1+1.2) → 그룹 추세 차트 4종 → 지표 h4×8 → 1.4 → 제2부 → 제3부 → 부록",
   ],
-  /** page-break 분할 직후 0-based 청크 병합 그룹 */
-  chunkMergeGroups: [
-    "[2,3] Deep-Dive 차트+표 → report-page-merge-v2-deepdive",
-    "[4,5] Decision+SWOT → report-page-merge-v2-decision-swot",
-    "[7,8] 제1부+1.2",
-    "[19,20] 제2부 2.1+2.2",
-    "[21,22] 제2부 2.3+2.4",
-    "[25,26] 부록 §1+§2",
-    "[27,28,29,30] 부록 §3~§6",
-  ],
-  deepDivePageCss: [
-    "차트 영역 62mm · SVG width/height 100%로 exec-chart-box 채움",
-    "8행 표 — 7.5pt · 셀 padding 1.5mm · 행높이 균등 분배(법인전입금비율 8행째 포함)",
-    "chart-gap-bar · chart-score-bar — viewBox 여백 최소화",
-  ],
-  decisionSwotPageCss: [
-    "Decision(상단 compact) + SWOT 2×2(하단 flex-fill) — A4 1장",
-    "Roadmap은 5쪽 단독",
-  ],
-  reinject: [
-    "stripAllReportV2Blocks — v2·Insights·orphan exec-panel 제거 후 재주입",
-    "extractReportBodyHtml — v2 artifact 청크 필터(isGeminiBodyChunk)",
-    "Insights↔§2 사이 page-break는 continued section 앞에 배치",
+  /** 페이지 채움·오버플로 품질 원칙 (시스템 레이아웃 검증 기준) */
+  qualityPrinciples: [
+    "각 페이지 내용은 A4 본문 영역(여백 제외)을 초과하지 않는다 — 오버플로 발생 시 표·차트·여백을 압축한다.",
+    "페이지 절반 이상이 빈 배치를 지양한다 — 차트·표 크기를 페이지에 맞게 확대한다.",
+    "그룹 추세 차트 4종은 전폭 1열로 배치해 A4 1장을 채운다.",
+    "지표 드릴다운 페이지는 표 + 확대 추세 차트로 하단 여백을 최소화한다.",
+    "부록·제1부 첫 페이지의 대형 표는 압축 스타일(축소 폰트·셀 여백)을 적용한다.",
+    "섹션 마지막 페이지의 잔여 여백은 허용한다(내용 임의 늘리기 금지).",
   ],
 } as const;
 
 /** 보고서 품질·형식 통일 규칙 */
 export const UNIVERSITY_REPORT_FORMAT_RULES = [
-  "모든 대학 보고서는 v2.5 Executive Dashboard 동일 구조·디자인을 따른다.",
-  "레퍼런스 형식: 가야대학교(0000032) 2025 보고서 HTML 골격 — Gemini 본문은 UNIVERSITY_REPORT_GEMINI_BODY_SPEC 준수.",
+  "모든 대학 보고서는 v2.5 Executive Dashboard 동일 구조·디자인·표준 본문 골격을 따른다.",
+  "문체: 본문 서술은 경어체(「…입니다」·「…합니다」)로 통일한다. 개조식·서술체 혼용 금지.",
+  "동일 문단·문장을 연속으로 중복 출력하지 않는다.",
   "Gemini 본문: inline style 금지 · subsection-title/subsubsection-title 클래스 고정 · h4 8종 각각 별도 절.",
-  "시스템 finalize 시 normalizeGeminiReportBody로 inline style 제거 후 page-break 분할.",
-  "시스템 자동 블록(report-executive-dashboard): Navy 헤더 · KPI 4카드 · quad-matrix · pillar/gap/score 차트 · SWOT · Roadmap.",
-  "Executive Summary·v2 Insights·Indicator Deep-Dive·SWOT·Roadmap(5쪽) HTML은 시스템 생성 — Gemini 중복 작성 금지.",
-  "5쪽 Action Roadmap: 단기 3 + 중장기 1~2 — V2_ACTION_ROADMAP_PAGE_SPEC · selectImprovementLevers 기반.",
-  "제2부: PART2_DEEP_ANALYSIS_SPEC — 부문 intro + 지표별 [지표명] 단락(2.1×3·2.2×3·2.3×2) + 2.4 종합 2문단.",
-  "제3부: PART3_STRATEGY_ROADMAP_SPEC — 3.1×2 · 3.2 SWOT 4+SO/ST/WO/WT 4 · 3.3 단기①②③+중장기①②.",
+  "Executive Summary·v2 Insights·Indicator Deep-Dive·Decision Insight·SWOT·Roadmap(5쪽) HTML은 시스템 생성 — Gemini 중복 작성 금지.",
+  "5쪽 Action Roadmap: 단기 3 + 중장기 1~2 — 전략 사분면·우선 개선 3대 레버 기반 시스템 자동 생성.",
+  "제2부: 부문 intro + 지표별 [지표명] 단락(2.1×3·2.2×3·2.3×2) + 2.4 종합 2문단.",
+  "제3부: 3.1 총평 2문단 · 3.2 SWOT 4문단+SO/ST/WO/WT 전략 4문단 · 3.3 단기①②③+중장기①②.",
   "용지: A4 세로(portrait), 여백 상 25mm·좌우 15mm·하 18mm. Pretendard · Slate 본문 #334155. 표지·목차 시스템 자동.",
-  "페이지: 표지 제외 본문 각 article(report-page-body) = A4 1장. 하단 중앙 페이지 번호(1부터).",
-  "A4 세분 분할: v2 §1 / Insights / Deep-Dive·표 / Decision / SWOT / Roadmap / 제1·2부 소절 / 지표 h4 / chart-grid / 부록 2절+ 각 page-break.",
-  "A4 세분 분할 후 청크 병합(0-based): [2,3]=3쪽 Deep-Dive+표, [4,5]=4쪽 Decision+SWOT, [7,8]=제1부+1.2, [19,20]=2.1+2.2, [21,22]=2.3+2.4, [25,26]=부록1+2, [27–30]=부록3–6.",
-  "본문 페이지 배치: 1=§1 Executive, 2=Insights, 3=Deep-Dive+표, 4=Decision+SWOT, 5=Roadmap, 6+=제1부 이후(병합 규칙 적용).",
-  "3쪽 Deep-Dive: gap/score SVG가 차트 박스(62mm)를 채움 · 8행 표가 페이지 하단까지 균등 행높이(7.5pt·padding 1.5mm).",
-  "4쪽 Decision+SWOT: Decision 녹청(#0F6363) compact + SWOT flex-fill · 5쪽 Roadmap 단독.",
-  "부별 시작: Executive Summary(v2) → Insights → §2~ → 제1부 → 제2부 → 제3부 → 부록 각 page-break.",
-  "reinject: stripAllReportV2Blocks + Gemini 본문만 추출 후 v2·차트·표지 재적용.",
-  "표지 목차: ol 중복 번호 금지(list-style:none + toc-num 1회만). 각 항목 우측에 시작 페이지 번호.",
+  "페이지: 표지 제외 본문 각 페이지 = A4 1장. 하단 중앙 페이지 번호(1부터).",
+  "페이지 채움: 내용이 A4 본문 영역을 초과하지 않아야 하며(오버플로 금지), 페이지 절반 이상이 비는 배치를 지양한다.",
+  "부별 시작: Executive Summary(v2) → Insights → 제1부 → 제2부 → 제3부 → 부록은 각각 새 페이지에서 시작한다.",
+  "표지 목차: 이중 번호 금지. 각 항목 우측에 본문 시작 페이지 번호.",
   "제목: section-title(#0F172A) · subsection-title(#0284C7) · exec-h1/exec-h2(Executive 패널).",
   "KPI 4카드: kpi-grid-4 · kpi-risk|kpi-strength|kpi-neutral — Rose/Emerald/Slate 톤.",
   "표(data-table·exec-indicator-table) thead: 녹청색 #0F6363 · 흰색 글자 · badge-danger|warning|strength.",
@@ -550,8 +532,8 @@ export const UNIVERSITY_REPORT_FORMAT_RULES = [
   "SWOT: swot-grid 2×2 · swot-so|st|wo|wt 색상 구분.",
   "Roadmap: roadmap-item · border-left rose(단기)/sky(중장기).",
   "색상: Navy #0F172A, Sky #0284C7, Teal #0F6363, Risk #DC2626, Success #059669, Warning #D97706.",
-  "차트 SVG: chart-pillar-radar, chart-gap-bar, chart-score-bar, group-index-trend, trend-*(corp-transfer-ratio 포함).",
-  "지표명: 「수익용재산확보율」(수입·재산확보율 오표기 금지) · normalizeReportChartTitles 적용.",
+  "차트: 그룹 추세 4종은 전폭 1열 배치(A4 1장 채움) · 지표 드릴다운 추세 차트는 확대형 · 4분면 차트는 사분면 명칭 라벨 포함.",
+  "지표명: 「수익용재산확보율」(수입·재산확보율 오표기 금지).",
   "What-If 슬라이더는 화면 전용 — 보고서 Decision Insight 패널(정적)만.",
   "본문 단락(p) 위·아래 여백을 두어 가독성을 확보한다.",
   "모든 표(data-table)의 헤더(th)와 데이터(td)는 기본 가운데 정렬(center)이다.",
@@ -561,7 +543,7 @@ export const UNIVERSITY_REPORT_FORMAT_RULES = [
   "분석연도가 바뀌면 해당 연도 에디션 분석결과만 사용한다. 타 연도 수치 혼용 금지.",
   "생성 시점의 기본설정(가중치·적용지표·Pₙ/P₍₁₀₀₋ₙ₎·분석정책)을 부록에 기록한다.",
   "보고서 파일명: {analysisYear}_{schoolCodeStd}_{schoolName}_competitiveness-report.{html|pdf}",
-  "PDF: HTML 보고서를 Playwright(Chromium)로 A4 PDF 변환. 최초 PDF 저장 시 생성·캐시(data/reports/.../report.pdf).",
+  "PDF: HTML 보고서를 A4 PDF로 변환·캐시하며, HTML 갱신 시 자동 재생성한다.",
   "저장 위치: data/reports/competitiveness/{analysisYear}/{schoolCodeStd}/",
 ] as const;
 

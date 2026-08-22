@@ -28,6 +28,18 @@ export async function htmlToPdfBuffer(html: string): Promise<Buffer> {
   }
 }
 
+/**
+ * 공용 Chromium을 닫는다. 서버에서는 재사용을 위해 호출하지 않고,
+ * CLI 스크립트가 정상 종료하도록 마지막에 호출한다.
+ */
+export async function closePdfBrowser(): Promise<void> {
+  const pending = browserPromise;
+  if (!pending) return;
+  browserPromise = null;
+  const browser = await pending;
+  await browser.close();
+}
+
 export function universityReportPdfFilename(args: {
   analysisYear: number;
   schoolCodeStd: string;

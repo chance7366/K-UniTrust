@@ -335,22 +335,79 @@ export function renderQuadrantChartSvg(args: {
   quadrantLabel: string;
 }): string {
   const width = 320;
-  const height = 240;
-  const pad = 28;
-  const plotW = width - pad * 2;
-  const plotH = height - pad * 2;
-  const x = pad + (Math.max(0, Math.min(100, args.studentScore)) / 100) * plotW;
-  const y = pad + plotH - (Math.max(0, Math.min(100, args.financeHealth)) / 100) * plotH;
+  const height = 250;
+  const pad = { top: 16, right: 12, bottom: 26, left: 30 };
+  const plotW = width - pad.left - pad.right;
+  const plotH = height - pad.top - pad.bottom;
+  const x =
+    pad.left + (Math.max(0, Math.min(100, args.studentScore)) / 100) * plotW;
+  const y =
+    pad.top +
+    plotH -
+    (Math.max(0, Math.min(100, args.financeHealth)) / 100) * plotH;
+  const midX = pad.left + plotW / 2;
+  const midY = pad.top + plotH / 2;
+
+  // x=충원(studentScore), y=재정(financeHealth) 기준 사분면 명칭
+  const cells: Array<{
+    name: string;
+    cx: number;
+    cy: number;
+    active: boolean;
+  }> = [
+    {
+      name: "재정완충 위기형",
+      cx: pad.left + plotW * 0.25,
+      cy: pad.top + plotH * 0.25,
+      active: args.studentScore < 50 && args.financeHealth >= 50,
+    },
+    {
+      name: "지속가능 선도형",
+      cx: pad.left + plotW * 0.75,
+      cy: pad.top + plotH * 0.25,
+      active: args.studentScore >= 50 && args.financeHealth >= 50,
+    },
+    {
+      name: "복합 구조위기형",
+      cx: pad.left + plotW * 0.25,
+      cy: pad.top + plotH * 0.75,
+      active: args.studentScore < 50 && args.financeHealth < 50,
+    },
+    {
+      name: "충원우수 재정취약형",
+      cx: pad.left + plotW * 0.75,
+      cy: pad.top + plotH * 0.75,
+      active: args.studentScore >= 50 && args.financeHealth < 50,
+    },
+  ];
+
+  const activeBg = cells
+    .filter((c) => c.active)
+    .map((c) => {
+      const rectX = c.cx < midX ? pad.left : midX;
+      const rectY = c.cy < midY ? pad.top : midY;
+      return `<rect x="${rectX}" y="${rectY}" width="${plotW / 2}" height="${plotH / 2}" fill="#DC2626" fill-opacity="0.06" />`;
+    })
+    .join("");
+
+  const cellLabels = cells
+    .map(
+      (c) =>
+        `<text x="${c.cx.toFixed(1)}" y="${c.cy.toFixed(1)}" text-anchor="middle" font-size="9" font-weight="${c.active ? "700" : "400"}" fill="${c.active ? "#DC2626" : "#94a3b8"}">${escapeSvgText(c.name)}</text>`,
+    )
+    .join("");
 
   return `<figure class="report-chart" aria-label="전략 포지셔닝">
   <div class="report-chart-title">전략 포지셔닝 4분면 · ${escapeSvgText(args.quadrantLabel)}</div>
   <svg viewBox="0 0 ${width} ${height}" role="img">
-    <rect x="${pad}" y="${pad}" width="${plotW}" height="${plotH}" fill="#f8fafc" stroke="#cbd5e1" />
-    <line x1="${pad + plotW / 2}" y1="${pad}" x2="${pad + plotW / 2}" y2="${pad + plotH}" stroke="#94a3b8" stroke-dasharray="4" />
-    <line x1="${pad}" y1="${pad + plotH / 2}" x2="${pad + plotW}" y2="${pad + plotH / 2}" stroke="#94a3b8" stroke-dasharray="4" />
+    <rect x="${pad.left}" y="${pad.top}" width="${plotW}" height="${plotH}" fill="#f8fafc" stroke="#cbd5e1" />
+    ${activeBg}
+    <line x1="${midX}" y1="${pad.top}" x2="${midX}" y2="${pad.top + plotH}" stroke="#94a3b8" stroke-dasharray="4" />
+    <line x1="${pad.left}" y1="${midY}" x2="${pad.left + plotW}" y2="${midY}" stroke="#94a3b8" stroke-dasharray="4" />
+    ${cellLabels}
     <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="7" fill="#DC2626" stroke="#fff" stroke-width="2" />
-    <text x="${pad + 4}" y="${pad + 12}" font-size="8" fill="#64748b">충원↑</text>
-    <text x="${pad + plotW - 4}" y="${pad + plotH - 4}" text-anchor="end" font-size="8" fill="#64748b">재정→</text>
+    <text x="${(pad.left - 18).toFixed(1)}" y="${(pad.top + plotH / 2).toFixed(1)}" text-anchor="middle" font-size="8" fill="#64748b" transform="rotate(-90 ${(pad.left - 18).toFixed(1)} ${(pad.top + plotH / 2).toFixed(1)})">재정 건전성 →</text>
+    <text x="${(pad.left + plotW / 2).toFixed(1)}" y="${(height - 8).toFixed(1)}" text-anchor="middle" font-size="8" fill="#64748b">학생충원 점수 →</text>
   </svg>
 </figure>`;
 }

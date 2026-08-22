@@ -32,9 +32,8 @@ yarn-error.log*
 # 업로드 원본 스냅샷(용량·중복). 운영 CSV는 data/csv 유지
 data/01_raw/api/
 
-# 실행 결과·에디션 JSON (PC/역할별 로컬 저장)
+# 실행 결과 JSON — 재정추계는 로컬 전용, 경쟁력 에디션은 배포 시 포함
 data/json/financial-projection/**/*.json
-data/json/competitiveness-editions/*.json
 
 # vercel
 .vercel

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { GlassMintTabGroup } from "@/components/analysis/GlassMintTabGroup";
 import { SchoolKindTabBar } from "@/components/analysis/competitiveness-analysis/panels/SchoolKindTabBar";
+import { FpUniversityReportActions } from "@/components/analysis/financial-projection/FpUniversityReportActions";
 import { CHART_TYPO } from "@/lib/analysis/finance-charts-typography";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import { zoneForSido } from "@/lib/analysis/korea-analytics-zones";
@@ -489,6 +490,12 @@ export function FpUniversityLookupPanel({
                     </div>
                   </div>
                 </section>
+                <FpUniversityReportActions
+                  analysisYear={analysisYear}
+                  schoolCodeStd={selectedUniv.schoolCodeStd}
+                  schoolName={selectedUniv.schoolName}
+                  hasRunResults={Boolean(projection)}
+                />
                 {children}
               </div>
             </div>

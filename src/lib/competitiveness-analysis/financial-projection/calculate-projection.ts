@@ -429,10 +429,30 @@ export function scenarioParams(
   return base;
 }
 
+export type ContingencyAction = {
+  priority: number;
+  action: string;
+  effect: string;
+  delayYears: number;
+};
+
+/**
+ * 우선순위 대응 카드.
+ * 지연 효과는 모두 목표탐색(고정비)·민감도(토네이도) 실측값에서 가져오며,
+ * 같은 페이지의 목표탐색 표·민감도 표와 항상 같은 수치를 인용한다.
+ * 정량화 근거가 없는 레버는 지연 연수를 표기하지 않는다.
+ */
 export function buildContingencyActions(
   univ: UnivBaseData,
   result: ProjectionResult,
-): { priority: number; action: string; effect: string; delayYears: number }[] {
+  measured: {
+    goalSeekByDelay: Record<
+      string,
+      { cutPct: number; achieved: boolean; targetYear: number }
+    >;
+    tornado: TornadoItem[];
+  },
+): ContingencyAction[] {
   if (!result.liquidityDepletionYear) {
     return [
       {
@@ -444,32 +464,51 @@ export function buildContingencyActions(
     ];
   }
 
-  return [
-    {
-      priority: 1,
-      action: "고정비(보수·관리운영비·교육외비용) 연 3~5% 절감",
-      effect: "가용 고갈 시점 지연",
-      delayYears: 3,
-    },
-    {
-      priority: 2,
-      action: "충원율 방어 (모집 경쟁력·중도탈락 관리)",
-      effect: "등록금 수입 궤적 유지",
-      delayYears: 2,
-    },
-    {
-      priority: 3,
-      action: `법인전입금 연 ${Math.max(5, Math.ceil(univ.fixedCosts / WON_PER_EOK / 40))}억 확충`,
-      effect: "가용자금 방어선 상향",
-      delayYears: 4,
-    },
-    {
-      priority: 4,
-      action: "what-if 정원 조정 (중장기 계획 없음 · 가정 시뮬레이션)",
-      effect: "변동비·충원율 동시 점검 필요",
-      delayYears: 2,
-    },
-  ];
+  const betterShiftOf = (factor: string) => {
+    const hit = measured.tornado.find((t) => t.factor === factor);
+    return hit ? Math.max(0, Math.round(hit.betterShift)) : 0;
+  };
+
+  /** 보고서 목표탐색 표에 실리는 지연 구간(1~5년) 중 달성 가능한 최대치 */
+  const bestGoalSeek = [5, 4, 3, 2, 1]
+    .map((delay) => ({ delay, hit: measured.goalSeekByDelay[String(delay)] }))
+    .find(({ hit }) => hit != null && hit.achieved && hit.cutPct > 0);
+
+  const cards: Omit<ContingencyAction, "priority">[] = [];
+
+  if (bestGoalSeek?.hit) {
+    cards.push({
+      action: `고정비(보수·관리운영비·교육외비용) 연 ${fmtPct(bestGoalSeek.hit.cutPct)}% 절감`,
+      effect: `지출 경직성 완화 — 고갈 ${bestGoalSeek.hit.targetYear}년으로 이연`,
+      delayYears: bestGoalSeek.delay,
+    });
+  }
+
+  cards.push({
+    action: "신입생·재학생 충원율 +1%p 방어 (모집 경쟁력·중도탈락 관리)",
+    effect: "등록금 수입 궤적 유지",
+    delayYears: betterShiftOf("충원율 ±1%p"),
+  });
+
+  cards.push({
+    action: "등록금 인상률 +1%p 적용",
+    effect: "학생 1인당 등록금 수입 개선",
+    delayYears: betterShiftOf("등록금 인상 ±1%p"),
+  });
+
+  cards.sort((a, b) => b.delayYears - a.delayYears);
+
+  cards.push({
+    action: `법인전입금 연 ${Math.max(5, Math.ceil(univ.fixedCosts / WON_PER_EOK / 40))}억 확충`,
+    effect: "가용자금 방어선 상향 (추계 모델 미반영 — 정량 효과 별도 산정)",
+    delayYears: 0,
+  });
+
+  return cards.map((card, i) => ({ ...card, priority: i + 1 }));
+}
+
+function fmtPct(v: number): string {
+  return v.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
 }
 
 export type TornadoItem = {

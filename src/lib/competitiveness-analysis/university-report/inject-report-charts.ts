@@ -85,6 +85,8 @@ function groupChartSpec(
     years,
     yMin: 0,
     yMax: 100,
+    // 전폭 1열 그리드 — 4개 차트가 A4 1장을 채우도록 낮은 종횡비 사용
+    height: 160,
     series: [
       {
         id: "school",
@@ -131,6 +133,8 @@ function indicatorChartSpec(
     years,
     yMin: 0,
     yMax: 100,
+    // 지표 드릴다운 페이지 — 표 아래 여백을 차트가 채우도록 확대
+    height: 300,
     series: [
       {
         id: "school",
@@ -251,7 +255,53 @@ export function injectReportCharts(
     const chartHtml = buildChartHtml(chartId, payload);
     return chartHtml ?? match;
   });
-  return dedupeNestedReportCharts(normalizeReportChartTitles(injected));
+  const refreshed = refreshLineChartFigures(
+    normalizeReportChartTitles(injected),
+    payload,
+  );
+  return dedupeNestedReportCharts(refreshed);
+}
+
+const LINE_CHART_FIGURE_RE =
+  /<figure class="report-chart" aria-label="([^"]*)">(?:(?!<figure)[\s\S])*?<\/figure>/g;
+
+/**
+ * 재주입 시 이미 렌더된 연도별 추세 line chart figure를 최신 스펙으로 재렌더링.
+ * (placeholder가 아닌 완성 figure는 injectReportCharts로는 갱신되지 않음)
+ */
+function refreshLineChartFigures(
+  html: string,
+  payload: UniversityReportPayload,
+): string {
+  const scaleName = scaleLabel(payload);
+  const groupRows = payload.groupIndexRows as GroupIndexYearRow[];
+  const indicatorRowsById =
+    payload.indicatorYearRowsById as Record<string, IndicatorYearRow[]>;
+
+  return html.replace(LINE_CHART_FIGURE_RE, (match, ariaLabel: string) => {
+    const groupMeta = GROUP_CHARTS.find((c) =>
+      ariaLabel.startsWith(`${c.label} · 연도별 추세`),
+    );
+    if (groupMeta && groupRows.length) {
+      return renderLineChartSvg(
+        groupChartSpec(groupRows, groupMeta.key, groupMeta.label, scaleName),
+      );
+    }
+
+    const indicatorMeta = Object.values(INDICATOR_CHART_IDS).find((meta) =>
+      ariaLabel.startsWith(`${meta.label} · 연도별 지수 추세`),
+    );
+    if (indicatorMeta) {
+      const rows = indicatorRowsById[indicatorMeta.financeTabId];
+      if (rows?.length) {
+        return renderLineChartSvg(
+          indicatorChartSpec(rows, indicatorMeta.label, scaleName),
+        );
+      }
+    }
+
+    return match;
+  });
 }
 
 /** Gemini·재주입 HTML에 남은 구형 차트 제목 보정 */

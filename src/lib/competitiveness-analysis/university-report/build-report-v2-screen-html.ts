@@ -1,3 +1,4 @@
+import type { UniversityReportPayload } from "@/lib/competitiveness-analysis/university-report/build-gemini-report-prompt";
 import { buildReportV2InsightsHtml } from "@/lib/competitiveness-analysis/university-report/build-report-v2-insights-html";
 import type { GroupIndexYearRow } from "@/lib/competitiveness-analysis/university-detail-data";
 import {
@@ -326,7 +327,6 @@ export function buildReportV2ScreenHtml(payload: UniversityReportPayload): strin
         <p class="exec-caption">${escapeHtml(STRATEGIC_QUADRANT_LABELS[v2.strategicQuadrant].desc)}</p>
       </div>
       <div class="exec-split-right exec-chart-box">
-        <div class="exec-chart-label">3대 핵심 부문별 환산 점수 균형도</div>
         <div data-chart-id="chart-pillar-radar"></div>
       </div>
     </div>

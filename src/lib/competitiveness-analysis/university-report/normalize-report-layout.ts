@@ -72,12 +72,22 @@ export function paginateReportBody(bodyHtml: string): {
   }
 
   const mergedChunks = mergePageChunks(chunks);
+  let appendixStarted = false;
   const html = mergedChunks
     .map((item, index) => {
       const pageNum = index + 1;
       detectSectionPages(item.content, pageNum, sectionDetectors, sectionPages);
+      if (!appendixStarted && APPENDIX_HEADING_RE.test(item.content)) {
+        appendixStarted = true;
+      }
       const partClass = item.part3 ? " report-page-part3" : "";
-      return `<article class="report-page report-page-body${partClass}${item.mergeClass}" data-page-chunk="${pageNum}">${item.content}${buildPageFooter(pageNum)}</article>`;
+      const appendixClass = appendixStarted ? " report-page-appendix" : "";
+      const part1LeadClass = /<h[12]\s+class="section-title">제1부/i.test(
+        item.content,
+      )
+        ? " report-page-part1-lead"
+        : "";
+      return `<article class="report-page report-page-body${partClass}${item.mergeClass}${appendixClass}${part1LeadClass}" data-page-chunk="${pageNum}">${item.content}${buildPageFooter(pageNum)}</article>`;
     })
     .join("\n");
 
@@ -192,11 +202,11 @@ function ensureGranularA4PageBreaks(html: string): string {
   out = insertPageBreakBefore(out, /<div class="exec-panel exec-panel-dark">/i);
   out = insertPageBreakBefore(
     out,
-    /<div class="exec-panel">\s*<div class="exec-panel-head">\s*<span class="exec-eyebrow">Strategic Orientation<\/span>/is,
+    /<div class="exec-panel">\s*<div class="exec-panel-head">\s*<span class="exec-eyebrow">Strategic Orientation<\/span>/i,
   );
   out = insertPageBreakBefore(
     out,
-    /<div class="exec-panel">\s*<div class="exec-panel-head">\s*<span class="exec-eyebrow">Action Roadmap<\/span>/is,
+    /<div class="exec-panel">\s*<div class="exec-panel-head">\s*<span class="exec-eyebrow">Action Roadmap<\/span>/i,
   );
 
   // 제1·2부 — 소절 1.2 / 2.2 이상은 새 페이지
@@ -309,7 +319,7 @@ function normalizePart3InHtml(html: string): string {
 }
 
 function transformPart3Content(part3: string): string {
-  let out = part3;
+  let out = dedupeConsecutiveParagraphs(part3);
 
   out = convertPart3SwotMatrixTable(out);
   out = convertPart3SwotBullets(out);
@@ -372,7 +382,7 @@ function convertPart3SwotBullets(html: string): string {
   const cards = buildSwotCardsFromBullets(match[2]);
   if (cards.length < 2) return html;
 
-  const intro = match[2].match(/^\s*(<p>(?![\s\S]*[•·]\s*(?:SO|ST|WO|WT))[\s\S]*?<\/p>)/i)?.[1] ?? "";
+  // intro 문단은 cleaned에 이미 포함 — 별도 prepend 시 중복 출력됨
   const cleaned = match[2].replace(
     /<p>\s*<strong>(?:\[[^\]]*\((?:SO|ST|WO|WT)\)|\[?\s*(?:SO|ST|WO|WT))[\s\S]*?<\/p>/gi,
     "",
@@ -380,7 +390,7 @@ function convertPart3SwotBullets(html: string): string {
 
   return html.replace(
     blockRe,
-    `$1\n${intro}${cleaned}\n<div class="swot-grid report-part3-swot">${cards.join("")}</div>\n$3`,
+    `$1\n${cleaned}\n<div class="swot-grid report-part3-swot">${cards.join("")}</div>\n$3`,
   );
 }
 
@@ -521,6 +531,27 @@ function buildRoadmapItemsFromRows(rows: RegExpMatchArray[]): string[] {
   }
 
   return items;
+}
+
+/** 동일 문단이 연속 반복 출력된 경우(과거 intro 중복 버그 등) 1개만 남긴다 */
+function dedupeConsecutiveParagraphs(html: string): string {
+  const paras = [...html.matchAll(/<p>[\s\S]*?<\/p>/gi)];
+  let out = html;
+  for (let i = paras.length - 1; i >= 1; i -= 1) {
+    const cur = paras[i];
+    const prev = paras[i - 1];
+    const curStart = cur.index ?? -1;
+    const prevEnd = (prev.index ?? -1) + prev[0].length;
+    if (curStart < 0 || prev.index == null) continue;
+    // HTML상 바로 인접(사이가 공백뿐)한 동일 문단만 제거
+    if (!/^\s*$/.test(html.slice(prevEnd, curStart))) continue;
+    const curText = cur[0].replace(/\s+/g, " ").trim();
+    const prevText = prev[0].replace(/\s+/g, " ").trim();
+    if (curText === prevText) {
+      out = out.slice(0, curStart) + out.slice(curStart + cur[0].length);
+    }
+  }
+  return out;
 }
 
 function stripTags(value: string): string {

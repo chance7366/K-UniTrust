@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   GlassActionButton,
 } from "@/components/analysis/GlassHelpButton";
-import { useCanUploadExcel } from "@/components/auth/AccessRoleProvider";
+import { useAccessRole } from "@/components/auth/AccessRoleProvider";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import type { UniversityReportMeta } from "@/lib/competitiveness-analysis/university-report/report-store";
 
@@ -20,7 +20,7 @@ export function UniversityReportActions({
   schoolName: string | null;
   hasRunResults: boolean;
 }) {
-  const isAdmin = useCanUploadExcel();
+  const accessRole = useAccessRole();
   const [meta, setMeta] = useState<UniversityReportMeta | null>(null);
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -65,7 +65,14 @@ export function UniversityReportActions({
   }, [fetchMeta]);
 
   async function handleGenerate() {
-    if (!schoolCodeStd || !isAdmin) return;
+    if (!schoolCodeStd) {
+      setError("대학을 선택한 뒤 다시 시도해 주세요.");
+      return;
+    }
+    if (accessRole !== "admin") {
+      setError("관리자만 보고서를 생성할 수 있습니다.");
+      return;
+    }
     setGenerating(true);
     setError(null);
     try {
@@ -74,6 +81,7 @@ export function UniversityReportActions({
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
           body: JSON.stringify({
             analysisYear,
             schoolCodeStd,
@@ -169,10 +177,10 @@ export function UniversityReportActions({
               </GlassActionButton>
             </>
           ) : null}
-          {isAdmin ? (
+          {accessRole === "admin" ? (
             <GlassActionButton
               tone="green"
-              onClick={handleGenerate}
+              onClick={() => void handleGenerate()}
               disabled={generating}
             >
               {generating
