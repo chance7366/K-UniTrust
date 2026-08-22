@@ -4,11 +4,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 
+function readCapsLock(event: React.KeyboardEvent | React.FocusEvent) {
+  return "getModifierState" in event && event.getModifierState("CapsLock");
+}
+
 export function HomePasswordForm() {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [capsLockOn, setCapsLockOn] = useState(false);
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -55,6 +61,16 @@ export function HomePasswordForm() {
             setPassword(event.target.value);
             if (error) setError(null);
           }}
+          onFocus={(event) => {
+            setFocused(true);
+            setCapsLockOn(readCapsLock(event));
+          }}
+          onBlur={() => {
+            setFocused(false);
+            setCapsLockOn(false);
+          }}
+          onKeyDown={(event) => setCapsLockOn(readCapsLock(event))}
+          onKeyUp={(event) => setCapsLockOn(readCapsLock(event))}
           placeholder="비밀번호 입력"
           className="him-login-input"
         />
@@ -67,6 +83,11 @@ export function HomePasswordForm() {
           <ArrowRight size={18} aria-hidden />
         </button>
       </div>
+      {focused && capsLockOn ? (
+        <p className="him-login-caps" role="status">
+          Caps Lock이 켜져 있습니다. 대문자 입력 모드입니다.
+        </p>
+      ) : null}
       {error ? (
         <p className="him-login-error" role="alert">
           {error}

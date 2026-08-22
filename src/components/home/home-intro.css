@@ -362,6 +362,13 @@
   cursor: not-allowed;
 }
 
+.him-login-caps {
+  margin-top: 0.65rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #b45309;
+}
+
 .him-login-error {
   margin-top: 0.65rem;
   font-size: 0.8125rem;
