@@ -7,6 +7,10 @@ import { AiStatusBadge } from "@/components/layout/AiStatusBadge";
 import { clearUserAnalysisDrafts } from "@/lib/analysis/clear-user-drafts";
 import { SidebarBrand } from "@/components/layout/SidebarBrand";
 import { SidebarNav, SidebarNavFallback } from "@/components/layout/SidebarNav";
+import {
+  formatVisitorCount,
+  useSidebarVisitorStats,
+} from "@/components/layout/SidebarVisitorStats";
 import type { AccessRole } from "@/lib/auth/access";
 import { accessRoleLabel } from "@/lib/auth/access";
 import type { AiStatus } from "@/lib/ai-status";
@@ -59,6 +63,7 @@ export function Sidebar({
   accessRole?: AccessRole | null;
 }) {
   const [collapsed, setCollapsed] = useState(false);
+  const visitorStats = useSidebarVisitorStats();
 
   useEffect(() => {
     setCollapsed(readSidebarCollapsed());
@@ -96,26 +101,38 @@ export function Sidebar({
             <SidebarNav />
           </Suspense>
 
-          <div className="border-t border-border px-4 py-3 text-center text-[10px] text-muted">
-            {accessRole ? (
-              <p className="mb-1.5 text-[11px] font-semibold text-foreground">
-                {accessRoleLabel(accessRole)}
-              </p>
-            ) : null}
-            <button
-              type="button"
-              className="mb-1.5 text-[11px] font-semibold text-muted hover:text-foreground"
-              onClick={() => {
-                void clearUserAnalysisDrafts().then(() =>
-                  fetch("/api/auth/logout", { method: "POST" }).then(() => {
-                    window.location.href = "/";
-                  }),
-                );
-              }}
-            >
-              로그아웃
-            </button>
-            <p>CSV store · data/csv</p>
+          <div className="border-t border-border px-4 py-3 text-[10px] text-muted">
+            <div className="mb-1.5 grid grid-cols-[1fr_auto_auto] items-center gap-x-1.5 gap-y-1.5 text-[11px]">
+              {accessRole ? (
+                <>
+                  <span className="pl-[10ch] font-semibold text-foreground">
+                    {accessRoleLabel(accessRole)}
+                  </span>
+                  <span className="text-right text-muted">일일</span>
+                  <span className="pr-[5ch] text-right font-semibold tabular-nums text-foreground">
+                    {formatVisitorCount(visitorStats?.todayVisitors)}
+                  </span>
+                </>
+              ) : null}
+              <button
+                type="button"
+                className="pl-[10ch] text-left font-semibold text-muted hover:text-foreground"
+                onClick={() => {
+                  void clearUserAnalysisDrafts().then(() =>
+                    fetch("/api/auth/logout", { method: "POST" }).then(() => {
+                      window.location.href = "/";
+                    }),
+                  );
+                }}
+              >
+                로그아웃
+              </button>
+              <span className="text-right text-muted">누적</span>
+              <span className="pr-[5ch] text-right font-semibold tabular-nums text-foreground">
+                {formatVisitorCount(visitorStats?.totalVisitors)}
+              </span>
+            </div>
+            <p className="text-center">CSV store · data/csv</p>
           </div>
         </aside>
       ) : null}

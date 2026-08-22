@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
       "./data/reports/financial-projection/**/*",
       "./data/json/financial-projection/**/*",
     ],
+    "/api/analytics/**": ["./data/json/visitor-stats.json"],
   },
 };
 
