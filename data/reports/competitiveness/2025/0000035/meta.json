@@ -1,0 +1,11 @@
+{
+  "analysisYear": 2025,
+  "schoolCodeStd": "0000035",
+  "schoolName": "감리교신학대학교",
+  "generatedAt": "2026-08-23T00:37:02.582Z",
+  "model": "gemini-3.6-flash",
+  "guidelinesVersion": "2.6.0",
+  "htmlFile": "report.html",
+  "pdfFile": "report.pdf",
+  "pdfGeneratedAt": "2026-08-23T00:37:46.846Z"
+}

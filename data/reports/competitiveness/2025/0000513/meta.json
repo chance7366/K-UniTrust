@@ -1,0 +1,11 @@
+{
+  "analysisYear": 2025,
+  "schoolCodeStd": "0000513",
+  "schoolName": "가톨릭관동대학교",
+  "generatedAt": "2026-08-23T00:32:48.115Z",
+  "model": "gemini-3.6-flash",
+  "guidelinesVersion": "2.6.0",
+  "htmlFile": "report.html",
+  "pdfFile": "report.pdf",
+  "pdfGeneratedAt": "2026-08-23T00:37:39.867Z"
+}
