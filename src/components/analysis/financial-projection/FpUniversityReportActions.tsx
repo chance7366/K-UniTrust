@@ -8,6 +8,7 @@ import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import { readApiJson } from "@/lib/api/read-api-json";
 import { buildFpReportGuidelines } from "@/lib/competitiveness-analysis/financial-projection/report/generation-guidelines";
 import type { FpReportMeta } from "@/lib/competitiveness-analysis/financial-projection/report/fp-report-store";
+import { reportMetaHasPdf } from "@/lib/reports/report-pdf-messages";
 
 export function FpUniversityReportActions({
   analysisYear,
@@ -115,8 +116,17 @@ export function FpUniversityReportActions({
     );
   }
 
+  function openReportForPrint() {
+    openReport();
+    setError(null);
+  }
+
   async function downloadPdf() {
     if (!schoolCodeStd || !schoolName) return;
+    if (!reportMetaHasPdf(meta)) {
+      openReportForPrint();
+      return;
+    }
     setPdfLoading(true);
     setError(null);
     try {
@@ -147,6 +157,7 @@ export function FpUniversityReportActions({
   if (!schoolCodeStd || !schoolName) return null;
 
   const canGenerate = isAdmin && hasRunResults;
+  const hasPdf = reportMetaHasPdf(meta);
 
   return (
     <div className="rounded-lg border border-border/70 bg-surface-2/60 px-4 py-3">
@@ -169,6 +180,12 @@ export function FpUniversityReportActions({
               추계 차트 없이도 저장된 보고서를 열람할 수 있습니다.
             </p>
           ) : null}
+          {meta && !hasPdf ? (
+            <p className={`mt-1 ${FDB_TYPO.legend} text-muted`}>
+              PDF 파일이 없으면 「PDF 저장(인쇄)」 또는 보고서 열람 후 Ctrl+P →
+              PDF로 저장을 이용하세요.
+            </p>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {meta ? (
@@ -178,10 +195,19 @@ export function FpUniversityReportActions({
               </GlassActionButton>
               <GlassActionButton
                 tone="orange"
-                onClick={downloadPdf}
+                onClick={() => void downloadPdf()}
                 disabled={pdfLoading}
+                title={
+                  hasPdf
+                    ? "배포된 PDF 파일 다운로드"
+                    : "보고서 열람 후 Ctrl+P → PDF로 저장"
+                }
               >
-                {pdfLoading ? "PDF 생성 중…" : "PDF 저장"}
+                {pdfLoading
+                  ? "다운로드 중…"
+                  : hasPdf
+                    ? "PDF 저장"
+                    : "PDF 저장(인쇄)"}
               </GlassActionButton>
             </>
           ) : null}

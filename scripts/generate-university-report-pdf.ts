@@ -4,7 +4,7 @@
  */
 import "dotenv/config";
 
-import { ensureUniversityReportPdf } from "@/lib/competitiveness-analysis/university-report/ensure-university-report-pdf";
+import { generateUniversityReportPdf } from "@/lib/competitiveness-analysis/university-report/ensure-university-report-pdf";
 import { closePdfBrowser } from "@/lib/competitiveness-analysis/university-report/html-to-pdf";
 import {
   loadUniversityReportMeta,
@@ -28,7 +28,7 @@ async function main() {
     throw new Error("보고서 meta.json이 없습니다.");
   }
 
-  const pdf = await ensureUniversityReportPdf(analysisYear, schoolCodeStd);
+  const pdf = await generateUniversityReportPdf(analysisYear, schoolCodeStd);
   console.log(
     `PDF saved: ${universityReportPdfPath(analysisYear, schoolCodeStd)} (${pdf.length} bytes)`,
   );

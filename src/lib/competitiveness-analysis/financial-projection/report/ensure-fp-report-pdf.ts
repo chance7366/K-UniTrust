@@ -1,12 +1,7 @@
-import { stat } from "fs/promises";
+import { htmlToPdfBuffer } from "@/lib/competitiveness-analysis/university-report/html-to-pdf";
+import { REPORT_PDF_PRINT_GUIDANCE } from "@/lib/reports/report-pdf-messages";
 
 import {
-  htmlToPdfBuffer,
-  isServerlessPdfRuntime,
-} from "@/lib/competitiveness-analysis/university-report/html-to-pdf";
-
-import {
-  fpReportHtmlPath,
   fpReportPdfPath,
   loadFpReportHtml,
   loadFpReportMeta,
@@ -23,17 +18,20 @@ export function fpReportPdfFilename(args: {
   return `${args.analysisYear}_${args.schoolCodeStd}_${safeName}_financial-projection-report.pdf`;
 }
 
-function pdfGenerationError(cause: unknown): Error {
-  const detail =
-    cause instanceof Error ? cause.message : "알 수 없는 PDF 생성 오류";
-  const hint = isServerlessPdfRuntime()
-    ? " Vercel 환경에서는 Playwright Chromium 설정이 필요합니다. HTML 보고서의 인쇄 기능을 이용해 주세요."
-    : " 로컬에서 `npx tsx scripts/generate-fp-report-pdf.ts` 실행 후 배포해 주세요.";
-  return new Error(`PDF 생성에 실패했습니다: ${detail}.${hint}`);
+/** Git/Blob에 배포된 report.pdf만 반환 (Vercel API용) */
+export async function loadCachedFpReportPdf(
+  analysisYear: number,
+  schoolCodeStd: string,
+): Promise<Buffer> {
+  const pdf = await loadFpReportPdf(analysisYear, schoolCodeStd);
+  if (pdf && pdf.length > 0) {
+    return pdf;
+  }
+  throw new Error(REPORT_PDF_PRINT_GUIDANCE);
 }
 
-/** HTML보다 PDF가 오래되었으면 재생성 후 Buffer 반환 */
-export async function ensureFpReportPdf(
+/** 로컬 CLI: HTML → PDF 생성 후 저장 */
+export async function generateFpReportPdf(
   analysisYear: number,
   schoolCodeStd: string,
 ): Promise<Buffer> {
@@ -43,56 +41,16 @@ export async function ensureFpReportPdf(
   }
 
   const meta = await loadFpReportMeta(analysisYear, schoolCodeStd);
-  const cachedPdf = await loadFpReportPdf(analysisYear, schoolCodeStd);
-
-  if (cachedPdf && meta?.pdfGeneratedAt && meta.generatedAt) {
-    const pdfAt = Date.parse(meta.pdfGeneratedAt);
-    const htmlAt = Date.parse(meta.generatedAt);
-    if (Number.isFinite(pdfAt) && Number.isFinite(htmlAt) && pdfAt >= htmlAt) {
-      return cachedPdf;
+  const pdf = await htmlToPdfBuffer(html);
+  if (meta) {
+    await saveFpReportPdf(analysisYear, schoolCodeStd, pdf, meta);
+  } else {
+    try {
+      const { writeFile } = await import("fs/promises");
+      await writeFile(fpReportPdfPath(analysisYear, schoolCodeStd), pdf);
+    } catch {
+      /* read-only FS */
     }
   }
-
-  let needsGenerate = true;
-  try {
-    const htmlStat = await stat(fpReportHtmlPath(analysisYear, schoolCodeStd));
-    const pdfStat = await stat(fpReportPdfPath(analysisYear, schoolCodeStd));
-    needsGenerate = pdfStat.mtimeMs < htmlStat.mtimeMs;
-    if (!needsGenerate) {
-      const localPdf = await loadFpReportPdf(analysisYear, schoolCodeStd);
-      if (localPdf) return localPdf;
-    }
-  } catch {
-    if (cachedPdf) {
-      return cachedPdf;
-    }
-  }
-
-  if (!needsGenerate && cachedPdf) {
-    return cachedPdf;
-  }
-
-  if (cachedPdf && isServerlessPdfRuntime()) {
-    return cachedPdf;
-  }
-
-  try {
-    const pdf = await htmlToPdfBuffer(html);
-    if (meta) {
-      await saveFpReportPdf(analysisYear, schoolCodeStd, pdf, meta);
-    } else {
-      try {
-        const { writeFile } = await import("fs/promises");
-        await writeFile(fpReportPdfPath(analysisYear, schoolCodeStd), pdf);
-      } catch {
-        /* read-only FS */
-      }
-    }
-    return pdf;
-  } catch (err) {
-    if (cachedPdf) {
-      return cachedPdf;
-    }
-    throw pdfGenerationError(err);
-  }
+  return pdf;
 }

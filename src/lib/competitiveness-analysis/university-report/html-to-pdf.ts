@@ -1,59 +1,15 @@
-import path from "path";
-
-import type { Browser } from "playwright-core";
+import { chromium, type Browser } from "playwright";
 
 let browserPromise: Promise<Browser> | null = null;
 
-export function isServerlessPdfRuntime(): boolean {
-  return Boolean(
-    process.env.VERCEL ||
-      process.env.AWS_LAMBDA_FUNCTION_NAME ||
-      process.env.AWS_EXECUTION_ENV,
-  );
-}
-
-async function launchBrowser(): Promise<Browser> {
-  if (isServerlessPdfRuntime()) {
-    const chromiumMod = await import("@sparticuz/chromium");
-    const { chromium: playwrightChromium } = await import("playwright-core");
-    const chromium = chromiumMod.default as {
-      args: string[];
-      executablePath: (url?: string) => Promise<string>;
-    };
-
-    const remotePack = process.env.CHROMIUM_REMOTE_EXEC_PATH?.trim();
-    const executablePath = remotePack
-      ? await chromium.executablePath(remotePack)
-      : await chromium.executablePath();
-
-    if (process.platform === "linux") {
-      process.env.LD_LIBRARY_PATH = [
-        path.dirname(executablePath),
-        process.env.LD_LIBRARY_PATH,
-      ]
-        .filter(Boolean)
-        .join(":");
-    }
-
-    return playwrightChromium.launch({
-      args: chromium.args,
-      executablePath,
-      headless: true,
-    });
-  }
-
-  const { chromium } = await import("playwright");
-  return chromium.launch({ headless: true });
-}
-
 async function getBrowser(): Promise<Browser> {
   if (!browserPromise) {
-    browserPromise = launchBrowser();
+    browserPromise = chromium.launch({ headless: true });
   }
   return browserPromise;
 }
 
-/** A4 HTML 보고서 → PDF Buffer (Playwright Chromium) */
+/** A4 HTML 보고서 → PDF Buffer (로컬 CLI 전용, Playwright Chromium) */
 export async function htmlToPdfBuffer(html: string): Promise<Buffer> {
   const browser = await getBrowser();
   const page = await browser.newPage();
@@ -73,8 +29,7 @@ export async function htmlToPdfBuffer(html: string): Promise<Buffer> {
 }
 
 /**
- * 공용 Chromium을 닫는다. 서버에서는 재사용을 위해 호출하지 않고,
- * CLI 스크립트가 정상 종료하도록 마지막에 호출한다.
+ * 공용 Chromium을 닫는다. CLI 스크립트 종료 시 호출한다.
  */
 export async function closePdfBrowser(): Promise<void> {
   const pending = browserPromise;

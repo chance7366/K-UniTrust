@@ -9,15 +9,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 120;
 
-function injectReportToolbar(
-  html: string,
-  analysisYear: number,
-  schoolCodeStd: string,
-): string {
-  const pdfUrl = `/api/financial-projection/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}?format=pdf`;
+function injectReportToolbar(html: string): string {
   const toolbar = `<div class="report-view-toolbar no-print" style="position:sticky;top:0;z-index:9999;display:flex;gap:8px;justify-content:flex-end;padding:8px 12px;background:#1e293b;color:#fff;font-size:13px;">
-  <button type="button" onclick="window.print()" style="padding:6px 12px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer;">인쇄</button>
-  <a href="${pdfUrl}" style="padding:6px 12px;border-radius:6px;background:#ea580c;color:#fff;text-decoration:none;">PDF 저장</a>
+  <button type="button" onclick="window.print()" style="padding:6px 12px;border-radius:6px;border:none;background:#2563eb;color:#fff;cursor:pointer;">인쇄 / PDF 저장</button>
+  <span style="opacity:0.85;font-size:12px;">Ctrl+P → PDF로 저장</span>
 </div>`;
   if (html.includes('class="report-view-toolbar"')) return html;
   return html.replace("<body>", `<body>${toolbar}`);
@@ -57,7 +52,7 @@ export async function GET(
         );
       }
       return new NextResponse(
-        injectReportToolbar(html, analysisYear, schoolCode),
+        injectReportToolbar(html),
         {
           headers: {
             "Content-Type": "text/html; charset=utf-8",
@@ -69,10 +64,10 @@ export async function GET(
 
     if (format === "pdf") {
       try {
-        const { ensureFpReportPdf, fpReportPdfFilename } = await import(
+        const { loadCachedFpReportPdf, fpReportPdfFilename } = await import(
           "@/lib/competitiveness-analysis/financial-projection/report/ensure-fp-report-pdf"
         );
-        const pdf = await ensureFpReportPdf(analysisYear, schoolCode);
+        const pdf = await loadCachedFpReportPdf(analysisYear, schoolCode);
         const filename = fpReportPdfFilename({
           analysisYear: meta.analysisYear,
           schoolCodeStd: meta.schoolCodeStd,
@@ -90,7 +85,7 @@ export async function GET(
           err instanceof Error
             ? err.message
             : "PDF 생성 중 오류가 발생했습니다.";
-        return NextResponse.json({ error: message }, { status: 500 });
+        return NextResponse.json({ error: message }, { status: 404 });
       }
     }
 

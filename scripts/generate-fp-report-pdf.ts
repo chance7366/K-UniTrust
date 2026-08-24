@@ -4,7 +4,7 @@
  */
 import "dotenv/config";
 
-import { ensureFpReportPdf } from "@/lib/competitiveness-analysis/financial-projection/report/ensure-fp-report-pdf";
+import { generateFpReportPdf } from "@/lib/competitiveness-analysis/financial-projection/report/ensure-fp-report-pdf";
 import { closePdfBrowser } from "@/lib/competitiveness-analysis/university-report/html-to-pdf";
 
 function parseArgs() {
@@ -19,7 +19,7 @@ function parseArgs() {
 
 async function main() {
   const { analysisYear, schoolCodeStd } = parseArgs();
-  const pdf = await ensureFpReportPdf(analysisYear, schoolCodeStd);
+  const pdf = await generateFpReportPdf(analysisYear, schoolCodeStd);
   console.log(`FP PDF saved: ${schoolCodeStd} (${pdf.length} bytes)`);
 }
 
