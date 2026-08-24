@@ -20,6 +20,7 @@
     "predev": "tsx scripts/prepare-university-logos.ts --if-fresh"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^131.0.1",
     "@vercel/blob": "^2.8.0",
     "cesium": "^1.143.0",
     "csv-parse": "^7.0.1",
@@ -30,6 +31,7 @@
     "ol": "^10.10.0",
     "ol-cesium": "^2.17.0",
     "playwright": "^1.62.1",
+    "playwright-core": "^1.62.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "recharts": "^3.10.1",

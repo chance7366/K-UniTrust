@@ -1,0 +1,11 @@
+{
+  "analysisYear": 2025,
+  "schoolCodeStd": "0000249",
+  "schoolName": "가톨릭상지대학교",
+  "generatedAt": "2026-08-22T07:35:40.681Z",
+  "model": "gemini-3.6-flash",
+  "guidelinesVersion": "1.2.0",
+  "htmlFile": "report.html",
+  "pdfFile": "report.pdf",
+  "pdfGeneratedAt": "2026-08-24T00:24:24.643Z"
+}

@@ -1,0 +1,11 @@
+{
+  "analysisYear": 2025,
+  "schoolCodeStd": "0000562",
+  "schoolName": "한국공학대학교",
+  "generatedAt": "2026-08-22T07:37:17.474Z",
+  "model": "gemini-3.6-flash",
+  "guidelinesVersion": "1.2.0",
+  "htmlFile": "report.html",
+  "pdfFile": "report.pdf",
+  "pdfGeneratedAt": "2026-08-24T00:24:28.664Z"
+}

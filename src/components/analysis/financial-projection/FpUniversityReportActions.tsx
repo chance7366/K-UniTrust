@@ -122,9 +122,10 @@ export function FpUniversityReportActions({
     try {
       const res = await fetch(
         `/api/financial-projection/university-reports/${analysisYear}/${encodeURIComponent(schoolCodeStd)}?format=pdf`,
+        { credentials: "same-origin" },
       );
       if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        const data = await readApiJson<{ error?: string }>(res);
         throw new Error(data.error ?? "PDF 저장에 실패했습니다.");
       }
       const blob = await res.blob();

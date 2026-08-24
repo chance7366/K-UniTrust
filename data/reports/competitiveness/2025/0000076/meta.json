@@ -5,5 +5,7 @@
   "generatedAt": "2026-08-22T06:30:25.764Z",
   "model": "gemini-3.6-flash",
   "guidelinesVersion": "2.6.0",
-  "htmlFile": "report.html"
+  "htmlFile": "report.html",
+  "pdfFile": "report.pdf",
+  "pdfGeneratedAt": "2026-08-24T00:24:05.693Z"
 }

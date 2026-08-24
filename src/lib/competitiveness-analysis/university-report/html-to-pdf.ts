@@ -1,10 +1,54 @@
-import { chromium, type Browser } from "playwright";
+import path from "path";
+
+import type { Browser } from "playwright-core";
 
 let browserPromise: Promise<Browser> | null = null;
 
+export function isServerlessPdfRuntime(): boolean {
+  return Boolean(
+    process.env.VERCEL ||
+      process.env.AWS_LAMBDA_FUNCTION_NAME ||
+      process.env.AWS_EXECUTION_ENV,
+  );
+}
+
+async function launchBrowser(): Promise<Browser> {
+  if (isServerlessPdfRuntime()) {
+    const chromiumMod = await import("@sparticuz/chromium");
+    const { chromium: playwrightChromium } = await import("playwright-core");
+    const chromium = chromiumMod.default as {
+      args: string[];
+      executablePath: (url?: string) => Promise<string>;
+    };
+
+    const remotePack = process.env.CHROMIUM_REMOTE_EXEC_PATH?.trim();
+    const executablePath = remotePack
+      ? await chromium.executablePath(remotePack)
+      : await chromium.executablePath();
+
+    if (process.platform === "linux") {
+      process.env.LD_LIBRARY_PATH = [
+        path.dirname(executablePath),
+        process.env.LD_LIBRARY_PATH,
+      ]
+        .filter(Boolean)
+        .join(":");
+    }
+
+    return playwrightChromium.launch({
+      args: chromium.args,
+      executablePath,
+      headless: true,
+    });
+  }
+
+  const { chromium } = await import("playwright");
+  return chromium.launch({ headless: true });
+}
+
 async function getBrowser(): Promise<Browser> {
   if (!browserPromise) {
-    browserPromise = chromium.launch({ headless: true });
+    browserPromise = launchBrowser();
   }
   return browserPromise;
 }
