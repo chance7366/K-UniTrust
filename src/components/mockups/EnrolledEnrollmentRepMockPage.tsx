@@ -11,9 +11,15 @@ import {
 } from "@/components/analysis/GlassMintTabGroup";
 import { RepDbDownButton } from "@/components/analysis/RepDbDownButton";
 import { CorpTransferRatioAdvancedChartDashboard } from "@/components/analysis/CorpTransferRatioAdvancedChartDashboard";
+import { EnrolledIndicatorStatsPanel } from "@/components/analysis/IndicatorStatsTabPanels";
+import { INDICATOR_STATS_TAB_HELP } from "@/lib/analysis/indicator-stats-geo";
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { HelpGuidePanel } from "@/components/analysis/FundSecureRateAdvancedHelp";
 import { SchoolNameSearchInput } from "@/components/analysis/SchoolNameSearchInput";
+import {
+  STUDENT_FILL_VIEW_TABS,
+  studentFillRowLabel,
+} from "@/lib/analysis/all-universities-cohort";
 import {
   ENROLLED_REP_DB_HELP,
   ENROLLED_REP_DB_HELP_SUB,
@@ -33,8 +39,8 @@ import { FDB_TABLE_COLOR } from "@/lib/analysis/finance-db-table-colors";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import { ENROLLED_FILL_ADVANCED_HELP } from "@/lib/analysis/enrolled-enrollment-advanced-help";
 import {
-  ENROLLED_REP_COHORT_LABEL,
   toRepEnrolledChartRows,
+  type EnrolledRepViewCohort,
   type EnrolledRepCohort,
   type EnrolledRepCompareField,
   type EnrolledRepRow,
@@ -50,14 +56,20 @@ import {
   getEnrolledChartRiskProfile,
 } from "@/lib/analysis/student-fill-advanced-chart-rows";
 
-const COHORTS: EnrolledRepCohort[] = [
-  "university",
-  "graduate",
-  "combined",
-  "junior-college",
-];
-
 type EnrolledChartMetric = "within" | "withinOutside";
+
+const RATE_NOTE: Record<EnrolledRepViewCohort, string> = {
+  university:
+    "대학전문 표시연도 상반기·전년도 하반기 평균(한쪽만 있으면 그 값) · 정원내 = 재학생 정원내 ÷ (학생정원 − 모집정지) · 정원내외 = 재학생 계 ÷ (학생정원 − 모집정지)",
+  "junior-college":
+    "대학전문 표시연도 상반기·전년도 하반기 평균(한쪽만 있으면 그 값) · 정원내 = 재학생 정원내 ÷ (학생정원 − 모집정지) · 정원내외 = 재학생 계 ÷ (학생정원 − 모집정지)",
+  graduate:
+    "반기 구분 없음 · 원본 그대로 · 정원내(석사+박사+석박사통합) ÷ (학생정원 − 모집정지) · 정원내외 = 재학생 계 ÷ (학생정원 − 모집정지)",
+  combined:
+    "대학 표시연도 상반기·전년도 하반기 평균 + 대학원 원본 · 정원내 = 합산 재학생 정원내 ÷ (합산 학생정원 − 합산 모집정지) · 정원내외 = 합산 재학생 계 ÷ (합산 학생정원 − 합산 모집정지)",
+  "all-universities":
+    "전체대학 = 대학통합 행 + 전문대학 행 · 율은 각 행의 기존 분모(학생정원 − 모집정지)를 유지한 뒤 합산 · 규모는 대학 1만/5천명, 전문대학 4천/2천명 기준을 행별로 적용",
+};
 
 const CHART_METRIC_LABELS: Record<EnrolledChartMetric, string> = {
   within: "정원내 재학생충원율",
@@ -77,17 +89,6 @@ const FIELD_LABEL: Record<EnrolledRepCompareField, string> = {
   enrolledOutside: "재학생 정원외",
   fillRateWithin: "정원내 재학생충원율",
   fillRateWithinOutside: "정원내외 재학생충원율",
-};
-
-const RATE_NOTE: Record<EnrolledRepCohort, string> = {
-  university:
-    "대학전문 표시연도 상반기·전년도 하반기 평균(한쪽만 있으면 그 값) · 정원내 = 재학생 정원내 ÷ (학생정원 − 모집정지) · 정원내외 = 재학생 계 ÷ (학생정원 − 모집정지)",
-  "junior-college":
-    "대학전문 표시연도 상반기·전년도 하반기 평균(한쪽만 있으면 그 값) · 정원내 = 재학생 정원내 ÷ (학생정원 − 모집정지) · 정원내외 = 재학생 계 ÷ (학생정원 − 모집정지)",
-  graduate:
-    "반기 구분 없음 · 원본 그대로 · 정원내(석사+박사+석박사통합) ÷ (학생정원 − 모집정지) · 정원내외 = 재학생 계 ÷ (학생정원 − 모집정지)",
-  combined:
-    "대학 표시연도 상반기·전년도 하반기 평균 + 대학원 원본 · 정원내 = 합산 재학생 정원내 ÷ (합산 학생정원 − 합산 모집정지) · 정원내외 = 합산 재학생 계 ÷ (합산 학생정원 − 합산 모집정지)",
 };
 
 const METRIC_COL_COUNT = 7;
@@ -238,9 +239,10 @@ function DataTable({
   mismatchNames,
 }: {
   rows: EnrolledRepRow[];
-  cohort: EnrolledRepCohort;
+  cohort: EnrolledRepViewCohort;
   mismatchNames: Set<string>;
 }) {
+  const showSource = cohort === "all-universities";
   const tableHeadClass = FDB_TABLE_HEAD.base;
   return (
     <div className={FDB_TABLE_SCROLL}>
@@ -249,9 +251,12 @@ function DataTable({
       >
         <colgroup>
           <col style={{ width: FDB_SCHOOL_NAME_COL_PX }} />
-          {Array.from({ length: METRIC_COL_COUNT }, (_, i) => (
-            <col key={i} />
-          ))}
+          {Array.from(
+            { length: METRIC_COL_COUNT + (showSource ? 1 : 0) },
+            (_, i) => (
+              <col key={i} />
+            ),
+          )}
         </colgroup>
         <thead className="sticky top-0 z-[1] bg-surface-2">
           <tr className="border-b border-border bg-surface-2">
@@ -261,6 +266,14 @@ function DataTable({
             >
               학교명
             </th>
+            {showSource ? (
+              <th
+                rowSpan={2}
+                className={`${FDB_TABLE_HEAD.rowSpan} ${FDB_TABLE.headRowSpan} text-center`}
+              >
+                구분
+              </th>
+            ) : null}
             <th
               rowSpan={2}
               className={`${FDB_TABLE_HEAD.rowSpan} ${FDB_TABLE.headRowSpan} text-center`}
@@ -312,7 +325,7 @@ function DataTable({
             const metricCell = `${FDB_TABLE.cellMetric} border-r border-border/40 text-right font-mono ${FDB_TYPO.tableMetric}`;
             return (
               <tr
-                key={`${row.year}-${row.schoolRepCode}-${row.schoolRepName}`}
+                key={`${row.year}-${row.schoolRepCode}-${row.schoolDivision}-${row.schoolRepName}`}
                 className={`border-b border-border/40 ${
                   mismatch
                     ? "bg-accent-orange/10"
@@ -333,7 +346,9 @@ function DataTable({
                         {row.campusCount}개
                       </span>
                     ) : null}
-                    {(cohort === "graduate" || cohort === "combined") &&
+                    {(cohort === "graduate" ||
+                      cohort === "combined" ||
+                      cohort === "all-universities") &&
                     row.gradProgramCount > 1 ? (
                       <span
                         className={`shrink-0 rounded bg-accent/10 px-1.5 py-0.5 font-normal text-accent ${FDB_TYPO.legend}`}
@@ -350,6 +365,13 @@ function DataTable({
                     ) : null}
                   </span>
                 </td>
+                {showSource ? (
+                  <td
+                    className={`${FDB_TABLE.cell} border-r border-border/40 text-center`}
+                  >
+                    {studentFillRowLabel(row.schoolDivision)}
+                  </td>
+                ) : null}
                 <td className={metricCell}>{fmtCount(row.studentQuota)}</td>
                 <td className={metricCell}>{fmtCount(row.recruitmentStop)}</td>
                 <td className={metricCell}>{fmtCount(row.enrolled.total)}</td>
@@ -374,10 +396,12 @@ function CohortChartDashboard({
   cohort,
   rows,
   years,
+  rowsByCohort,
 }: {
-  cohort: EnrolledRepCohort;
+  cohort: EnrolledRepViewCohort;
   rows: EnrolledRepRow[];
   years: number[];
+  rowsByCohort?: Record<EnrolledRepCohort, EnrolledRepRow[]>;
 }) {
   const [metric, setMetric] = useState<EnrolledChartMetric>("within");
   const chartYears = useMemo(
@@ -403,6 +427,7 @@ function CohortChartDashboard({
       rows={chartRows}
       years={chartYears}
       hasData
+      initialMainTab="stats"
       rateLabel={CHART_METRIC_LABELS[metric]}
       kpiSub={CHART_KPI_SUB[metric]}
       riskProfile={getEnrolledChartRiskProfile(
@@ -414,6 +439,15 @@ function CohortChartDashboard({
       helpPack={ENROLLED_FILL_ADVANCED_HELP}
       geoChartsLayout="split"
       distributionTabLayout="density-v2"
+      statsTabHelp={INDICATOR_STATS_TAB_HELP}
+      statsTabContent={({ year, estb, schoolDivision, schoolKinds }) => (
+        <EnrolledIndicatorStatsPanel
+          rows={rows}
+          cohort={cohort}
+          rowsByCohort={rowsByCohort}
+          filters={{ year, estb, schoolDivision, schoolKinds }}
+        />
+      )}
       filterToolbarLeading={
         <ChartMetricToggle
           value={metric}
@@ -452,7 +486,7 @@ export function EnrolledEnrollmentRepMockPage({
 
   function navigate(next: {
     year?: number | null;
-    cohort?: EnrolledRepCohort;
+    cohort?: EnrolledRepViewCohort;
     section?: "data" | "charts";
     region?: string;
     q?: string;
@@ -512,10 +546,10 @@ export function EnrolledEnrollmentRepMockPage({
           ariaLabel="코호트"
           active={data.cohort}
           onChange={(id) => navigate({ cohort: id, resetFilters: true })}
-          items={COHORTS.map((id) => ({
-            id,
-            label: ENROLLED_REP_COHORT_LABEL[id],
-            count: fmtCount(data.cohortCounts[id]),
+          items={STUDENT_FILL_VIEW_TABS.map((tab) => ({
+            id: tab.id,
+            label: tab.label,
+            count: fmtCount(data.cohortCounts[tab.id]),
           }))}
         />
         <RepDbDownButton
@@ -531,6 +565,7 @@ export function EnrolledEnrollmentRepMockPage({
             cohort={data.cohort}
             rows={data.chartRows}
             years={data.years}
+            rowsByCohort={data.chartRowsByCohort}
           />
         </div>
       ) : (

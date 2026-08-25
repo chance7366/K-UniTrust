@@ -103,7 +103,7 @@ export function EduAccountingTabStyleMock({
       <DashboardEmeraldHeader
         sectionLabel="대학현황"
         title="교비회계"
-        subtitle="대학재정알리미 · 교비회계 자금계산서·대차대조표·운영계산서"
+        subtitle="대학재정알리미 · 교비·등록금·비등록금 자금계산서·대차대조표·운영계산서"
       />
       <UnivAlimiRawDashboard
         data={data}

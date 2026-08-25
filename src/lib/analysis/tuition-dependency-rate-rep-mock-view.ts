@@ -2,10 +2,12 @@ import type {
   TuitionDepRepCohort,
   TuitionDepRepRow,
 } from "@/lib/analysis/tuition-dependency-rate-rep-rollup";
+import type { TwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
+import { parseTwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
 
 export type TuitionDepRepMockQuery = {
   year?: number | null;
-  cohort?: TuitionDepRepCohort;
+  cohort?: TwoSchoolViewCohort;
   section?: "data" | "charts";
   estb?: string;
   region?: string;
@@ -16,7 +18,7 @@ export type TuitionDepRepMockData = {
   years: number[];
   displayYear: number | null;
   rosterYear: number | null;
-  cohort: TuitionDepRepCohort;
+  cohort: TwoSchoolViewCohort;
   section: "data" | "charts";
   cohortCounts: Record<TuitionDepRepCohort, number>;
   rows: TuitionDepRepRow[];
@@ -28,8 +30,8 @@ export type TuitionDepRepMockData = {
   hasData: boolean;
 };
 
-function parseCohort(value: string | undefined): TuitionDepRepCohort {
-  return value === "junior-college" ? "junior-college" : "university";
+function parseCohort(value: string | undefined): TwoSchoolViewCohort {
+  return parseTwoSchoolViewCohort(value);
 }
 
 export function parseTuitionDepRepMockQuery(

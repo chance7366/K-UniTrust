@@ -4,6 +4,7 @@ import path from "path";
 import {
   getReportBinaryFile,
   getReportTextFile,
+  isBlobReportStorageEnabled,
   listReportSchoolCodes,
   putReportBinaryFile,
   putReportTextFile,
@@ -62,8 +63,6 @@ export async function saveFpReport(args: {
   model: string;
 }): Promise<FpReportMeta> {
   const dir = reportDir(args.analysisYear, args.schoolCodeStd);
-  await mkdir(dir, { recursive: true });
-
   const meta: FpReportMeta = {
     analysisYear: args.analysisYear,
     schoolCodeStd: args.schoolCodeStd,
@@ -73,13 +72,17 @@ export async function saveFpReport(args: {
     guidelinesVersion: FP_REPORT_GUIDELINES_VERSION,
     htmlFile: "report.html",
   };
+  const metaJson = JSON.stringify(meta, null, 2);
 
-  await writeFile(path.join(dir, "report.html"), args.html, "utf8");
-  await writeFile(
-    path.join(dir, "meta.json"),
-    JSON.stringify(meta, null, 2),
-    "utf8",
-  );
+  let savedLocally = false;
+  try {
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, "report.html"), args.html, "utf8");
+    await writeFile(path.join(dir, "meta.json"), metaJson, "utf8");
+    savedLocally = true;
+  } catch {
+    /* Vercel serverless FS is read-only */
+  }
 
   await putReportTextFile({
     domain: "financial-projection",
@@ -93,8 +96,14 @@ export async function saveFpReport(args: {
     analysisYear: args.analysisYear,
     schoolCodeStd: args.schoolCodeStd,
     fileName: "meta.json",
-    content: JSON.stringify(meta, null, 2),
+    content: metaJson,
   });
+
+  if (!savedLocally && !isBlobReportStorageEnabled()) {
+    throw new Error(
+      "보고서를 저장할 수 없습니다. Vercel에 BLOB_READ_WRITE_TOKEN을 설정하세요.",
+    );
+  }
 
   return meta;
 }

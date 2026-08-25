@@ -1,5 +1,6 @@
 .eatm-tablist {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: stretch;
   gap: 4px;
 }

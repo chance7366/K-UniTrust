@@ -2,10 +2,12 @@ import type {
   IncomePropertyRepCohort,
   IncomePropertyRepRow,
 } from "@/lib/analysis/income-property-secure-rate-rep-rollup";
+import type { TwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
+import { parseTwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
 
 export type IncomePropertyRepMockQuery = {
   year?: number | null;
-  cohort?: IncomePropertyRepCohort;
+  cohort?: TwoSchoolViewCohort;
   section?: "data" | "charts";
   estb?: string;
   region?: string;
@@ -16,7 +18,7 @@ export type IncomePropertyRepMockData = {
   years: number[];
   displayYear: number | null;
   rosterYear: number | null;
-  cohort: IncomePropertyRepCohort;
+  cohort: TwoSchoolViewCohort;
   section: "data" | "charts";
   cohortCounts: Record<IncomePropertyRepCohort, number>;
   rows: IncomePropertyRepRow[];
@@ -28,8 +30,8 @@ export type IncomePropertyRepMockData = {
   hasData: boolean;
 };
 
-function parseCohort(value: string | undefined): IncomePropertyRepCohort {
-  return value === "junior-college" ? "junior-college" : "university";
+function parseCohort(value: string | undefined): TwoSchoolViewCohort {
+  return parseTwoSchoolViewCohort(value);
 }
 
 export function parseIncomePropertyRepMockQuery(

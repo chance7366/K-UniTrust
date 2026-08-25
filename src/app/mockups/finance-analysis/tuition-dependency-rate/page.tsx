@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { parseTwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
 import { buildTuitionDepRepHref } from "@/lib/analysis/tuition-dependency-rate-rep-mock-view";
 
 type PageProps = {
@@ -14,7 +15,7 @@ export default async function TuitionDependencyRateRepMockRoute({
   redirect(
     buildTuitionDepRepHref({
       year: sp.year ? Number(sp.year) : null,
-      cohort: sp.cohort === "junior-college" ? "junior-college" : "university",
+      cohort: parseTwoSchoolViewCohort(sp.cohort),
       section: sp.section === "charts" ? "charts" : "data",
       estb: sp.estb,
       region: sp.region,

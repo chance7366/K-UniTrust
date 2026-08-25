@@ -24,6 +24,38 @@ export const EDU_ACCOUNTING_SHEETS = [
     id: "edu-operation",
     label: "교비운영",
   },
+  {
+    id: "tuition-fund",
+    label: "등록금자금(수입)",
+  },
+  {
+    id: "tuition-fund-expense",
+    label: "등록금자금(지출)",
+  },
+  {
+    id: "tuition-balance",
+    label: "등록금대차",
+  },
+  {
+    id: "tuition-operation",
+    label: "등록금운영",
+  },
+  {
+    id: "non-tuition-fund",
+    label: "비등록금자금(수입)",
+  },
+  {
+    id: "non-tuition-fund-expense",
+    label: "비등록금자금(지출)",
+  },
+  {
+    id: "non-tuition-balance",
+    label: "비등록금대차",
+  },
+  {
+    id: "non-tuition-operation",
+    label: "비등록금운영",
+  },
 ] as const;
 
 export type EduAccountingSheetId = (typeof EDU_ACCOUNTING_SHEETS)[number]["id"];

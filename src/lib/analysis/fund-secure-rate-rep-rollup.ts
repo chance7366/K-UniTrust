@@ -311,7 +311,7 @@ export function toFundSecureRateRows(
     schoolCodeStd: row.schoolRepCode,
     schoolName: row.schoolRepName,
     schoolDivision: row.schoolDivision,
-    schoolKind: "",
+    schoolKind: row.schoolDivision,
     region: row.region,
     estb: row.estb,
     schoolFundsCarryover: row.eduCarryover,

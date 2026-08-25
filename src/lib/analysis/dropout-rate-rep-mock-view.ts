@@ -1,11 +1,13 @@
 import type {
   DropoutRepCohort,
+  DropoutRepViewCohort,
   DropoutRepRow,
 } from "@/lib/analysis/dropout-rate-rep-rollup";
+import { parseStudentFillViewCohort } from "@/lib/analysis/all-universities-cohort";
 
 export type DropoutRepMockQuery = {
   year?: number | null;
-  cohort?: DropoutRepCohort;
+  cohort?: DropoutRepViewCohort;
   section?: "data" | "charts";
   estb?: string;
   region?: string;
@@ -16,9 +18,9 @@ export type DropoutRepMockData = {
   years: number[];
   displayYear: number | null;
   rosterYear: number | null;
-  cohort: DropoutRepCohort;
+  cohort: DropoutRepViewCohort;
   section: "data" | "charts";
-  cohortCounts: Record<DropoutRepCohort, number>;
+  cohortCounts: Record<DropoutRepViewCohort, number>;
   rows: DropoutRepRow[];
   allCohortRows: Record<DropoutRepCohort, DropoutRepRow[]>;
   filterOptions: { estbs: string[]; regions: string[] };
@@ -28,19 +30,9 @@ export type DropoutRepMockData = {
     freshmanRate: number | null;
   };
   chartRows: DropoutRepRow[];
+  chartRowsByCohort?: Record<DropoutRepCohort, DropoutRepRow[]>;
   hasData: boolean;
 };
-
-function parseCohort(value: string | undefined): DropoutRepCohort {
-  if (
-    value === "junior-college" ||
-    value === "graduate" ||
-    value === "combined"
-  ) {
-    return value;
-  }
-  return "university";
-}
 
 export function parseDropoutRepMockQuery(
   searchParams: Record<string, string | undefined>,
@@ -48,7 +40,7 @@ export function parseDropoutRepMockQuery(
   const year = Number(searchParams.year);
   return {
     year: Number.isFinite(year) ? year : null,
-    cohort: parseCohort(searchParams.cohort),
+    cohort: parseStudentFillViewCohort(searchParams.cohort),
     section: searchParams.section === "charts" ? "charts" : "data",
     estb: searchParams.estb,
     region: searchParams.region,

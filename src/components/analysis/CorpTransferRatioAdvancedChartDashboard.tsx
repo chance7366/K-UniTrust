@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   Bar,
   BarChart,
@@ -107,7 +107,7 @@ const RISK_TIER_COLORS: Record<string, string> = {
   good: CHART.emerald,
 };
 
-type MainTab = "risk" | "geo" | "distribution" | "pipeline";
+type MainTab = "stats" | "risk" | "geo" | "distribution" | "pipeline";
 
 function KpiCard({
   label,
@@ -550,6 +550,14 @@ type CorpTransferRatioAdvancedChartDashboardProps = {
   /** default=BoxPlot+위험단계 / density-v2=밀도분포+위험단계·히스토그램 2열(목업) */
   distributionTabLayout?: DistributionTabLayout;
   initialMainTab?: MainTab;
+  /** 목업 등 — 지표통계 탭을 맨 앞에 추가. 없으면 기존 4탭만 표시 */
+  statsTabContent?: (ctx: {
+    year: number;
+    estb: string;
+    schoolDivision: string;
+    schoolKinds: string[];
+  }) => ReactNode;
+  statsTabHelp?: HelpSection;
   /** 학생충원 등 — 글로벌 필터 DB 보기 */
   dbViewMode?: "campus" | "consolidated";
   onDbViewModeChange?: (mode: "campus" | "consolidated") => void;
@@ -576,6 +584,8 @@ export function CorpTransferRatioAdvancedChartDashboard({
   geoChartsLayout: _geoChartsLayout = "stacked",
   distributionTabLayout = "default",
   initialMainTab = "risk",
+  statsTabContent,
+  statsTabHelp,
   dbViewMode,
   onDbViewModeChange,
   helpPack = CORP_TRANSFER_DEFAULT_HELP,
@@ -863,6 +873,18 @@ export function CorpTransferRatioAdvancedChartDashboard({
   );
 
   const mainTabs: { id: MainTab; label: string; help: HelpSection }[] = [
+    ...(statsTabContent
+      ? [
+          {
+            id: "stats" as const,
+            label: "지표통계",
+            help: statsTabHelp ?? {
+              title: "지표통계 탭",
+              body: "지역별·권역별·규모별로 입학정원·모집인원·입학자 원자료를 합산합니다.",
+            },
+          },
+        ]
+      : []),
     { id: "risk", label: "위험군대학", help: HELP.tab.risk },
     { id: "geo", label: "지역·규모", help: HELP.tab.geo },
     {
@@ -992,6 +1014,15 @@ export function CorpTransferRatioAdvancedChartDashboard({
           </span>
         ))}
       </div>
+
+      {mainTab === "stats" && statsTabContent
+        ? statsTabContent({
+            year,
+            estb,
+            schoolDivision,
+            schoolKinds,
+          })
+        : null}
 
       {mainTab === "risk" ? (
         <>

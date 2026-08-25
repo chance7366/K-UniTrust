@@ -10,6 +10,12 @@ import {
   type DropoutRepCohort,
 } from "@/lib/analysis/dropout-rate-rep-rollup";
 import {
+  emptyStudentFillViewCounts,
+  sourceRowsForStudentFillView,
+  studentFillViewCounts,
+  emptyStudentFillCohortRows,
+} from "@/lib/analysis/all-universities-cohort";
+import {
   parseAnalysisTargetCampus,
   parseYearText,
   pickNearestYear,
@@ -80,12 +86,7 @@ export async function loadDropoutRepMockDashboard(
     rosterYear,
     cohort,
     section,
-    cohortCounts: {
-      university: 0,
-      "junior-college": 0,
-      graduate: 0,
-      combined: 0,
-    },
+    cohortCounts: emptyStudentFillViewCounts(),
     rows: [],
     allCohortRows: {
       university: [],
@@ -97,6 +98,7 @@ export async function loadDropoutRepMockDashboard(
     filters: { estb: estbFilter, region: regionFilter, q },
     totals: { enrolledRate: null, freshmanRate: null },
     chartRows: [],
+    chartRowsByCohort: emptyStudentFillCohortRows(),
     hasData: years.length > 0 && roster.length > 0,
   };
 
@@ -142,7 +144,7 @@ export async function loadDropoutRepMockDashboard(
     }),
   };
 
-  const source = allCohortRows[cohort];
+  const source = sourceRowsForStudentFillView(allCohortRows, cohort);
   const estbs = [...new Set(source.map((r) => r.estb).filter(Boolean))].sort(
     (a, b) => a.localeCompare(b, "ko"),
   );
@@ -166,31 +168,64 @@ export async function loadDropoutRepMockDashboard(
     rosterYear,
     cohort,
     section,
-    cohortCounts: {
-      university: allCohortRows.university.length,
-      "junior-college": allCohortRows["junior-college"].length,
-      graduate: allCohortRows.graduate.length,
-      combined: allCohortRows.combined.length,
-    },
+    cohortCounts: studentFillViewCounts(allCohortRows),
     rows,
     allCohortRows,
     filterOptions: { estbs, regions },
     filters: { estb: estbFilter, region: regionFilter, q },
     totals: sumDropoutCohortRates(rows),
-    chartRows: years.flatMap((year) => {
-      const yearRosterYear = pickNearestYear(rosterYears, year);
-      const yearRoster =
-        yearRosterYear != null
-          ? rosterAll.filter((row) => row.year === yearRosterYear)
-          : [];
-      return buildDropoutRepRows({
-        cohort,
-        displayYear: year,
-        roster: yearRoster,
-        undergrad,
-        grad,
-      });
-    }),
+    ...(() => {
+      const chartRowsByCohort = emptyStudentFillCohortRows<
+        ReturnType<typeof buildDropoutRepRows>[number]
+      >();
+      const build = (
+        c: DropoutRepCohort,
+        year: number,
+        yearRoster: typeof roster,
+      ) =>
+        buildDropoutRepRows({
+          cohort: c,
+          displayYear: year,
+          roster: yearRoster,
+          undergrad,
+          grad,
+        });
+      if (cohort === "all-universities") {
+        for (const year of years) {
+          const yearRosterYear = pickNearestYear(rosterYears, year);
+          const yearRoster =
+            yearRosterYear != null
+              ? rosterAll.filter((row) => row.year === yearRosterYear)
+              : [];
+          const cohorts: DropoutRepCohort[] = [
+            "university",
+            "junior-college",
+            "graduate",
+            "combined",
+          ];
+          for (const c of cohorts) {
+            chartRowsByCohort[c].push(...build(c, year, yearRoster));
+          }
+        }
+        return {
+          chartRows: [
+            ...chartRowsByCohort.combined,
+            ...chartRowsByCohort["junior-college"],
+          ],
+          chartRowsByCohort,
+        };
+      }
+      return {
+        chartRows: years.flatMap((year) => {
+          const yearRosterYear = pickNearestYear(rosterYears, year);
+          const yearRoster =
+            yearRosterYear != null
+              ? rosterAll.filter((row) => row.year === yearRosterYear)
+              : [];
+          return build(cohort, year, yearRoster);
+        }),
+      };
+    })(),
     hasData: true,
   };
 }

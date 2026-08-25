@@ -1,7 +1,10 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { CorpTransferRatioAdvancedChartDashboard } from "@/components/analysis/CorpTransferRatioAdvancedChartDashboard";
 import type { CorpTransferRatioAdvancedRow } from "@/lib/analysis/corp-transfer-ratio-advanced-analytics";
+import type { HelpSection } from "@/lib/analysis/corp-transfer-ratio-advanced-help";
 
 type Props = {
   rows: CorpTransferRatioAdvancedRow[];
@@ -11,6 +14,14 @@ type Props = {
     active: boolean;
     onClick: () => void;
   }) => React.ReactNode;
+  initialMainTab?: "stats" | "risk" | "geo" | "distribution" | "pipeline";
+  statsTabContent?: (ctx: {
+    year: number;
+    estb: string;
+    schoolDivision: string;
+    schoolKinds: string[];
+  }) => ReactNode;
+  statsTabHelp?: HelpSection;
 };
 
 export function CorpTransferRatioChartDashboard({
@@ -18,6 +29,9 @@ export function CorpTransferRatioChartDashboard({
   years,
   hasData,
   renderHelpButton,
+  initialMainTab,
+  statsTabContent,
+  statsTabHelp,
 }: Props) {
   return (
     <CorpTransferRatioAdvancedChartDashboard
@@ -27,6 +41,9 @@ export function CorpTransferRatioChartDashboard({
       geoChartsLayout="split"
       distributionTabLayout="density-v2"
       renderHelpButton={renderHelpButton}
+      initialMainTab={initialMainTab}
+      statsTabContent={statsTabContent}
+      statsTabHelp={statsTabHelp}
     />
   );
 }

@@ -113,11 +113,15 @@ async function writeBlobStats(stats: VisitorStats): Promise<void> {
 }
 
 export async function loadVisitorStats(): Promise<VisitorStats> {
+  if (blobToken()) {
+    const remote = await readBlobStats();
+    if (remote) return remote;
+  }
   try {
     const raw = await readFile(STATS_PATH, "utf8");
     return normalizeStats(JSON.parse(raw));
   } catch {
-    return (await readBlobStats()) ?? emptyStats();
+    return emptyStats();
   }
 }
 
@@ -128,14 +132,25 @@ async function saveVisitorStats(stats: VisitorStats): Promise<void> {
   };
   const payload = JSON.stringify(next, null, 2);
 
+  let savedLocally = false;
   try {
     await mkdir(path.dirname(STATS_PATH), { recursive: true });
     await writeFile(STATS_PATH, payload, "utf8");
+    savedLocally = true;
   } catch {
     /* read-only FS (Vercel) */
   }
 
-  await writeBlobStats(next);
+  if (blobToken()) {
+    await writeBlobStats(next);
+    return;
+  }
+
+  if (!savedLocally) {
+    throw new Error(
+      "방문자 통계를 저장할 수 없습니다. Vercel에 BLOB_READ_WRITE_TOKEN을 설정하세요.",
+    );
+  }
 }
 
 export type RecordVisitorResult = {

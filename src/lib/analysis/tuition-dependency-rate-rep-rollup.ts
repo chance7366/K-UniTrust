@@ -244,7 +244,7 @@ export function toTuitionDependencyRateRows(
     schoolCodeStd: row.schoolRepCode,
     schoolName: row.schoolRepName,
     schoolDivision: row.schoolDivision,
-    schoolKind: "",
+    schoolKind: row.schoolDivision,
     region: row.region,
     estb: row.estb,
     tuitionRevenue: row.tuitionRevenue,

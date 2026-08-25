@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 
 import { ChartMetricToggle } from "@/components/analysis/ChartMetricToggle";
 import { CorpTransferRatioAdvancedChartDashboard } from "@/components/analysis/CorpTransferRatioAdvancedChartDashboard";
@@ -12,6 +12,7 @@ import {
   toIncomePropertyAdvancedChartRows,
   type IncomePropertyChartMetric,
 } from "@/lib/analysis/income-property-advanced-chart-rows";
+import type { HelpSection } from "@/lib/analysis/corp-transfer-ratio-advanced-help";
 import type { IncomePropertySecureRateDisplayRow } from "@/lib/ingest/income-property-secure-rate-config";
 
 type Props = {
@@ -22,6 +23,14 @@ type Props = {
     active: boolean;
     onClick: () => void;
   }) => React.ReactNode;
+  initialMainTab?: "stats" | "risk" | "geo" | "distribution" | "pipeline";
+  statsTabContent?: (ctx: {
+    year: number;
+    estb: string;
+    schoolDivision: string;
+    schoolKinds: string[];
+  }) => ReactNode;
+  statsTabHelp?: HelpSection;
 };
 
 export function IncomePropertySecureRateChartDashboard({
@@ -29,6 +38,9 @@ export function IncomePropertySecureRateChartDashboard({
   years,
   hasData,
   renderHelpButton,
+  initialMainTab,
+  statsTabContent,
+  statsTabHelp,
 }: Props) {
   const [metric, setMetric] =
     useState<IncomePropertyChartMetric>("propertySecureRate");
@@ -61,6 +73,9 @@ export function IncomePropertySecureRateChartDashboard({
       geoChartsLayout="split"
       distributionTabLayout="density-v2"
       renderHelpButton={renderHelpButton}
+      initialMainTab={initialMainTab}
+      statsTabContent={statsTabContent}
+      statsTabHelp={statsTabHelp}
       filterToolbarLeading={
         <ChartMetricToggle
           value={metric}

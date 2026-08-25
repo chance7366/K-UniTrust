@@ -11,6 +11,8 @@ import {
 import { RepDbDownButton } from "@/components/analysis/RepDbDownButton";
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { IncomePropertySecureRateChartDashboard } from "@/components/analysis/IncomePropertySecureRateChartDashboard";
+import { IncomePropertyIndicatorStatsPanel } from "@/components/analysis/IndicatorStatsTabPanels";
+import { INDICATOR_STATS_TAB_HELP } from "@/lib/analysis/indicator-stats-geo";
 import { HelpGuidePanel } from "@/components/analysis/FundSecureRateAdvancedHelp";
 import { SchoolNameSearchInput } from "@/components/analysis/SchoolNameSearchInput";
 import {
@@ -30,10 +32,14 @@ import {
 import { FDB_TABLE_COLOR } from "@/lib/analysis/finance-db-table-colors";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import {
-  INCOME_PROPERTY_REP_COHORT_LABEL,
+  TWO_SCHOOL_VIEW_TABS,
+  twoSchoolRowLabel,
+  twoSchoolViewTabCount,
+  type TwoSchoolViewCohort,
+} from "@/lib/analysis/all-universities-cohort";
+import {
   cheonToMillion1,
   toIncomePropertyDisplayRows,
-  type IncomePropertyRepCohort,
   type IncomePropertyRepRow,
 } from "@/lib/analysis/income-property-secure-rate-rep-rollup";
 import {
@@ -41,8 +47,6 @@ import {
   buildIncomePropertyRepMockHref,
   type IncomePropertyRepMockData,
 } from "@/lib/analysis/income-property-secure-rate-rep-mock-view";
-
-const COHORTS: IncomePropertyRepCohort[] = ["university", "junior-college"];
 
 const RATE_NOTE =
   "소계 = 평가액 − 담보차감액 · 확보율 = 소계 ÷ 전년도 등록금수입 · 수익율 = 수입액 ÷ 평가액";
@@ -98,7 +102,13 @@ function FilterSelect({
   );
 }
 
-function DataTable({ rows }: { rows: IncomePropertyRepRow[] }) {
+function DataTable({
+  rows,
+  showSource,
+}: {
+  rows: IncomePropertyRepRow[];
+  showSource: boolean;
+}) {
   const tableHeadClass = FDB_TABLE_HEAD.base;
   const metricCell = `${FDB_TABLE.cellMetric} whitespace-nowrap border-r border-border/40 text-right font-mono ${FDB_TYPO.tableMetric}`;
 
@@ -113,9 +123,12 @@ function DataTable({ rows }: { rows: IncomePropertyRepRow[] }) {
         >
           <colgroup>
             <col style={{ width: FDB_SCHOOL_NAME_COL_PX }} />
-            {Array.from({ length: METRIC_COL_COUNT }, (_, i) => (
-              <col key={i} />
-            ))}
+            {Array.from(
+              { length: METRIC_COL_COUNT + (showSource ? 1 : 0) },
+              (_, i) => (
+                <col key={i} />
+              ),
+            )}
           </colgroup>
           <thead className="sticky top-0 z-[1] bg-surface-2">
             <tr className="border-b border-border bg-surface-2">
@@ -125,6 +138,14 @@ function DataTable({ rows }: { rows: IncomePropertyRepRow[] }) {
               >
                 학교명
               </th>
+              {showSource ? (
+                <th
+                  rowSpan={2}
+                  className={`${FDB_TABLE_HEAD.rowSpan} ${FDB_TABLE.headRowSpan} text-center`}
+                >
+                  구분
+                </th>
+              ) : null}
               <th
                 colSpan={3}
                 className={`${tableHeadClass} border-b border-border/50 border-r border-border/50 ${FDB_TABLE.headGroup} text-center`}
@@ -170,7 +191,7 @@ function DataTable({ rows }: { rows: IncomePropertyRepRow[] }) {
           <tbody>
             {rows.map((row, i) => (
               <tr
-                key={`${row.year}-${row.schoolRepCode}-${row.schoolRepName}`}
+                key={`${row.year}-${row.schoolRepCode}-${row.schoolDivision}-${row.schoolRepName}`}
                 className={`border-b border-border/40 ${
                   i % 2 === 0 ? "bg-surface" : "bg-surface-2/30"
                 }`}
@@ -196,6 +217,13 @@ function DataTable({ rows }: { rows: IncomePropertyRepRow[] }) {
                     ) : null}
                   </span>
                 </td>
+                {showSource ? (
+                  <td
+                    className={`${FDB_TABLE.cell} border-r border-border/40 text-center`}
+                  >
+                    {twoSchoolRowLabel(row.schoolDivision)}
+                  </td>
+                ) : null}
                 <td className={metricCell}>
                   {fmtMillion1(cheonToMillion1(row.appraisedGross))}
                 </td>
@@ -240,7 +268,7 @@ export function IncomePropertySecureRateRepMockPage({
 
   function navigate(next: {
     year?: number | null;
-    cohort?: IncomePropertyRepCohort;
+    cohort?: TwoSchoolViewCohort;
     section?: "data" | "charts";
     region?: string;
     q?: string;
@@ -299,10 +327,10 @@ export function IncomePropertySecureRateRepMockPage({
           ariaLabel="코호트"
           active={data.cohort}
           onChange={(id) => navigate({ cohort: id, resetFilters: true })}
-          items={COHORTS.map((id) => ({
-            id,
-            label: INCOME_PROPERTY_REP_COHORT_LABEL[id],
-            count: fmtCount(data.cohortCounts[id]),
+          items={TWO_SCHOOL_VIEW_TABS.map((tab) => ({
+            id: tab.id,
+            label: tab.label,
+            count: fmtCount(twoSchoolViewTabCount(data.cohortCounts, tab.id)),
           }))}
         />
         <RepDbDownButton
@@ -318,6 +346,15 @@ export function IncomePropertySecureRateRepMockPage({
             rows={toIncomePropertyDisplayRows(data.chartRows)}
             years={data.years}
             hasData={data.chartRows.length > 0}
+            initialMainTab="stats"
+            statsTabHelp={INDICATOR_STATS_TAB_HELP}
+            statsTabContent={(filters) => (
+              <IncomePropertyIndicatorStatsPanel
+                rows={data.chartRows}
+                cohort={data.cohort}
+                filters={filters}
+              />
+            )}
             renderHelpButton={({ active, onClick }) => (
               <GlassHelpButton tone="blue" active={active} onClick={onClick} />
             )}
@@ -400,7 +437,10 @@ export function IncomePropertySecureRateRepMockPage({
                   : `선택한 연도(${data.displayYear}년)에 해당하는 데이터가 없습니다.`}
               </p>
             ) : (
-              <DataTable rows={data.rows} />
+              <DataTable
+                rows={data.rows}
+                showSource={data.cohort === "all-universities"}
+              />
             )}
           </section>
         </>

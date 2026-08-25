@@ -15,6 +15,7 @@ import {
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { persistCorpTransferRepDb } from "@/lib/data/corp-transfer-ratio-rep-db";
 import { readCsvFile } from "@/lib/csv/read";
+import { sourceRowsForTwoSchoolView } from "@/lib/analysis/all-universities-cohort";
 
 export {
   buildCorpTransferRepMockHref,
@@ -103,7 +104,7 @@ export async function loadCorpTransferRepMockDashboard(
     }),
   };
 
-  const source = allCohortRows[cohort];
+  const source = sourceRowsForTwoSchoolView(allCohortRows, cohort);
   const estbs = [...new Set(source.map((r) => r.estb).filter(Boolean))].sort(
     (a, b) => a.localeCompare(b, "ko"),
   );
@@ -142,12 +143,17 @@ export async function loadCorpTransferRepMockDashboard(
         yearRosterYear != null
           ? rosterAll.filter((row) => row.year === yearRosterYear)
           : [];
-      return buildCorpTransferRepRows({
-        cohort,
-        displayYear: year,
-        roster: yearRoster,
-        eduFund,
-      });
+      const build = (c: CorpTransferRepCohort) =>
+        buildCorpTransferRepRows({
+          cohort: c,
+          displayYear: year,
+          roster: yearRoster,
+          eduFund,
+        });
+      if (cohort === "all-universities") {
+        return [...build("university"), ...build("junior-college")];
+      }
+      return build(cohort);
     }),
     hasData: true,
   };

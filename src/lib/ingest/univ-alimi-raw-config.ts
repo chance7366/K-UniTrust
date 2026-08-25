@@ -51,6 +51,30 @@ export const UNIV_ALIMI_CSV_KEY: Record<
   "edu-operation": {
     undergrad: "univMapEduOperation",
   },
+  "tuition-fund": {
+    undergrad: "univMapTuitionFund",
+  },
+  "tuition-fund-expense": {
+    undergrad: "univMapTuitionFundExpense",
+  },
+  "tuition-balance": {
+    undergrad: "univMapTuitionBalance",
+  },
+  "tuition-operation": {
+    undergrad: "univMapTuitionOperation",
+  },
+  "non-tuition-fund": {
+    undergrad: "univMapNonTuitionFund",
+  },
+  "non-tuition-fund-expense": {
+    undergrad: "univMapNonTuitionFundExpense",
+  },
+  "non-tuition-balance": {
+    undergrad: "univMapNonTuitionBalance",
+  },
+  "non-tuition-operation": {
+    undergrad: "univMapNonTuitionOperation",
+  },
   "corp-fund": {
     undergrad: "univMapCorpFund",
   },
@@ -115,6 +139,30 @@ export const UNIV_ALIMI_META_FILE: Record<
   "edu-operation": {
     undergrad: "univ_map_edu_operation.meta.json",
   },
+  "tuition-fund": {
+    undergrad: "univ_map_tuition_fund.meta.json",
+  },
+  "tuition-fund-expense": {
+    undergrad: "univ_map_tuition_fund_expense.meta.json",
+  },
+  "tuition-balance": {
+    undergrad: "univ_map_tuition_balance.meta.json",
+  },
+  "tuition-operation": {
+    undergrad: "univ_map_tuition_operation.meta.json",
+  },
+  "non-tuition-fund": {
+    undergrad: "univ_map_non_tuition_fund.meta.json",
+  },
+  "non-tuition-fund-expense": {
+    undergrad: "univ_map_non_tuition_fund_expense.meta.json",
+  },
+  "non-tuition-balance": {
+    undergrad: "univ_map_non_tuition_balance.meta.json",
+  },
+  "non-tuition-operation": {
+    undergrad: "univ_map_non_tuition_operation.meta.json",
+  },
   "corp-fund": {
     undergrad: "univ_map_corp_fund.meta.json",
   },
@@ -178,6 +226,30 @@ export const UNIV_ALIMI_BRONZE_ID: Record<
   },
   "edu-operation": {
     undergrad: "edu-operation",
+  },
+  "tuition-fund": {
+    undergrad: "tuition-fund",
+  },
+  "tuition-fund-expense": {
+    undergrad: "tuition-fund-expense",
+  },
+  "tuition-balance": {
+    undergrad: "tuition-balance",
+  },
+  "tuition-operation": {
+    undergrad: "tuition-operation",
+  },
+  "non-tuition-fund": {
+    undergrad: "non-tuition-fund",
+  },
+  "non-tuition-fund-expense": {
+    undergrad: "non-tuition-fund-expense",
+  },
+  "non-tuition-balance": {
+    undergrad: "non-tuition-balance",
+  },
+  "non-tuition-operation": {
+    undergrad: "non-tuition-operation",
   },
   "corp-fund": {
     undergrad: "corp-fund",

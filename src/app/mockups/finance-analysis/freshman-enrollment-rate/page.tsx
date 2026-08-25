@@ -17,7 +17,8 @@ export default async function FreshmanEnrollmentRepMockRoute({
       cohort:
         sp.cohort === "junior-college" ||
         sp.cohort === "graduate" ||
-        sp.cohort === "combined"
+        sp.cohort === "combined" ||
+        sp.cohort === "all-universities"
           ? sp.cohort
           : "university",
       section: sp.section === "charts" ? "charts" : "data",

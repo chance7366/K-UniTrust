@@ -1,12 +1,14 @@
 import type {
   EnrolledRepCohort,
+  EnrolledRepViewCohort,
   EnrolledRepRow,
   EnrolledRepVerifySummary,
 } from "@/lib/analysis/enrolled-enrollment-rep-rollup";
+import { parseStudentFillViewCohort } from "@/lib/analysis/all-universities-cohort";
 
 export type EnrolledRepMockQuery = {
   year?: number | null;
-  cohort?: EnrolledRepCohort;
+  cohort?: EnrolledRepViewCohort;
   section?: "data" | "charts";
   estb?: string;
   region?: string;
@@ -17,9 +19,9 @@ export type EnrolledRepMockData = {
   years: number[];
   displayYear: number | null;
   rosterYear: number | null;
-  cohort: EnrolledRepCohort;
+  cohort: EnrolledRepViewCohort;
   section: "data" | "charts";
-  cohortCounts: Record<EnrolledRepCohort, number>;
+  cohortCounts: Record<EnrolledRepViewCohort, number>;
   rows: EnrolledRepRow[];
   allCohortRows: Record<EnrolledRepCohort, EnrolledRepRow[]>;
   filterOptions: { estbs: string[]; regions: string[] };
@@ -29,20 +31,10 @@ export type EnrolledRepMockData = {
     fillRateWithinOutside: number | null;
   };
   chartRows: EnrolledRepRow[];
+  chartRowsByCohort?: Record<EnrolledRepCohort, EnrolledRepRow[]>;
   verify: EnrolledRepVerifySummary | null;
   hasData: boolean;
 };
-
-function parseCohort(value: string | undefined): EnrolledRepCohort {
-  if (
-    value === "junior-college" ||
-    value === "graduate" ||
-    value === "combined"
-  ) {
-    return value;
-  }
-  return "university";
-}
 
 export function parseEnrolledRepMockQuery(
   searchParams: Record<string, string | undefined>,
@@ -50,7 +42,7 @@ export function parseEnrolledRepMockQuery(
   const year = Number(searchParams.year);
   return {
     year: Number.isFinite(year) ? year : null,
-    cohort: parseCohort(searchParams.cohort),
+    cohort: parseStudentFillViewCohort(searchParams.cohort),
     section: searchParams.section === "charts" ? "charts" : "data",
     estb: searchParams.estb,
     region: searchParams.region,

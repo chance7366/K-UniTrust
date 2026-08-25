@@ -10,14 +10,27 @@ import {
   type FreshmanRepCohort,
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { resolveSchoolDivisionFromFields } from "@/lib/analysis/school-division";
+import {
+  studentFillSchoolKind,
+  type StudentFillViewCohort,
+} from "@/lib/analysis/all-universities-cohort";
 
 export type EnrolledRepCohort = FreshmanRepCohort;
+export type EnrolledRepViewCohort = StudentFillViewCohort;
 
 export const ENROLLED_REP_COHORT_LABEL: Record<EnrolledRepCohort, string> = {
   university: "대학",
   "junior-college": "전문대학",
   graduate: "대학원",
   combined: "대학통합",
+};
+
+export const ENROLLED_REP_VIEW_COHORT_LABEL: Record<
+  EnrolledRepViewCohort,
+  string
+> = {
+  ...ENROLLED_REP_COHORT_LABEL,
+  "all-universities": "전체대학",
 };
 
 export const ENROLLED_REP_COHORT_DIVISION: Record<
@@ -612,7 +625,7 @@ export function toRepEnrolledEnrollmentRows(
   return rows.map((row) => ({
     year: row.year,
     half: "연평균",
-    schoolKind: "",
+    schoolKind: studentFillSchoolKind(row.schoolDivision),
     estb: row.estb,
     schoolDivision: row.schoolDivision,
     region: row.region,
@@ -638,7 +651,7 @@ export function toRepEnrolledChartRows(
       schoolCodeStd: row.schoolRepCode,
       schoolName: row.schoolRepName,
       schoolDivision: row.schoolDivision,
-      schoolKind: "",
+      schoolKind: studentFillSchoolKind(row.schoolDivision),
       region: row.region,
       estb: row.estb,
       ordinaryExpenseTransfer: row.studentQuota,

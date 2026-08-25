@@ -1,12 +1,13 @@
 import type {
   FreshmanRepCohort,
+  FreshmanRepViewCohort,
   FreshmanRepRow,
   FreshmanRepVerifySummary,
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 
 export type FreshmanRepMockQuery = {
   year?: number | null;
-  cohort?: FreshmanRepCohort;
+  cohort?: FreshmanRepViewCohort;
   section?: "data" | "charts";
   estb?: string;
   region?: string;
@@ -17,9 +18,9 @@ export type FreshmanRepMockData = {
   years: number[];
   displayYear: number | null;
   rosterYear: number | null;
-  cohort: FreshmanRepCohort;
+  cohort: FreshmanRepViewCohort;
   section: "data" | "charts";
-  cohortCounts: Record<FreshmanRepCohort, number>;
+  cohortCounts: Record<FreshmanRepViewCohort, number>;
   rows: FreshmanRepRow[];
   allCohortRows: Record<FreshmanRepCohort, FreshmanRepRow[]>;
   filterOptions: { estbs: string[]; regions: string[] };
@@ -29,15 +30,17 @@ export type FreshmanRepMockData = {
     fillRateWithinOutside: number | null;
   };
   chartRows: FreshmanRepRow[];
+  chartRowsByCohort?: Record<FreshmanRepCohort, FreshmanRepRow[]>;
   verify: FreshmanRepVerifySummary | null;
   hasData: boolean;
 };
 
-function parseCohort(value: string | undefined): FreshmanRepCohort {
+function parseCohort(value: string | undefined): FreshmanRepViewCohort {
   if (
     value === "junior-college" ||
     value === "graduate" ||
-    value === "combined"
+    value === "combined" ||
+    value === "all-universities"
   ) {
     return value;
   }

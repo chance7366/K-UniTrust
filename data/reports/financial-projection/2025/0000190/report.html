@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>초당대학교 2025년 대학별 재정추계 분석 보고서</title>
+  <style>:root {
+      color-scheme: light;
+      --a4-width: 210mm;
+      --a4-height: 297mm;
+      --a4-margin: 15mm;
+      --a4-margin-top: 25mm;
+      --a4-margin-bottom: 18mm;
+      --report-text: #334155;
+      --report-body-size: 10pt;
+      --report-line: 1.65;
+      --color-part: #0f172a;
+      --color-section: #0284c7;
+      --color-subsection: #0369a1;
+      --color-accent: #dc2626;
+      --color-accent-soft: #f8fafc;
+      --report-border: #e2e8f0;
+      --report-table-head: #0f6363;
+      --report-table-head-text: #ffffff;
+      --exec-teal: #0f6363;
+      --exec-teal-dark: #0a5249;
+      --exec-navy: #0f172a;
+      --exec-sky: #0284c7;
+      --exec-risk: #dc2626;
+      --exec-success: #059669;
+      --exec-warning: #d97706;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: var(--a4-margin-top) var(--a4-margin) var(--a4-margin-bottom);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #e2e8f0;
+    }
+
+    body {
+      font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      font-size: var(--report-body-size);
+      line-height: var(--report-line);
+      color: var(--report-text);
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .report-shell {
+      padding: 12mm 0 20mm;
+    }
+
+    .report-page {
+      width: var(--a4-width);
+      min-height: var(--a4-height);
+      margin: 0 auto 12mm;
+      padding: var(--a4-margin-top) var(--a4-margin) var(--a4-margin-bottom);
+      background: #fff;
+      box-shadow: 0 2px 16px rgba(15, 23, 42, 0.12);
+      position: relative;
+      box-sizing: border-box;
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .report-page-body {
+      max-width: var(--a4-width);
+      overflow-x: hidden;
+    }
+
+    .report-page-cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* ── 표지 ── */
+    .report-cover {
+      text-align: center;
+      padding: 8mm 4mm 4mm;
+    }
+
+    .cover-accent-bar {
+      height: 4mm;
+      background: linear-gradient(90deg, #0f172a, #0284c7);
+      border-radius: 2px;
+      margin: 0 auto 10mm;
+      width: 100%;
+    }
+
+    .cover-eyebrow {
+      font-size: 10pt;
+      color: #64748b;
+      margin: 0 0 5mm;
+      letter-spacing: 0.02em;
+    }
+
+    .cover-main-title {
+      font-size: 22pt;
+      font-weight: 800;
+      color: var(--color-part);
+      line-height: 1.35;
+      margin: 0 0 8mm;
+    }
+
+    .cover-school-name {
+      font-size: 18pt;
+      font-weight: 700;
+      color: var(--color-accent);
+      margin: 0 0 10mm;
+    }
+
+    .cover-meta-box {
+      background: var(--color-accent-soft);
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      padding: 4mm;
+      margin: 0 0 6mm;
+      text-align: center;
+    }
+
+    .cover-meta-table {
+      width: 100%;
+      margin: 0;
+      font-size: 9.5pt;
+    }
+
+    .cover-meta-table th {
+      background: #1e40af;
+      color: #fff;
+      font-weight: 600;
+      width: 18%;
+    }
+
+    .cover-meta-table td {
+      background: #fff;
+      width: 32%;
+    }
+
+    .cover-highlight {
+      font-weight: 700;
+      color: #0f3460;
+    }
+
+    .cover-run-at,
+    .cover-generated-at {
+      font-size: 9pt;
+      color: #64748b;
+      margin: 2mm 0;
+    }
+
+    .cover-toc {
+      margin-top: 10mm;
+      text-align: left;
+      border-top: 2px solid var(--color-part);
+      padding-top: 6mm;
+    }
+
+    .cover-toc-title {
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--color-section);
+      margin: 0 0 4mm;
+    }
+
+    .cover-toc-list {
+      margin: 0;
+      padding-left: 0;
+      list-style: none;
+      font-size: 10pt;
+      line-height: 1.9;
+    }
+
+    .cover-toc-list li {
+      display: flex;
+      align-items: baseline;
+      gap: 2mm;
+      margin: 1mm 0;
+    }
+
+    .cover-toc-entry {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cover-toc-list .toc-num {
+      color: var(--color-accent);
+      font-weight: 700;
+      margin-right: 2mm;
+    }
+
+    .cover-toc-leader {
+      flex: 0 1 12mm;
+      border-bottom: 1px dotted #cbd5e1;
+      margin: 0 2mm;
+      min-width: 4mm;
+      align-self: flex-end;
+      margin-bottom: 2px;
+    }
+
+    .cover-toc-page {
+      flex-shrink: 0;
+      min-width: 6mm;
+      text-align: right;
+      font-size: 9pt;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    /* ── 제목 체계 (주제목/부제목/소제목) ── */
+    .section-title,
+    h1.report-part-title {
+      font-size: 16pt;
+      font-weight: 800;
+      color: var(--color-part);
+      margin: 10mm 0 5mm;
+      padding-bottom: 3mm;
+      border-bottom: 3px solid var(--color-accent);
+      page-break-after: avoid;
+    }
+
+    .subsection-title,
+    h2.report-section-title {
+      font-size: 13pt;
+      font-weight: 700;
+      color: var(--color-section);
+      margin: 8mm 0 4mm;
+      page-break-after: avoid;
+    }
+
+    .subsubsection-title,
+    h3.report-subsection-title,
+    h4.report-subsubsection-title {
+      font-size: 11pt;
+      font-weight: 700;
+      color: var(--color-subsection);
+      margin: 6mm 0 3mm;
+      page-break-after: avoid;
+    }
+
+    /* 본문 다음 제목 시작 전 한 줄 여백 */
+    p + .section-title,
+    p + .subsection-title,
+    p + .subsubsection-title,
+    table + .section-title,
+    table + .subsection-title,
+    table + .subsubsection-title,
+    .report-chart + .subsection-title,
+    .report-chart-grid + .subsection-title,
+    ul + .section-title,
+    ol + .section-title {
+      margin-top: 10mm;
+    }
+
+    p, li {
+      font-size: var(--report-body-size);
+      line-height: var(--report-line);
+      margin: 3mm 0;
+    }
+
+    ul, ol {
+      margin: 4mm 0 5mm;
+      padding-left: 6mm;
+    }
+
+    /* ── KPI 카드 ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3mm;
+      margin: 5mm 0 7mm;
+    }
+
+    .kpi-card {
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+      padding: 3mm;
+      text-align: center;
+    }
+
+    .kpi-title {
+      font-size: 8.5pt;
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 2mm;
+    }
+
+    .kpi-value {
+      font-size: 12pt;
+      font-weight: 700;
+      color: var(--color-part);
+      margin-bottom: 1mm;
+    }
+
+    .kpi-sub {
+      font-size: 8.5pt;
+      color: #64748b;
+    }
+
+    /* ── Executive Dashboard v2.5 (Canvas Navy & Slate) ── */
+    .report-executive-dashboard { margin-bottom: 8mm; }
+
+    /* ── v2 Insights Panel (대시보드 UniversityV2InsightsPanel) ── */
+    .report-v2-insights.rv2-panel {
+      border: 1px solid color-mix(in srgb, #0284c7 35%, var(--report-border));
+      border-radius: 8px;
+      background: color-mix(in srgb, #0284c7 4%, #fff);
+      padding: 3mm;
+      margin-bottom: 3mm;
+    }
+
+    .rv2-panel-head { margin-bottom: 2.5mm; }
+    .rv2-title { font-size: 11pt; font-weight: 700; color: #0284c7; margin: 0; }
+    .rv2-lead { font-size: 8pt; color: #64748b; margin: 1mm 0 0; }
+    .rv2-h4 { font-size: 9pt; font-weight: 600; color: #0369a1; margin: 0 0 2mm; }
+    .rv2-section-gap { margin-top: 3mm; }
+
+    .rv2-exec-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2mm;
+      margin-bottom: 3mm;
+    }
+
+    .rv2-exec-card {
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2.5mm 3mm;
+      background: #f8fafc;
+    }
+
+    .rv2-exec-grade { border-top: 2px solid #0f172a; }
+    .rv2-exec-strength { border-top: 2px solid #059669; }
+    .rv2-exec-risk { border-top: 2px solid #dc2626; }
+    .rv2-exec-label { font-size: 7pt; color: #64748b; font-weight: 600; margin: 0; }
+    .rv2-exec-value { font-size: 14pt; font-weight: 800; margin: 1mm 0; color: #0f172a; }
+    .rv2-exec-value-sm { font-size: 10pt; }
+    .rv2-exec-value-risk { color: #dc2626; }
+    .rv2-exec-sub { font-size: 7.5pt; color: #64748b; margin: 0; }
+
+    .rv2-callout {
+      border-left: 3px solid #0284c7;
+      background: #f8fafc;
+      padding: 2.5mm 3mm;
+      border-radius: 0 6px 6px 0;
+      font-size: 8.5pt;
+      line-height: 1.55;
+      margin-bottom: 3mm;
+    }
+
+    .rv2-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+    }
+
+    .rv2-card {
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2.5mm;
+      background: #fff;
+    }
+
+    .rv2-chart-slot .report-chart { margin: 0; }
+    .rv2-chart-slot .report-chart svg { max-height: 38mm; width: 100%; height: auto; }
+    .rv2-caption { font-size: 7.5pt; color: #64748b; margin: 1.5mm 0 0; }
+
+    .rv2-indicator-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2mm;
+    }
+
+    .rv2-indicator-card {
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 1.8mm;
+      background: #fff;
+      min-width: 0;
+    }
+
+    .rv2-indicator-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1mm;
+      font-size: 7pt;
+      font-weight: 600;
+      margin-bottom: 1.2mm;
+      white-space: nowrap;
+    }
+
+    .rv2-status {
+      font-size: 6.5pt;
+      padding: 0.3mm 1.5mm;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    .rv2-status-danger { background: #fef2f2; color: #dc2626; }
+    .rv2-status-warning { background: #fffbeb; color: #d97706; }
+    .rv2-status-success { background: #ecfdf5; color: #059669; }
+    .rv2-status-neutral { color: #94a3b8; background: #f1f5f9; }
+
+    .rv2-indicator-metrics {
+      display: flex;
+      gap: 2mm;
+      font-size: 7pt;
+      margin-bottom: 1.2mm;
+    }
+
+    .rv2-metric-label { display: block; color: #64748b; font-size: 6.5pt; }
+    .rv2-momentum-drop { color: #dc2626; }
+    .rv2-momentum-surge { color: #059669; }
+
+    .rv2-indicator-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2mm;
+    }
+
+    .rv2-gap {
+      flex: 1;
+      position: relative;
+      height: 14px;
+      background: #e2e8f0;
+      border-radius: 3px;
+      font-size: 6.5pt;
+      display: flex;
+      align-items: center;
+      padding-left: 2mm;
+    }
+
+    .rv2-gap-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      opacity: 0.35;
+      border-radius: 3px;
+    }
+
+    .rv2-gap-pos { background: #059669; }
+    .rv2-gap-warn { background: #d97706; }
+    .rv2-gap-neg { background: #dc2626; }
+    .rv2-gap-neu { background: #94a3b8; }
+    .rv2-gap-empty, .rv2-spark-empty { font-size: 7pt; color: #94a3b8; }
+
+    .rv2-roadmap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5mm;
+    }
+
+    .rv2-roadmap-col {
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2.5mm;
+      font-size: 8pt;
+      background: #f8fafc;
+    }
+
+    .rv2-roadmap-col ul {
+      margin: 2mm 0 0;
+      padding-left: 4mm;
+      line-height: 1.5;
+    }
+
+    .exec-report-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--exec-navy);
+      color: #fff;
+      padding: 3mm 4mm;
+      border-radius: 6px;
+      margin-bottom: 5mm;
+      font-size: 8.5pt;
+    }
+
+    .exec-brand {
+      background: #0284c7;
+      font-weight: 800;
+      font-size: 7pt;
+      padding: 1mm 2mm;
+      border-radius: 3px;
+      margin-right: 2mm;
+      letter-spacing: 0.04em;
+    }
+
+    .exec-report-title { font-weight: 700; }
+    .exec-report-header-right { color: #cbd5e1; text-align: right; }
+    .exec-header-sep { color: #475569; margin: 0 1.5mm; }
+
+    .exec-panel {
+      background: #fff;
+      border: 1px solid var(--report-border);
+      border-radius: 8px;
+      padding: 4mm;
+      margin-bottom: 5mm;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    .exec-panel-dark {
+      background: linear-gradient(135deg, var(--exec-teal) 0%, var(--exec-teal-dark) 100%);
+      border-color: var(--exec-teal-dark);
+      color: #f0fdfa;
+    }
+
+    .exec-panel-dark .exec-panel-head {
+      border-bottom-color: rgba(255, 255, 255, 0.28);
+    }
+
+    .exec-panel-head { border-bottom: 1px solid #f1f5f9; padding-bottom: 3mm; margin-bottom: 4mm; }
+    .exec-panel-head-split { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 3mm; }
+
+    .exec-eyebrow {
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--exec-sky);
+    }
+
+    .exec-eyebrow-light { color: #ccfbf1; }
+
+    .exec-h1 { font-size: 14pt; font-weight: 800; color: #0f172a; margin: 1mm 0 0; }
+    .exec-h2 { font-size: 12pt; font-weight: 800; color: #0f172a; margin: 1mm 0 0; }
+    .exec-h2-light { color: #fff; }
+    .exec-h3 { font-size: 10pt; font-weight: 700; color: #0f172a; margin: 0 0 2mm; }
+
+    .exec-meta-chips {
+      font-size: 8pt;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2mm 3mm;
+      border-radius: 6px;
+      align-self: flex-start;
+    }
+
+    .exec-chip-sep { color: #cbd5e1; margin: 0 1mm; }
+
+    .exec-narrative, .exec-lead {
+      font-size: 9pt;
+      color: #475569;
+      line-height: 1.65;
+      margin: 0 0 4mm;
+    }
+
+    .exec-lead-light { color: #ecfdf5; }
+    .exec-caption { font-size: 8pt; color: #64748b; margin: 2mm 0; }
+
+    .text-risk { color: var(--exec-risk); font-weight: 700; }
+    .text-success { color: var(--exec-success); font-weight: 700; }
+    .text-left { text-align: left !important; }
+    .font-semibold { font-weight: 600; }
+
+    .kpi-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2.5mm;
+      margin-bottom: 5mm;
+    }
+
+    .kpi-card {
+      border-radius: 8px;
+      padding: 3mm;
+      text-align: center;
+      border: 1px solid var(--report-border);
+    }
+
+    .kpi-risk { background: #fef2f2; border-color: #fecaca; }
+    .kpi-strength { background: #ecfdf5; border-color: #a7f3d0; }
+    .kpi-neutral { background: #f8fafc; border-color: #e2e8f0; }
+
+    .kpi-label { font-size: 7pt; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; }
+    .kpi-value { font-size: 16pt; font-weight: 900; color: #0f172a; margin: 1mm 0; }
+    .kpi-unit { font-size: 9pt; font-weight: 400; }
+    .kpi-sub { font-size: 7.5pt; color: #64748b; }
+    .kpi-pill {
+      display: inline-block;
+      font-size: 7pt;
+      font-weight: 700;
+      padding: 0.5mm 2mm;
+      border-radius: 999px;
+      margin-top: 1mm;
+    }
+    .kpi-pill-risk { background: #fecaca; color: #991b1b; }
+
+    .exec-split-charts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4mm;
+      margin-top: 3mm;
+    }
+
+    .exec-chart-box {
+      background: #f8fafc;
+      border: 1px solid var(--report-border);
+      border-radius: 8px;
+      padding: 2mm;
+    }
+
+    .exec-chart-label {
+      font-size: 8pt;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 2mm;
+    }
+
+    .quad-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2mm;
+      background: #f1f5f9;
+      padding: 2mm;
+      border-radius: 8px;
+      border: 1px solid var(--report-border);
+    }
+
+    .quad-cell {
+      background: #fff;
+      border: 1px solid var(--report-border);
+      border-radius: 6px;
+      padding: 2.5mm;
+      position: relative;
+      min-height: 14mm;
+    }
+
+    .quad-cell-active {
+      background: #fef2f2;
+      border: 2px solid var(--exec-risk);
+    }
+
+    .quad-pin {
+      position: absolute;
+      top: 2mm;
+      right: 2mm;
+      background: var(--exec-risk);
+      color: #fff;
+      font-size: 6.5pt;
+      font-weight: 700;
+      padding: 0.5mm 1.5mm;
+      border-radius: 3px;
+    }
+
+    .quad-roman { font-size: 8pt; font-weight: 800; color: #334155; margin-bottom: 1mm; }
+    .quad-cell-active .quad-roman { color: #991b1b; }
+    .quad-desc { font-size: 7pt; color: #64748b; }
+
+    .exec-table-wrap { overflow: hidden; border-radius: 6px; border: 1px solid var(--report-border); }
+
+    .exec-indicator-table thead th {
+      background: var(--report-table-head);
+      color: var(--report-table-head-text);
+      font-size: 8pt;
+    }
+
+    /* v2 Deep-Dive + 지표표 병합(3쪽) — 차트·표가 A4 본문 높이를 채움 */
+    .report-page-merge-v2-deepdive {
+      --deepdive-body-h: calc(var(--a4-height) - var(--a4-margin-top) - var(--a4-margin-bottom));
+      --deepdive-chart-h: 62mm;
+      --deepdive-table-head-h: 8mm;
+      --deepdive-table-h: calc(var(--deepdive-body-h) - 26mm - var(--deepdive-chart-h) - 16mm);
+      --deepdive-row-h: calc((var(--deepdive-table-h) - var(--deepdive-table-head-h)) / 8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .report-page-merge-v2-deepdive .report-v2-continued,
+    .report-page-merge-v2-deepdive .exec-panel {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: var(--deepdive-body-h);
+      margin-bottom: 0;
+      box-sizing: border-box;
+    }
+
+    .report-page-merge-v2-deepdive .exec-panel-head {
+      flex-shrink: 0;
+      margin-bottom: 2mm;
+      padding-bottom: 2mm;
+    }
+
+    .report-page-merge-v2-deepdive .exec-lead {
+      margin-bottom: 2mm;
+    }
+
+    .report-page-merge-v2-deepdive .exec-split-charts {
+      flex-shrink: 0;
+      height: var(--deepdive-chart-h);
+      margin: 0 0 3mm;
+      gap: 3mm;
+      align-items: stretch;
+    }
+
+    .report-page-merge-v2-deepdive .exec-chart-box {
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5mm;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    .report-page-merge-v2-deepdive .exec-chart-box .report-chart {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .report-page-merge-v2-deepdive .exec-chart-box .report-chart-title {
+      flex-shrink: 0;
+      font-size: 8pt;
+      margin: 0 0 1mm;
+      line-height: 1.25;
+    }
+
+    .report-page-merge-v2-deepdive .exec-chart-box .report-chart svg {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      max-height: none;
+      display: block;
+    }
+
+    .report-page-merge-v2-deepdive .exec-table-wrap {
+      flex-shrink: 0;
+      height: var(--deepdive-table-h);
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+    }
+
+    .report-page-merge-v2-deepdive .exec-indicator-table {
+      height: 100%;
+      width: 100%;
+      font-size: 7.5pt;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+
+    .report-page-merge-v2-deepdive .exec-indicator-table thead th {
+      font-size: 7.5pt;
+      padding: 1.5mm 1.5mm;
+      height: var(--deepdive-table-head-h);
+      vertical-align: middle;
+    }
+
+    .report-page-merge-v2-deepdive .exec-indicator-table tbody tr {
+      height: var(--deepdive-row-h);
+    }
+
+    .report-page-merge-v2-deepdive .exec-indicator-table th,
+    .report-page-merge-v2-deepdive .exec-indicator-table td {
+      padding: 1.5mm 1.5mm;
+      line-height: 1.2;
+      vertical-align: middle;
+    }
+
+    /* v2 Decision + SWOT 병합(4+5쪽) */
+    .report-page-merge-v2-decision-swot {
+      --decision-swot-body-h: calc(var(--a4-height) - var(--a4-margin-top) - var(--a4-margin-bottom));
+      display: flex;
+      flex-direction: column;
+      min-height: var(--decision-swot-body-h);
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-dark {
+      flex-shrink: 0;
+      margin-bottom: 3mm;
+      padding: 3mm 4mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-dark .exec-h2 {
+      font-size: 11pt;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-dark .exec-lead,
+    .report-page-merge-v2-decision-swot .exec-panel-dark .exec-tip {
+      font-size: 8pt;
+      margin-bottom: 2mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-priority-list {
+      font-size: 8pt;
+      margin: 0 0 2mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel:not(.exec-panel-dark) {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+      min-height: 0;
+      padding: 3mm 4mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-head {
+      flex-shrink: 0;
+      margin-bottom: 2mm;
+      padding-bottom: 2mm;
+    }
+
+    .report-page-merge-v2-decision-swot .exec-panel-head .exec-lead {
+      margin-bottom: 0;
+      font-size: 8pt;
+    }
+
+    .report-page-merge-v2-decision-swot .swot-grid {
+      flex: 1;
+      gap: 2.5mm;
+      align-content: stretch;
+      min-height: 0;
+    }
+
+    .report-page-merge-v2-decision-swot .swot-card {
+      padding: 2.5mm;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .report-page-merge-v2-decision-swot .swot-body {
+      font-size: 7.5pt;
+      line-height: 1.45;
+      flex: 1;
+    }
+
+    /* v2 Decision+SWOT+Roadmap 병합(레거시) */
+    .report-page-merge-v2-strategy .exec-panel,
+    .report-page-merge-v2-strategy .exec-panel-dark {
+      margin-bottom: 2mm;
+      padding-bottom: 2mm;
+    }
+    .report-page-merge-v2-strategy .swot-grid { gap: 2mm; }
+    .report-page-merge-v2-strategy .swot-card { padding: 2mm; }
+    .report-page-merge-v2-strategy .swot-body { font-size: 7.5pt; line-height: 1.45; }
+    .report-page-merge-v2-strategy .roadmap-list { gap: 2mm; }
+    .report-page-merge-v2-strategy .roadmap-item { padding: 2mm 3mm; }
+
+    .badge {
+      display: inline-block;
+      font-size: 7pt;
+      font-weight: 700;
+      padding: 0.5mm 2mm;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+
+    .badge-danger { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .badge-warning { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+    .badge-strength { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+    .badge-neutral { color: #94a3b8; }
+
+    .exec-priority-list {
+      margin: 3mm 0;
+      padding-left: 5mm;
+      font-size: 9pt;
+      color: #ecfdf5;
+    }
+
+    .exec-panel-dark .exec-priority-list strong {
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .exec-tip {
+      font-size: 8pt;
+      color: #99f6e4;
+      border-top: 1px solid rgba(255, 255, 255, 0.28);
+      padding-top: 3mm;
+      margin: 3mm 0 0;
+    }
+
+    .swot-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+    }
+
+    .swot-card {
+      border-radius: 8px;
+      padding: 3mm;
+      border: 1px solid var(--report-border);
+    }
+
+    .swot-so { background: #ecfdf5; border-color: #a7f3d0; }
+    .swot-st { background: #f0f9ff; border-color: #bae6fd; }
+    .swot-wo { background: #fffbeb; border-color: #fde68a; }
+    .swot-wt { background: #fef2f2; border-color: #fecaca; }
+
+    .swot-tag { font-size: 7pt; font-weight: 800; margin-bottom: 2mm; color: #475569; }
+    .swot-title { font-size: 9.5pt; font-weight: 700; color: #0f172a; margin: 0 0 2mm; }
+    .swot-body { font-size: 8pt; color: #64748b; line-height: 1.55; margin: 0; }
+
+    .roadmap-list { display: flex; flex-direction: column; gap: 3mm; }
+
+    .roadmap-item {
+      background: #f8fafc;
+      border: 1px solid var(--report-border);
+      border-left: 4px solid var(--exec-risk);
+      border-radius: 0 8px 8px 0;
+      padding: 3mm 4mm;
+    }
+
+    .roadmap-mid { border-left-color: var(--exec-sky); }
+
+    .roadmap-phase {
+      font-size: 7pt;
+      font-weight: 700;
+      color: #991b1b;
+      background: #fef2f2;
+      padding: 0.5mm 2mm;
+      border-radius: 4px;
+      margin-right: 2mm;
+    }
+
+    .roadmap-phase-mid { color: #075985; background: #e0f2fe; }
+
+    .roadmap-head { display: flex; flex-wrap: wrap; align-items: center; gap: 2mm; margin-bottom: 2mm; }
+    .roadmap-title { font-size: 10pt; font-weight: 700; color: #0f172a; margin: 0; }
+    .roadmap-body { font-size: 8pt; color: #64748b; margin: 0; }
+    .roadmap-kpi { font-size: 7.5pt; color: #475569; margin: 2mm 0 0; }
+
+    /* ── 제3부 A4 전용 ── */
+    .report-page-part3 {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .report-part-3 .section-title,
+    .report-part-3-continued .subsection-title:first-child {
+      margin-top: 0;
+    }
+
+    .report-part-3 .subsection-title {
+      font-size: 12pt;
+      margin-top: 6mm;
+    }
+
+    .report-part-3 p,
+    .report-part-3-continued p {
+      font-size: 9.5pt;
+      text-align: justify;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    .report-part3-roadmap {
+      margin: 4mm 0 6mm;
+    }
+
+    .report-part3-roadmap .roadmap-item {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .report-part3-swot {
+      margin: 4mm 0 0;
+    }
+
+    .report-part3-swot .swot-card {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    .report-part-3 .data-table {
+      font-size: 8pt;
+    }
+
+    .report-part-3 .data-table th,
+    .report-part-3 .data-table td {
+      padding: 1.5mm 2mm;
+      vertical-align: top;
+    }
+
+    /* ── 제1부 첫 페이지(1.1 기본정보 + 1.2 그룹지수 표) — 표 압축 ── */
+    .report-page-part1-lead .data-table,
+    .report-page-part1-lead table {
+      font-size: 8pt;
+      margin: 3.5mm 0 5mm;
+    }
+
+    .report-page-part1-lead th,
+    .report-page-part1-lead td {
+      padding: 1.5mm 1.2mm;
+    }
+
+    /* ── 부록 페이지 — 표·본문 압축(A4 오버플로 방지) ── */
+    .report-page-appendix p,
+    .report-page-appendix li {
+      font-size: 8.5pt;
+      line-height: 1.5;
+      margin: 1.5mm 0;
+    }
+
+    .report-page-appendix .data-table,
+    .report-page-appendix table {
+      font-size: 8pt;
+      margin: 3mm 0 4mm;
+    }
+
+    .report-page-appendix th,
+    .report-page-appendix td {
+      padding: 1.5mm 1.5mm;
+    }
+
+    .report-page-appendix .subsection-title {
+      margin-top: 5mm;
+      margin-bottom: 2.5mm;
+    }
+
+    .report-page-appendix .subsubsection-title {
+      margin-top: 3.5mm;
+      margin-bottom: 2mm;
+    }
+
+    .report-part3-note {
+      font-size: 8.5pt;
+      color: #64748b;
+      margin: 3mm 0 5mm;
+      padding: 2mm 3mm;
+      background: #f8fafc;
+      border-left: 3px solid var(--exec-sky);
+    }
+
+    @media print {
+      .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .exec-split-charts, .swot-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 180mm) {
+      .kpi-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* legacy v2 aliases */
+    .exec-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; }
+    .callout-ai {
+      border-left: 4px solid var(--exec-sky);
+      background: #f8fafc;
+      padding: 3mm 4mm;
+      margin: 4mm 0;
+      font-size: 9pt;
+    }
+
+    .status-danger { color: var(--exec-risk); font-weight: 700; }
+    .status-warning { color: var(--exec-warning); font-weight: 700; }
+    .status-success { color: var(--exec-success); font-weight: 700; }
+
+    /* ── 등급 뱃지 ── */
+    .grade-badge-S { background: #7c3aed; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-A { background: #2563eb; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-B { background: #059669; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-C { background: #d97706; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-D { background: #ea580c; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-E { background: #dc2626; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+    .grade-badge-none { background: #94a3b8; color: #fff; padding: 1mm 3mm; border-radius: 4px; font-weight: 700; }
+
+    /* ── 표 (전체 가운데 정렬) ── */
+    table,
+    .data-table,
+    .ucm-table {
+      width: 100%;
+      max-width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      margin: 5mm 0 7mm;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+
+    .data-table th,
+    .data-table td,
+    .ucm-table th,
+    .ucm-table td {
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      hyphens: auto;
+    }
+
+    th, td {
+      border: 1px solid var(--report-border);
+      padding: 2.5mm 2mm;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--report-table-head);
+      color: var(--report-table-head-text);
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    /* ── 차트 ── */
+    .report-chart {
+      margin: 5mm 0 7mm;
+      page-break-inside: avoid;
+    }
+
+    /* 그룹 추세 차트 4종 — 전폭 1열(판독성·페이지 채움) */
+    .report-chart-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3mm;
+      margin: 4mm 0 5mm;
+    }
+
+    .report-chart-card {
+      border: 1px solid var(--report-border);
+      border-radius: 4px;
+      padding: 2mm 3mm;
+      background: #fafafa;
+      page-break-inside: avoid;
+    }
+
+    .report-chart-card .report-chart {
+      margin: 0;
+    }
+
+    .report-chart-card .report-chart-legend {
+      margin-top: 1mm;
+    }
+
+    .report-chart-title {
+      font-size: 9pt;
+      font-weight: 700;
+      color: var(--color-section);
+      margin: 0 0 2mm;
+      text-align: center;
+    }
+
+    .report-chart svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .report-chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 3mm 5mm;
+      margin-top: 2mm;
+      font-size: 7.5pt;
+      color: #475569;
+    }
+
+    .report-chart-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5mm;
+    }
+
+    .report-chart-legend-swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    [data-chart-id] {
+      border: none;
+      background: transparent;
+      padding: 0;
+    }
+
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+      height: 0;
+      margin: 0;
+    }
+
+    .page {
+      margin: 0;
+      padding: 0;
+    }
+
+    .report-page-footer {
+      position: absolute;
+      left: var(--a4-margin);
+      right: var(--a4-margin);
+      bottom: 8mm;
+      text-align: center;
+      font-size: 9pt;
+      color: #64748b;
+      border-top: 1px solid var(--report-border);
+      padding-top: 2mm;
+    }
+
+    .report-page-num {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    strong { color: #0f172a; }
+
+    @media print {
+      html, body { background: #fff; }
+      .report-shell { padding: 0; }
+      .no-print, .report-view-toolbar { display: none !important; }
+      .report-page {
+        width: auto;
+        min-height: auto;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+        page-break-after: always;
+      }
+      .report-page:last-child { page-break-after: auto; }
+    }
+
+    /* ── A4 1쪽 수용을 위한 압축 레이아웃 ── */
+    [data-fp-page] .section-title {
+      margin: 0 0 3mm;
+      font-size: 15pt;
+      padding-bottom: 2mm;
+    }
+    [data-fp-page] .subsection-title {
+      margin: 4mm 0 2mm;
+      font-size: 11.5pt;
+    }
+    [data-fp-page] table,
+    [data-fp-page] .data-table {
+      margin: 2.5mm 0 4mm;
+    }
+    [data-fp-page] .report-chart {
+      margin: 2mm 0 4mm;
+    }
+    [data-fp-page] .report-chart-grid {
+      /* 재정추계 보고서는 2열 유지 (경쟁력 보고서 공용 스타일이 1열로 변경됨) */
+      grid-template-columns: 1fr 1fr;
+      margin: 2mm 0 4mm;
+      gap: 3mm;
+    }
+    [data-fp-page] .report-chart-title { font-size: 8.5pt; margin-bottom: 1mm; }
+    [data-fp-page] .report-chart-legend { margin-top: 1mm; font-size: 7pt; gap: 2mm 4mm; }
+    [data-fp-page] .kpi-grid-4 { margin-bottom: 3.5mm; }
+    [data-fp-page] .exec-report-header { margin-bottom: 3mm; }
+    [data-fp-page="cover"] .cover-toc { margin-top: 5mm; padding-top: 4mm; }
+    [data-fp-page="cover"] .cover-toc-list { line-height: 1.75; }
+
+    .fp-page-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 7.5pt;
+      color: #94a3b8;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 1.5mm;
+      margin-bottom: 4mm;
+    }
+
+    .fp-stage-banner {
+      border-radius: 8px;
+      padding: 2.5mm 4mm;
+      font-size: 10.5pt;
+      font-weight: 600;
+      margin: 2mm 0 3.5mm;
+      border: 1px solid transparent;
+    }
+    .fp-stage-banner strong { font-size: 12pt; margin-left: 1mm; }
+    .fp-stage-hint { display: block; font-size: 8pt; font-weight: 400; margin-top: 1mm; opacity: 0.85; }
+    .fp-stage-ok { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+    .fp-stage-ok strong { color: #059669; }
+    .fp-stage-caution { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+    .fp-stage-caution strong { color: #d97706; }
+    .fp-stage-warn { background: #fff7ed; border-color: #fed7aa; color: #9a3412; }
+    .fp-stage-warn strong { color: #ea580c; }
+    .fp-stage-crisis { background: #fef2f2; border-color: #fecaca; color: #991b1b; }
+    .fp-stage-crisis strong { color: #dc2626; }
+
+    .fp-basis-note {
+      font-size: 7.5pt;
+      color: #64748b;
+      background: #f8fafc;
+      border-left: 3px solid #0284c7;
+      padding: 1.5mm 2.5mm;
+      margin: 1.5mm 0 3mm;
+      line-height: 1.5;
+    }
+
+    .fp-neg { color: #dc2626 !important; font-weight: 600; }
+    .fp-pos { color: #059669 !important; font-weight: 600; }
+    .fp-warn-text { color: #d97706; font-weight: 600; }
+
+    .fp-compact-table { font-size: 8pt; }
+    .fp-compact-table th, .fp-compact-table td { padding: 1.2mm 1.5mm; line-height: 1.35; }
+
+    .fp-narrative { margin: 1.5mm 0; }
+    .fp-narrative p {
+      font-size: 9pt;
+      line-height: 1.52;
+      text-align: justify;
+      word-break: keep-all;
+      margin: 1.6mm 0;
+    }
+
+    .fp-milestone-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3mm;
+      margin: 4mm 0;
+    }
+    .fp-milestone {
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      padding: 3mm;
+      background: #f8fafc;
+    }
+    .fp-milestone-risk { background: #fef2f2; border-color: #fecaca; }
+    .fp-milestone-ok { background: #ecfdf5; border-color: #a7f3d0; }
+    .fp-milestone-step { font-size: 7pt; font-weight: 700; color: #64748b; margin: 0; text-transform: uppercase; }
+    .fp-milestone-title { font-size: 9.5pt; font-weight: 700; color: #0f172a; margin: 1mm 0; }
+    .fp-milestone-year { font-size: 14pt; font-weight: 800; color: #0f172a; margin: 1mm 0; }
+    .fp-milestone-risk .fp-milestone-year { color: #dc2626; }
+    .fp-milestone-ok .fp-milestone-year { color: #059669; }
+    .fp-milestone-desc { font-size: 7.5pt; color: #64748b; margin: 1mm 0 0; line-height: 1.45; }
+
+    .fp-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3mm;
+      margin: 3mm 0 5mm;
+    }
+    .fp-action-card {
+      border: 1px solid #e2e8f0;
+      border-top: 3px solid #0284c7;
+      border-radius: 6px;
+      padding: 2.5mm 3mm;
+      background: #f8fafc;
+    }
+    .fp-action-head { display: flex; justify-content: space-between; gap: 2mm; margin-bottom: 1.5mm; }
+    .fp-action-priority { font-size: 7pt; font-weight: 800; color: #0284c7; }
+    .fp-action-delay { font-size: 7pt; color: #059669; font-weight: 600; }
+    .fp-action-title { font-size: 9pt; font-weight: 700; color: #0f172a; margin: 0 0 1mm; line-height: 1.4; }
+    .fp-action-effect { font-size: 8pt; color: #64748b; margin: 0; line-height: 1.45; }
+
+    .fp-method-list { font-size: 9pt; line-height: 1.65; }
+    .fp-method-list li { margin: 2.5mm 0; }
+    .fp-appendix-pre {
+      font-family: inherit;
+      font-size: 8.5pt;
+      line-height: 1.7;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 3mm;
+      white-space: pre-wrap;
+      margin: 2mm 0 5mm;
+    }
+
+    .roadmap-item .fp-narrative { margin: 1mm 0 0; }
+    .roadmap-item .fp-narrative p { font-size: 8.5pt; margin: 1.5mm 0; }
+
+    @media print {
+      [data-fp-page] .kpi-grid-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="report-shell">
+    <article class="report-page report-page-cover" data-fp-page="cover">
+  <div class="report-cover">
+    <div class="cover-accent-bar"></div>
+    <p class="cover-eyebrow">K-UniTrust · 대학별추계분석</p>
+    <h1 class="cover-main-title">2025년 대학별 재정추계<br />분석 보고서</h1>
+    <p class="cover-school-name">초당대학교</p>
+    <div class="cover-meta-box">
+      <table class="cover-meta-table">
+        <tbody>
+          <tr>
+            <th>분석연도</th><td>2025년</td>
+            <th>추계구간</th><td>2025~2044년</td>
+          </tr>
+          <tr>
+            <th>소재지</th><td>전남 </td>
+            <th>학교종류</th><td>대학</td>
+          </tr>
+          <tr>
+            <th>위험단계</th><td><span class="cover-highlight">경고</span> (기본 시나리오)</td>
+            <th>가용자금 고갈</th><td><span class="cover-highlight">2035년</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cover-run-at">분석실행: 2026. 8. 20. 오후 5:02:09 · 지침 v1.2.0</p>
+    <p class="cover-generated-at">보고서 생성: 2026. 8. 24. 오후 2:57:08</p>
+    <div class="cover-toc">
+      <p class="cover-toc-title">목차</p>
+      <ul class="cover-toc-list"><li><span class="toc-num">1</span><span class="cover-toc-entry">종합 요약 (Executive Summary)</span><span class="cover-toc-leader"></span><span class="cover-toc-page">1</span></li><li><span class="toc-num">2</span><span class="cover-toc-entry">제1부 추계결과 ① 학생수 전망</span><span class="cover-toc-leader"></span><span class="cover-toc-page">2</span></li><li><span class="toc-num">3</span><span class="cover-toc-entry">제1부 추계결과 ② 수입·지출 전망</span><span class="cover-toc-leader"></span><span class="cover-toc-page">3</span></li><li><span class="toc-num">4</span><span class="cover-toc-entry">제1부 추계결과 ③ 자금수지·가용자금</span><span class="cover-toc-leader"></span><span class="cover-toc-page">4</span></li><li><span class="toc-num">5</span><span class="cover-toc-entry">제1부 추계결과 ④ 1인당 지표</span><span class="cover-toc-leader"></span><span class="cover-toc-page">5</span></li><li><span class="toc-num">6</span><span class="cover-toc-entry">제1부 추계결과 ⑤ 시나리오 비교</span><span class="cover-toc-leader"></span><span class="cover-toc-page">6</span></li><li><span class="toc-num">7</span><span class="cover-toc-entry">제2부 한계진단 ① 위험단계 판정</span><span class="cover-toc-leader"></span><span class="cover-toc-page">7</span></li><li><span class="toc-num">8</span><span class="cover-toc-entry">제2부 한계진단 ② 구조 진단·민감도</span><span class="cover-toc-leader"></span><span class="cover-toc-page">8</span></li><li><span class="toc-num">9</span><span class="cover-toc-entry">제3부 대응전략 ① 재정 방어선 구축</span><span class="cover-toc-leader"></span><span class="cover-toc-page">9</span></li><li><span class="toc-num">10</span><span class="cover-toc-entry">제3부 대응전략 ② 단계별 실행 로드맵</span><span class="cover-toc-leader"></span><span class="cover-toc-page">10</span></li><li><span class="toc-num">11</span><span class="cover-toc-entry">부록 추계 방법론·가정</span><span class="cover-toc-leader"></span><span class="cover-toc-page">11</span></li></ul>
+    </div>
+  </div>
+</article>
+<article class="report-page" data-fp-page="1">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<div class="exec-report-header">
+  <div><span class="exec-brand">K-UNITRUST</span><span class="exec-report-title">재정추계 Executive Summary</span></div>
+  <div class="exec-report-header-right">초당대학교<span class="exec-header-sep">|</span>2025년 분석<span class="exec-header-sep">|</span>추계 2025~2044년</div>
+</div>
+
+<div class="kpi-grid-4">
+  <div class="kpi-card kpi-neutral">
+    <p class="kpi-label">위험단계</p>
+    <p class="kpi-value" style="font-size:13pt">경고</p>
+    <p class="kpi-sub">기본 시나리오 · 참고 분류</p>
+  </div>
+  <div class="kpi-card kpi-risk">
+    <p class="kpi-label">운영손익 적자</p>
+    <p class="kpi-value" style="font-size:13pt">2026년</p>
+    <p class="kpi-sub">수입 &lt; 지출 최초 연도</p>
+  </div>
+  <div class="kpi-card kpi-risk">
+    <p class="kpi-label">자금수지 적자</p>
+    <p class="kpi-value" style="font-size:13pt">2026년</p>
+    <p class="kpi-sub">당기 자금수지 &lt; 0</p>
+  </div>
+  <div class="kpi-card kpi-risk">
+    <p class="kpi-label">가용자금 고갈</p>
+    <p class="kpi-value" style="font-size:13pt">2035년</p>
+    <p class="kpi-sub">분석연도부터 10년 후</p>
+  </div>
+</div>
+<h2 class="subsection-title">시나리오별 재정 분기점 비교</h2>
+<table class="data-table">
+  <thead>
+    <tr><th>시나리오</th><th>운영손익 적자</th><th>자금수지 적자</th><th>가용자금 고갈</th><th>2044년 가용자금(억원)</th><th>위험단계</th></tr>
+  </thead>
+  <tbody><tr>
+  <td><strong>낙관</strong></td>
+  <td>2041년</td>
+  <td>2041년</td>
+  <td>구간(~2044년) 내 없음</td>
+  <td>426.7</td>
+  <td>주의</td>
+</tr><tr>
+  <td><strong>기본</strong></td>
+  <td>2026년</td>
+  <td>2026년</td>
+  <td>2035년</td>
+  <td class="fp-neg">-1,054.3</td>
+  <td>경고</td>
+</tr><tr>
+  <td><strong>비관</strong></td>
+  <td>2026년</td>
+  <td>2026년</td>
+  <td>2033년</td>
+  <td class="fp-neg">-1,648.9</td>
+  <td>경고</td>
+</tr><tr>
+  <td><strong>한계</strong></td>
+  <td>2026년</td>
+  <td>2026년</td>
+  <td>2031년</td>
+  <td class="fp-neg">-2,318.7</td>
+  <td>경고</td>
+</tr></tbody>
+</table>
+<h2 class="subsection-title">종합 총평</h2>
+<div class="fp-narrative" data-fp-narrative="exec-summary"><p>초당대학교의 2025년 재정추계 결과, 기본 시나리오 기준 위험단계는 <strong>경고</strong> 단계로 판정되었습니다. 가용자금이 <strong>2035년</strong>에 소진되어 재정적 한계에 도달할 것으로 전망됩니다. 본 분석의 위험단계는 대학 내부 재정 관리용 참고 분류이며 교육부의 한계대학 지정 기준과 무관합니다.</p>
+<p>학생수 및 수입 구조를 살피면, 재학생 수는 2025년 <strong>2,432명</strong>에서 2044년 <strong>1,288명</strong>으로 크게 감소할 것으로 추계됩니다. 이에 따라 등록금수입은 2025년 <strong>165.2억원</strong>에서 2044년 <strong>87.5억원</strong>으로 대폭 축소되어 재정적 압박이 지속될 전망입니다. 신입생 충원율 역시 2025년 70.1%에서 2044년 37.8%로 하락세를 보입니다.</p>
+<p>3대 재정 분기점 분석 결과, 운영손익과 당기자금수지는 <strong>2026년</strong>에 운영차액 <strong>-0.5억원</strong>으로 적자 전환됩니다. 이후 수지 적자가 누적되면서 초기 <strong>276.5억원</strong> 규모의 가용자금은 <strong>2035년</strong>에 완충력을 상실하고 고갈에 이르게 됩니다. 가용자금 고갈 이후 2044년 적자 규모는 <strong>-1,054.3억원</strong>까지 늘어납니다.</p>
+<p>경영진은 2026년 적자 전환 이전에 즉각적인 고정비 절감 및 수입 구조 다변화 정책에 착수해야 합니다. 특히 고정비를 매년 <strong>1.6%</strong> 수준 절감하고 충원율 방어선 체계를 구축하는 선제적 대응이 시급합니다. 골든타임 내에 근본적인 구조 개선이 이뤄져야 지속 가능성을 확보할 수 있습니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">1 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="2">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제1부 추계결과 ① 학생수 전망</h1>
+<p class="fp-basis-note">기본(base) 시나리오 기준 · 소재 시도 학령인구 감소 지수 반영 · 실적(교비)·추정(알리미)·전망 구분</p>
+<div class="report-chart-grid"><figure class="report-chart" aria-label="재학생·신입생 전망">
+  <div class="report-chart-title">재학생·신입생 전망 <span style="font-weight:400;color:#94a3b8">(단위: 명)</span></div>
+  <svg viewBox="0 0 352 190" role="img" preserveAspectRatio="xMidYMid meet"><line x1="48" y1="150.0" x2="338" y2="150.0" stroke="#94a3b8" stroke-width="1.4" /><text x="43" y="153.0" text-anchor="end" font-size="8.5" fill="#64748b">0</text><line x1="48" y1="116.0" x2="338" y2="116.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="119.0" text-anchor="end" font-size="8.5" fill="#64748b">1천</text><line x1="48" y1="82.0" x2="338" y2="82.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="85.0" text-anchor="end" font-size="8.5" fill="#64748b">2천</text><line x1="48" y1="48.0" x2="338" y2="48.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="51.0" text-anchor="end" font-size="8.5" fill="#64748b">3천</text><line x1="48" y1="14.0" x2="338" y2="14.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="17.0" text-anchor="end" font-size="8.5" fill="#64748b">4천</text><text x="48.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2020</text><text x="84.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2023</text><text x="120.5" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2026</text><text x="156.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2029</text><text x="193.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2032</text><text x="229.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2035</text><text x="265.5" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2038</text><text x="301.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2041</text><text x="338.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2044</text><rect x="104.8" y="131.7" width="7.2" height="18.3" fill="#64748b" opacity="0.85" rx="1" /><rect x="116.9" y="131.6" width="7.2" height="18.4" fill="#64748b" opacity="0.85" rx="1" /><rect x="129.0" y="132.7" width="7.2" height="17.3" fill="#64748b" opacity="0.85" rx="1" /><rect x="141.1" y="133.2" width="7.2" height="16.8" fill="#64748b" opacity="0.85" rx="1" /><rect x="153.2" y="132.4" width="7.2" height="17.6" fill="#64748b" opacity="0.85" rx="1" /><rect x="165.2" y="132.2" width="7.2" height="17.8" fill="#64748b" opacity="0.85" rx="1" /><rect x="177.3" y="131.9" width="7.2" height="18.1" fill="#64748b" opacity="0.85" rx="1" /><rect x="189.4" y="133.8" width="7.2" height="16.2" fill="#64748b" opacity="0.85" rx="1" /><rect x="201.5" y="134.4" width="7.2" height="15.6" fill="#64748b" opacity="0.85" rx="1" /><rect x="213.6" y="134.3" width="7.2" height="15.7" fill="#64748b" opacity="0.85" rx="1" /><rect x="225.7" y="135.3" width="7.2" height="14.7" fill="#64748b" opacity="0.85" rx="1" /><rect x="237.7" y="137.0" width="7.2" height="13.0" fill="#64748b" opacity="0.85" rx="1" /><rect x="249.8" y="138.1" width="7.2" height="11.9" fill="#64748b" opacity="0.85" rx="1" /><rect x="261.9" y="138.6" width="7.2" height="11.4" fill="#64748b" opacity="0.85" rx="1" /><rect x="274.0" y="139.5" width="7.2" height="10.5" fill="#64748b" opacity="0.85" rx="1" /><rect x="286.1" y="140.1" width="7.2" height="9.9" fill="#64748b" opacity="0.85" rx="1" /><rect x="298.2" y="140.5" width="7.2" height="9.5" fill="#64748b" opacity="0.85" rx="1" /><rect x="310.2" y="141.0" width="7.2" height="9.0" fill="#64748b" opacity="0.85" rx="1" /><rect x="322.3" y="140.4" width="7.2" height="9.6" fill="#64748b" opacity="0.85" rx="1" /><rect x="334.4" y="140.1" width="7.2" height="9.9" fill="#64748b" opacity="0.85" rx="1" /><polyline points="48.0,40.5 60.1,47.5 72.2,44.9 84.3,52.3 96.3,63.5 108.4,72.4 120.5,72.4 132.6,73.7 144.7,75.2 156.8,75.4 168.8,75.3 180.9,75.0 193.0,76.9 205.1,79.0 217.2,80.4 229.3,82.7 241.3,86.3 253.4,90.2 265.5,93.7 277.6,97.4 289.7,100.9 301.8,103.9 313.8,106.7 325.9,108.2 338.0,108.9" fill="none" stroke="#0284c7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><polyline points="48.0,143.4 60.1,142.4 72.2,143.6 84.3,139.1 96.3,140.4 108.4,144.9 120.5,146.1 132.6,146.7 144.7,147.0 156.8,147.1 168.8,147.2 180.9,147.2 193.0,147.3 205.1,147.3 217.2,147.3 229.3,147.3 241.3,147.3 253.4,147.3 265.5,147.3 277.6,147.3 289.7,147.3 301.8,147.3 313.8,147.3 325.9,147.3 338.0,147.3" fill="none" stroke="#059669" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#64748b"></span>신입생</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0284c7"></span>학부 재학생</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>대학원 재학생</span></div>
+</figure><figure class="report-chart" aria-label="충원율·학령인구 지수 전망">
+  <div class="report-chart-title">충원율·학령인구 지수 전망 <span style="font-weight:400;color:#94a3b8">(단위: % · 지수)</span></div>
+  <svg viewBox="0 0 352 190" role="img" preserveAspectRatio="xMidYMid meet"><line x1="48" y1="150.0" x2="338" y2="150.0" stroke="#94a3b8" stroke-width="1.4" /><text x="43" y="153.0" text-anchor="end" font-size="8.5" fill="#64748b">0</text><line x1="48" y1="122.8" x2="338" y2="122.8" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="125.8" text-anchor="end" font-size="8.5" fill="#64748b">20</text><line x1="48" y1="95.6" x2="338" y2="95.6" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="98.6" text-anchor="end" font-size="8.5" fill="#64748b">40</text><line x1="48" y1="68.4" x2="338" y2="68.4" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="71.4" text-anchor="end" font-size="8.5" fill="#64748b">60</text><line x1="48" y1="41.2" x2="338" y2="41.2" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="44.2" text-anchor="end" font-size="8.5" fill="#64748b">80</text><line x1="48" y1="14.0" x2="338" y2="14.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="17.0" text-anchor="end" font-size="8.5" fill="#64748b">100</text><text x="48.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2025</text><text x="78.5" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2027</text><text x="109.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2029</text><text x="139.6" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2031</text><text x="170.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2033</text><text x="200.6" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2035</text><text x="231.2" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2037</text><text x="261.7" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2039</text><text x="292.2" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2041</text><text x="322.7" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2043</text><text x="338.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2044</text><polyline points="48.0,54.7 63.3,54.3 78.5,60.2 93.8,63.0 109.1,58.9 124.3,57.4 139.6,56.4 154.8,66.4 170.1,69.4 185.4,68.8 200.6,74.5 215.9,83.5 231.2,88.9 246.4,91.5 261.7,96.3 276.9,99.3 292.2,101.2 307.5,103.2 322.7,100.5 338.0,98.6" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><polyline points="48.0,14.0 63.3,14.0 78.5,22.8 93.8,26.9 109.1,20.7 124.3,18.5 139.6,17.0 154.8,31.8 170.1,36.3 185.4,35.5 200.6,43.9 215.9,57.5 231.2,65.8 246.4,69.9 261.7,77.2 276.9,82.0 292.2,85.1 307.5,88.7 322.7,84.7 338.0,81.9" fill="none" stroke="#d97706" stroke-width="2" stroke-dasharray="5 3" stroke-linejoin="round" stroke-linecap="round" /></svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#7c3aed"></span>충원율(%)</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>학령인구 지수</span></div>
+</figure></div>
+<table class="data-table fp-compact-table">
+  <thead><tr><th>연도</th><th>정원</th><th>신입</th><th>학부</th><th>대학원</th><th>재학생 계</th><th>충원율</th><th>학령지수</th></tr></thead>
+  <tbody><tr>
+  <td>2025</td>
+  <td>767</td>
+  <td>538</td>
+  <td>2,282</td>
+  <td>150</td>
+  <td><strong>2,432</strong></td>
+  <td>70.1%</td>
+  <td>100</td>
+</tr><tr>
+  <td>2026</td>
+  <td>767</td>
+  <td>542</td>
+  <td>2,282</td>
+  <td>115</td>
+  <td><strong>2,397</strong></td>
+  <td>70.4%</td>
+  <td>100</td>
+</tr><tr>
+  <td>2027</td>
+  <td>767</td>
+  <td>509</td>
+  <td>2,245</td>
+  <td>97</td>
+  <td><strong>2,342</strong></td>
+  <td>66%</td>
+  <td>93.5</td>
+</tr><tr>
+  <td>2028</td>
+  <td>767</td>
+  <td>494</td>
+  <td>2,200</td>
+  <td>88</td>
+  <td><strong>2,288</strong></td>
+  <td>64%</td>
+  <td>90.5</td>
+</tr><tr>
+  <td>2029</td>
+  <td>767</td>
+  <td>517</td>
+  <td>2,193</td>
+  <td>84</td>
+  <td><strong>2,277</strong></td>
+  <td>67%</td>
+  <td>95.1</td>
+</tr><tr>
+  <td>2030</td>
+  <td>767</td>
+  <td>525</td>
+  <td>2,196</td>
+  <td>82</td>
+  <td><strong>2,278</strong></td>
+  <td>68.1%</td>
+  <td>96.7</td>
+</tr><tr>
+  <td>2032</td>
+  <td>767</td>
+  <td>476</td>
+  <td>2,150</td>
+  <td>80</td>
+  <td><strong>2,230</strong></td>
+  <td>61.5%</td>
+  <td>86.9</td>
+</tr><tr>
+  <td>2035</td>
+  <td>767</td>
+  <td>431</td>
+  <td>1,980</td>
+  <td>80</td>
+  <td><strong>2,060</strong></td>
+  <td>55.5%</td>
+  <td>78</td>
+</tr><tr>
+  <td>2040</td>
+  <td>767</td>
+  <td>291</td>
+  <td>1,445</td>
+  <td>80</td>
+  <td><strong>1,525</strong></td>
+  <td>37.3%</td>
+  <td>50</td>
+</tr><tr>
+  <td>2044</td>
+  <td>767</td>
+  <td>291</td>
+  <td>1,208</td>
+  <td>80</td>
+  <td><strong>1,288</strong></td>
+  <td>37.8%</td>
+  <td>50.1</td>
+</tr></tbody>
+</table>
+<div class="fp-narrative" data-fp-narrative="students"><p>전남 지역 학령인구 감소의 영향으로 학령지수가 2025년 <strong>100</strong>에서 2044년 <strong>50.1</strong>로 급감하는 경로를 보이고 있습니다. 이에 따라 신입생 충원율은 2025년 <strong>70.1%</strong>에서 2044년 <strong>37.8%</strong>까지 떨어질 것으로 예상됩니다. 결과적으로 재학생 수 역시 <strong>2,432명</strong>에서 <strong>1,288명</strong>으로 지속적인 감소세를 나타낼 것으로 전망됩니다.</p>
+<p>신입생 및 재학생 수의 급격한 감소는 대학의 주된 수입원인 등록금수입 기반을 심각하게 약화시킵니다. 등록금수입은 2025년 <strong>165.2억원</strong>에서 2030년 <strong>156.9억원</strong>, 2044년에는 <strong>87.5억원</strong> 수준까지 축소될 것으로 추계됩니다. 이러한 수입 감소를 극복하기 위해 입학 경쟁력 강화와 중도탈락 방지 노력이 필수적입니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">2 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="3">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제1부 추계결과 ② 수입·지출 전망</h1>
+<p class="fp-basis-note">수입 = 등록금 + 맞춤형국가장학금 + 기타수입 · 지출 = 고정비(보수·관리운영·교육외) + 변동비(연구학생경비) · 단위: 억원</p>
+<figure class="report-chart" aria-label="운영 수입·지출·운영차액 전망">
+  <div class="report-chart-title">운영 수입·지출·운영차액 전망 <span style="font-weight:400;color:#94a3b8">(단위: 억원)</span></div>
+  <svg viewBox="0 0 720 190" role="img" preserveAspectRatio="xMidYMid meet"><line x1="48" y1="150.0" x2="706" y2="150.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="153.0" text-anchor="end" font-size="8.5" fill="#64748b">-200</text><line x1="48" y1="116.0" x2="706" y2="116.0" stroke="#94a3b8" stroke-width="1.4" /><text x="43" y="119.0" text-anchor="end" font-size="8.5" fill="#64748b">0</text><line x1="48" y1="82.0" x2="706" y2="82.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="85.0" text-anchor="end" font-size="8.5" fill="#64748b">200</text><line x1="48" y1="48.0" x2="706" y2="48.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="51.0" text-anchor="end" font-size="8.5" fill="#64748b">400</text><line x1="48" y1="14.0" x2="706" y2="14.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="17.0" text-anchor="end" font-size="8.5" fill="#64748b">600</text><text x="48.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2025</text><text x="117.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2027</text><text x="186.5" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2029</text><text x="255.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2031</text><text x="325.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2033</text><text x="394.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2035</text><text x="463.6" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2037</text><text x="532.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2039</text><text x="602.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2041</text><text x="671.4" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2043</text><text x="706.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2044</text><line x1="82.6" y1="14" x2="82.6" y2="150" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3" /><text x="86.6" y="23" text-anchor="start" font-size="8" font-weight="700" fill="#dc2626">2026년 적자 전환</text><rect x="37.8" y="48.3" width="10.2" height="67.7" fill="#0284c7" opacity="0.85" rx="1" /><rect x="72.4" y="48.7" width="10.2" height="67.3" fill="#0284c7" opacity="0.85" rx="1" /><rect x="107.1" y="49.5" width="10.2" height="66.5" fill="#0284c7" opacity="0.85" rx="1" /><rect x="141.7" y="50.3" width="10.2" height="65.7" fill="#0284c7" opacity="0.85" rx="1" /><rect x="176.3" y="50.5" width="10.2" height="65.5" fill="#0284c7" opacity="0.85" rx="1" /><rect x="211.0" y="50.5" width="10.2" height="65.5" fill="#0284c7" opacity="0.85" rx="1" /><rect x="245.6" y="50.3" width="10.2" height="65.7" fill="#0284c7" opacity="0.85" rx="1" /><rect x="280.2" y="51.3" width="10.2" height="64.7" fill="#0284c7" opacity="0.85" rx="1" /><rect x="314.9" y="52.3" width="10.2" height="63.7" fill="#0284c7" opacity="0.85" rx="1" /><rect x="349.5" y="53.0" width="10.2" height="63.0" fill="#0284c7" opacity="0.85" rx="1" /><rect x="384.1" y="54.1" width="10.2" height="61.9" fill="#0284c7" opacity="0.85" rx="1" /><rect x="418.7" y="55.9" width="10.2" height="60.1" fill="#0284c7" opacity="0.85" rx="1" /><rect x="453.4" y="57.9" width="10.2" height="58.1" fill="#0284c7" opacity="0.85" rx="1" /><rect x="488.0" y="59.6" width="10.2" height="56.4" fill="#0284c7" opacity="0.85" rx="1" /><rect x="522.6" y="61.4" width="10.2" height="54.6" fill="#0284c7" opacity="0.85" rx="1" /><rect x="557.3" y="63.2" width="10.2" height="52.8" fill="#0284c7" opacity="0.85" rx="1" /><rect x="591.9" y="64.7" width="10.2" height="51.3" fill="#0284c7" opacity="0.85" rx="1" /><rect x="626.5" y="66.0" width="10.2" height="50.0" fill="#0284c7" opacity="0.85" rx="1" /><rect x="661.2" y="66.8" width="10.2" height="49.2" fill="#0284c7" opacity="0.85" rx="1" /><rect x="695.8" y="67.1" width="10.2" height="48.9" fill="#0284c7" opacity="0.85" rx="1" /><rect x="48.0" y="49.3" width="10.2" height="66.7" fill="#e11d48" opacity="0.85" rx="1" /><rect x="82.6" y="48.6" width="10.2" height="67.4" fill="#e11d48" opacity="0.85" rx="1" /><rect x="117.3" y="48.1" width="10.2" height="67.9" fill="#e11d48" opacity="0.85" rx="1" /><rect x="151.9" y="47.6" width="10.2" height="68.4" fill="#e11d48" opacity="0.85" rx="1" /><rect x="186.5" y="46.6" width="10.2" height="69.4" fill="#e11d48" opacity="0.85" rx="1" /><rect x="221.2" y="45.5" width="10.2" height="70.5" fill="#e11d48" opacity="0.85" rx="1" /><rect x="255.8" y="44.2" width="10.2" height="71.8" fill="#e11d48" opacity="0.85" rx="1" /><rect x="290.4" y="43.8" width="10.2" height="72.3" fill="#e11d48" opacity="0.85" rx="1" /><rect x="325.1" y="43.3" width="10.2" height="72.7" fill="#e11d48" opacity="0.85" rx="1" /><rect x="359.7" y="42.7" width="10.2" height="73.3" fill="#e11d48" opacity="0.85" rx="1" /><rect x="394.3" y="42.4" width="10.2" height="73.6" fill="#e11d48" opacity="0.85" rx="1" /><rect x="428.9" y="42.6" width="10.2" height="73.4" fill="#e11d48" opacity="0.85" rx="1" /><rect x="463.6" y="43.0" width="10.2" height="73.0" fill="#e11d48" opacity="0.85" rx="1" /><rect x="498.2" y="43.3" width="10.2" height="72.7" fill="#e11d48" opacity="0.85" rx="1" /><rect x="532.8" y="43.8" width="10.2" height="72.3" fill="#e11d48" opacity="0.85" rx="1" /><rect x="567.5" y="44.1" width="10.2" height="71.9" fill="#e11d48" opacity="0.85" rx="1" /><rect x="602.1" y="44.4" width="10.2" height="71.6" fill="#e11d48" opacity="0.85" rx="1" /><rect x="636.7" y="44.5" width="10.2" height="71.5" fill="#e11d48" opacity="0.85" rx="1" /><rect x="671.4" y="44.2" width="10.2" height="71.8" fill="#e11d48" opacity="0.85" rx="1" /><rect x="706.0" y="43.4" width="10.2" height="72.6" fill="#e11d48" opacity="0.85" rx="1" /><polyline points="48.0,87.9 82.6,88.1 117.3,88.7 151.9,89.2 186.5,89.4 221.2,89.3 255.8,89.2 290.4,89.9 325.1,90.6 359.7,91.1 394.3,91.9 428.9,93.2 463.6,94.6 498.2,95.8 532.8,97.1 567.5,98.3 602.1,99.4 636.7,100.3 671.4,100.9 706.0,101.1" fill="none" stroke="#059669" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><polyline points="48.0,115.0 82.6,116.1 117.3,117.4 151.9,118.8 186.5,119.9 221.2,121.0 255.8,122.1 290.4,123.5 325.1,125.0 359.7,126.3 394.3,127.8 428.9,129.3 463.6,130.9 498.2,132.3 532.8,133.7 567.5,135.0 602.1,136.3 636.7,137.5 671.4,138.6 706.0,139.7" fill="none" stroke="#0f172a" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0284c7"></span>총수입</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#e11d48"></span>총지출</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>등록금수입</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0f172a"></span>운영차액</span></div>
+</figure>
+<table class="data-table fp-compact-table">
+  <thead><tr><th>연도</th><th>등록금수입</th><th>총수입</th><th>총지출</th><th>운영차액</th></tr></thead>
+  <tbody><tr>
+  <td>2025</td>
+  <td>165.2</td>
+  <td>398.2</td>
+  <td>392.3</td>
+  <td><strong>5.9</strong></td>
+</tr><tr>
+  <td>2026</td>
+  <td>164</td>
+  <td>396</td>
+  <td>396.5</td>
+  <td class="fp-neg"><strong>-0.5</strong></td>
+</tr><tr>
+  <td>2027</td>
+  <td>160.8</td>
+  <td>391.2</td>
+  <td>399.5</td>
+  <td class="fp-neg"><strong>-8.3</strong></td>
+</tr><tr>
+  <td>2028</td>
+  <td>157.4</td>
+  <td>386.2</td>
+  <td>402.4</td>
+  <td class="fp-neg"><strong>-16.3</strong></td>
+</tr><tr>
+  <td>2029</td>
+  <td>156.7</td>
+  <td>385.2</td>
+  <td>408.2</td>
+  <td class="fp-neg"><strong>-23</strong></td>
+</tr><tr>
+  <td>2030</td>
+  <td>156.9</td>
+  <td>385.4</td>
+  <td>414.9</td>
+  <td class="fp-neg"><strong>-29.5</strong></td>
+</tr><tr>
+  <td>2032</td>
+  <td>153.6</td>
+  <td>380.7</td>
+  <td>425</td>
+  <td class="fp-neg"><strong>-44.3</strong></td>
+</tr><tr>
+  <td>2035</td>
+  <td>141.6</td>
+  <td>363.9</td>
+  <td>433.1</td>
+  <td class="fp-neg"><strong>-69.2</strong></td>
+</tr><tr>
+  <td>2040</td>
+  <td>104.1</td>
+  <td>310.8</td>
+  <td>422.8</td>
+  <td class="fp-neg"><strong>-112</strong></td>
+</tr><tr>
+  <td>2044</td>
+  <td>87.5</td>
+  <td>287.4</td>
+  <td>426.9</td>
+  <td class="fp-neg"><strong>-139.5</strong></td>
+</tr></tbody>
+</table>
+<div class="fp-narrative" data-fp-narrative="pnl"><p>초당대학교의 재정 구조는 총수입이 2025년 <strong>398.2억원</strong>에서 2044년 <strong>287.4억원</strong>으로 감소하는 반면, 총지출은 <strong>392.3억원</strong>에서 <strong>426.9억원</strong>으로 확대되는 불균형을 보입니다. 고정비 <strong>246.5억원</strong> 중심의 지출 경직성과 물가상승이 지출 확대를 유발하고 있습니다. 수입 축소와 지출 증가의 괴리가 갈수록 확대되는 양상입니다.</p>
+<p>수입 감소와 지출 증가의 교차로 인해 운영차액은 <strong>2026년</strong>에 <strong>-0.5억원</strong>으로 적자 전환됩니다. 적자 폭은 빠른 속도로 확대되어 2035년에는 <strong>-69.2억원</strong>, 2044년에는 <strong>-139.5억원</strong>에 달할 것으로 분석됩니다. 손익 구조의 적자 폭 악화는 가용자금 소진의 직접적인 원인으로 작용합니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">3 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="4">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제1부 추계결과 ③ 자금수지·가용자금</h1>
+<p class="fp-basis-note">가용자금 = 교비 이월자금 + 임의기금 + 원금보존기금 (산학협력단 제외) · 고갈 = 가용자금 ≤ 0 시점 · 단위: 억원</p>
+<figure class="report-chart" aria-label="당기 자금수지·가용자금 누적 전망">
+  <div class="report-chart-title">당기 자금수지·가용자금 누적 전망 <span style="font-weight:400;color:#94a3b8">(단위: 억원)</span></div>
+  <svg viewBox="0 0 720 190" role="img" preserveAspectRatio="xMidYMid meet"><line x1="48" y1="150.0" x2="706" y2="150.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="153.0" text-anchor="end" font-size="8.5" fill="#64748b">-1.5천</text><line x1="48" y1="116.0" x2="706" y2="116.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="119.0" text-anchor="end" font-size="8.5" fill="#64748b">-1천</text><line x1="48" y1="82.0" x2="706" y2="82.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="85.0" text-anchor="end" font-size="8.5" fill="#64748b">-500</text><line x1="48" y1="48.0" x2="706" y2="48.0" stroke="#94a3b8" stroke-width="1.4" /><text x="43" y="51.0" text-anchor="end" font-size="8.5" fill="#64748b">0</text><line x1="48" y1="14.0" x2="706" y2="14.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="17.0" text-anchor="end" font-size="8.5" fill="#64748b">500</text><text x="48.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2025</text><text x="117.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2027</text><text x="186.5" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2029</text><text x="255.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2031</text><text x="325.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2033</text><text x="394.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2035</text><text x="463.6" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2037</text><text x="532.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2039</text><text x="602.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2041</text><text x="671.4" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2043</text><text x="706.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2044</text><line x1="394.3" y1="14" x2="394.3" y2="150" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3" /><text x="398.3" y="23" text-anchor="start" font-size="8" font-weight="700" fill="#dc2626">2035년 가용자금 고갈</text><rect x="41.0" y="47.6" width="14.0" height="0.5" fill="#64748b" opacity="0.85" rx="1" /><rect x="75.6" y="48.0" width="14.0" height="0.5" fill="#64748b" opacity="0.85" rx="1" /><rect x="110.3" y="48.0" width="14.0" height="0.6" fill="#64748b" opacity="0.85" rx="1" /><rect x="144.9" y="48.0" width="14.0" height="1.1" fill="#64748b" opacity="0.85" rx="1" /><rect x="179.5" y="48.0" width="14.0" height="1.6" fill="#64748b" opacity="0.85" rx="1" /><rect x="214.2" y="48.0" width="14.0" height="2.0" fill="#64748b" opacity="0.85" rx="1" /><rect x="248.8" y="48.0" width="14.0" height="2.4" fill="#64748b" opacity="0.85" rx="1" /><rect x="283.4" y="48.0" width="14.0" height="3.0" fill="#64748b" opacity="0.85" rx="1" /><rect x="318.1" y="48.0" width="14.0" height="3.6" fill="#64748b" opacity="0.85" rx="1" /><rect x="352.7" y="48.0" width="14.0" height="4.1" fill="#64748b" opacity="0.85" rx="1" /><rect x="387.3" y="48.0" width="14.0" height="4.7" fill="#64748b" opacity="0.85" rx="1" /><rect x="421.9" y="48.0" width="14.0" height="5.3" fill="#64748b" opacity="0.85" rx="1" /><rect x="456.6" y="48.0" width="14.0" height="5.9" fill="#64748b" opacity="0.85" rx="1" /><rect x="491.2" y="48.0" width="14.0" height="6.5" fill="#64748b" opacity="0.85" rx="1" /><rect x="525.8" y="48.0" width="14.0" height="7.1" fill="#64748b" opacity="0.85" rx="1" /><rect x="560.5" y="48.0" width="14.0" height="7.6" fill="#64748b" opacity="0.85" rx="1" /><rect x="595.1" y="48.0" width="14.0" height="8.1" fill="#64748b" opacity="0.85" rx="1" /><rect x="629.7" y="48.0" width="14.0" height="8.6" fill="#64748b" opacity="0.85" rx="1" /><rect x="664.4" y="48.0" width="14.0" height="9.1" fill="#64748b" opacity="0.85" rx="1" /><rect x="699.0" y="48.0" width="14.0" height="9.5" fill="#64748b" opacity="0.85" rx="1" /><polyline points="48.0,28.8 82.6,28.8 117.3,29.4 151.9,30.5 186.5,32.1 221.2,34.1 255.8,36.5 290.4,39.5 325.1,43.1 359.7,47.2 394.3,52.0 428.9,57.3 463.6,63.2 498.2,69.7 532.8,76.8 567.5,84.4 602.1,92.6 636.7,101.2 671.4,110.2 706.0,119.7" fill="none" stroke="#059669" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#64748b"></span>당기 자금수지</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>가용자금</span></div>
+</figure>
+<table class="data-table fp-compact-table">
+  <thead><tr><th>연도</th><th>당기 자금수지</th><th>가용자금 잔액</th><th>상태</th></tr></thead>
+  <tbody><tr>
+  <td>2025</td>
+  <td>5.9</td>
+  <td><strong>282.4</strong></td>
+  <td>정상</td>
+</tr><tr>
+  <td>2026</td>
+  <td class="fp-neg">-0.5</td>
+  <td><strong>281.9</strong></td>
+  <td><span class="fp-warn-text">당기적자</span></td>
+</tr><tr>
+  <td>2027</td>
+  <td class="fp-neg">-8.3</td>
+  <td><strong>273.6</strong></td>
+  <td><span class="fp-warn-text">당기적자</span></td>
+</tr><tr>
+  <td>2028</td>
+  <td class="fp-neg">-16.3</td>
+  <td><strong>257.3</strong></td>
+  <td><span class="fp-warn-text">당기적자</span></td>
+</tr><tr>
+  <td>2029</td>
+  <td class="fp-neg">-23</td>
+  <td><strong>234.4</strong></td>
+  <td><span class="fp-warn-text">당기적자</span></td>
+</tr><tr>
+  <td>2030</td>
+  <td class="fp-neg">-29.5</td>
+  <td><strong>204.9</strong></td>
+  <td><span class="fp-warn-text">당기적자</span></td>
+</tr><tr>
+  <td>2032</td>
+  <td class="fp-neg">-44.3</td>
+  <td><strong>124.7</strong></td>
+  <td><span class="fp-warn-text">당기적자</span></td>
+</tr><tr>
+  <td>2035</td>
+  <td class="fp-neg">-69.2</td>
+  <td class="fp-neg"><strong>-58.1</strong></td>
+  <td><span class="fp-neg">고갈</span></td>
+</tr><tr>
+  <td>2040</td>
+  <td class="fp-neg">-112</td>
+  <td class="fp-neg"><strong>-535.9</strong></td>
+  <td><span class="fp-neg">고갈</span></td>
+</tr><tr>
+  <td>2044</td>
+  <td class="fp-neg">-139.5</td>
+  <td class="fp-neg"><strong>-1,054.3</strong></td>
+  <td><span class="fp-neg">고갈</span></td>
+</tr></tbody>
+</table>
+<div class="fp-narrative" data-fp-narrative="cash"><p>당기자금수지가 2026년부터 지속적인 적자를 기록함에 따라 가용자금 누적 경로는 빠르게 악화됩니다. 2025년 <strong>282.4억원</strong>이었던 가용자금은 2030년 <strong>204.9억원</strong>, 2032년 <strong>124.7억원</strong>으로 신속히 소진됩니다. 당기 적자가 누적되면서 유동성 완충 여력이 지속해서 축소되는 흐름입니다.</p>
+<p>결과적으로 가용자금은 <strong>2035년</strong>에 <strong>-58.1억원</strong>을 기록하며 고갈 시점에 도달하게 됩니다. 고갈 이후 자금적자는 2044년 <strong>-1,054.3억원</strong>까지 심화됩니다. 2025년 분석연도 기준 골든타임은 약 <strong>10년</strong> 남아있으므로 자금이 소진되기 전에 구조적 체질 개선을 완료해야 합니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">4 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="5">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제1부 추계결과 ④ 1인당 지표</h1>
+<p class="fp-basis-note">1인당 지출 = 총지출 ÷ 재학생 · 1인당 등록금 = 등록금수입 ÷ 재학생 · 갭이 클수록 등록금 외 재원 의존 확대 · 단위: 백만원</p>
+<figure class="report-chart" aria-label="1인당 지출 vs 1인당 등록금">
+  <div class="report-chart-title">1인당 지출 vs 1인당 등록금 <span style="font-weight:400;color:#94a3b8">(단위: 백만원)</span></div>
+  <svg viewBox="0 0 720 190" role="img" preserveAspectRatio="xMidYMid meet"><line x1="48" y1="150.0" x2="706" y2="150.0" stroke="#94a3b8" stroke-width="1.4" /><text x="43" y="153.0" text-anchor="end" font-size="8.5" fill="#64748b">0</text><line x1="48" y1="116.0" x2="706" y2="116.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="119.0" text-anchor="end" font-size="8.5" fill="#64748b">10</text><line x1="48" y1="82.0" x2="706" y2="82.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="85.0" text-anchor="end" font-size="8.5" fill="#64748b">20</text><line x1="48" y1="48.0" x2="706" y2="48.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="51.0" text-anchor="end" font-size="8.5" fill="#64748b">30</text><line x1="48" y1="14.0" x2="706" y2="14.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="17.0" text-anchor="end" font-size="8.5" fill="#64748b">40</text><text x="48.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2025</text><text x="117.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2027</text><text x="186.5" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2029</text><text x="255.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2031</text><text x="325.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2033</text><text x="394.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2035</text><text x="463.6" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2037</text><text x="532.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2039</text><text x="602.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2041</text><text x="671.4" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2043</text><text x="706.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2044</text><polyline points="48.0,95.3 82.6,93.9 117.3,91.9 151.9,90.2 186.5,89.1 221.2,88.1 255.8,87.1 290.4,85.1 325.1,83.0 359.7,81.0 394.3,78.6 428.9,74.9 463.6,70.4 498.2,66.4 532.8,61.3 567.5,55.8 602.1,50.4 636.7,44.6 671.4,40.2 706.0,37.5" fill="none" stroke="#e11d48" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><polyline points="48.0,126.9 82.6,126.9 117.3,126.5 151.9,126.5 186.5,126.5 221.2,126.5 255.8,126.5 290.4,126.5 325.1,126.5 359.7,126.5 394.3,126.5 428.9,126.5 463.6,126.5 498.2,126.9 532.8,126.9 567.5,126.9 602.1,126.9 636.7,126.9 671.4,126.9 706.0,126.9" fill="none" stroke="#0284c7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><polyline points="48.0,118.4 82.6,117.0 117.3,115.3 151.9,113.6 186.5,112.6 221.2,111.6 255.8,110.6 290.4,108.5 325.1,106.5 359.7,104.4 394.3,101.7 428.9,98.3 463.6,93.9 498.2,89.5 532.8,84.4 567.5,78.9 602.1,73.5 636.7,67.7 671.4,63.3 706.0,60.2" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="5 3" stroke-linejoin="round" stroke-linecap="round" /></svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#e11d48"></span>1인당 지출</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0284c7"></span>1인당 등록금</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#64748b"></span>갭(지출−등록금)</span></div>
+</figure>
+<table class="data-table fp-compact-table">
+  <thead><tr><th>연도</th><th>1인당 지출</th><th>1인당 등록금</th><th>갭(지출−등록금)</th></tr></thead>
+  <tbody><tr>
+  <td>2025</td>
+  <td>16.1</td>
+  <td>6.8</td>
+  <td class="fp-neg">9.3</td>
+</tr><tr>
+  <td>2026</td>
+  <td>16.5</td>
+  <td>6.8</td>
+  <td class="fp-neg">9.7</td>
+</tr><tr>
+  <td>2027</td>
+  <td>17.1</td>
+  <td>6.9</td>
+  <td class="fp-neg">10.2</td>
+</tr><tr>
+  <td>2028</td>
+  <td>17.6</td>
+  <td>6.9</td>
+  <td class="fp-neg">10.7</td>
+</tr><tr>
+  <td>2029</td>
+  <td>17.9</td>
+  <td>6.9</td>
+  <td class="fp-neg">11</td>
+</tr><tr>
+  <td>2030</td>
+  <td>18.2</td>
+  <td>6.9</td>
+  <td class="fp-neg">11.3</td>
+</tr><tr>
+  <td>2032</td>
+  <td>19.1</td>
+  <td>6.9</td>
+  <td class="fp-neg">12.2</td>
+</tr><tr>
+  <td>2035</td>
+  <td>21</td>
+  <td>6.9</td>
+  <td class="fp-neg">14.2</td>
+</tr><tr>
+  <td>2040</td>
+  <td>27.7</td>
+  <td>6.8</td>
+  <td class="fp-neg">20.9</td>
+</tr><tr>
+  <td>2044</td>
+  <td>33.1</td>
+  <td>6.8</td>
+  <td class="fp-neg">26.4</td>
+</tr></tbody>
+</table>
+<div class="fp-narrative" data-fp-narrative="percapita"><p>재학생 감소로 인해 학생 1인당 지출액은 2025년 <strong>16.1백만원</strong>에서 2044년 <strong>33.1백만원</strong>으로 약 2배 급증합니다. 반면 1인당 등록금 수입은 동결 가정에 따라 <strong>6.8백만원</strong> 수준에 정체됩니다. 이에 따라 1인당 재정 갭이 2025년 <strong>9.3백만원</strong>에서 2044년 <strong>26.4백만원</strong>으로 크게 벌어집니다.</p>
+<p>이러한 갭 확대는 재학생 수가 줄어들더라도 고정비성 지출이 즉시 감소하지 않아 발생합니다. 학생 1인당 담당해야 할 비용 부담이 늘어나는 구조적 불균형을 보여줍니다. 재정 균형을 유지하려면 교육 투자의 효율성을 제고하고 고정비 구조를 재학생 규모에 맞추어 축소해야 합니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">5 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="6">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제1부 추계결과 ⑤ 시나리오 비교</h1>
+<p class="fp-basis-note">물가(CPI) 2.5%·보수 상승률(대학별 CAGR 1.1%)은 4개 시나리오 공통 적용</p>
+<figure class="report-chart" aria-label="시나리오별 가용자금 경로">
+  <div class="report-chart-title">시나리오별 가용자금 경로 <span style="font-weight:400;color:#94a3b8">(단위: 억원)</span></div>
+  <svg viewBox="0 0 720 190" role="img" preserveAspectRatio="xMidYMid meet"><line x1="48" y1="150.0" x2="706" y2="150.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="153.0" text-anchor="end" font-size="8.5" fill="#64748b">-3천</text><line x1="48" y1="116.0" x2="706" y2="116.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="119.0" text-anchor="end" font-size="8.5" fill="#64748b">-2천</text><line x1="48" y1="82.0" x2="706" y2="82.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="85.0" text-anchor="end" font-size="8.5" fill="#64748b">-1천</text><line x1="48" y1="48.0" x2="706" y2="48.0" stroke="#94a3b8" stroke-width="1.4" /><text x="43" y="51.0" text-anchor="end" font-size="8.5" fill="#64748b">0</text><line x1="48" y1="14.0" x2="706" y2="14.0" stroke="#e2e8f0" stroke-width="1" /><text x="43" y="17.0" text-anchor="end" font-size="8.5" fill="#64748b">1천</text><text x="48.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2025</text><text x="117.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2027</text><text x="186.5" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2029</text><text x="255.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2031</text><text x="325.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2033</text><text x="394.3" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2035</text><text x="463.6" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2037</text><text x="532.8" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2039</text><text x="602.1" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2041</text><text x="671.4" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2043</text><text x="706.0" y="166" text-anchor="middle" font-size="8.5" fill="#64748b">2044</text><line x1="394.3" y1="14" x2="394.3" y2="150" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4 3" /><text x="398.3" y="23" text-anchor="start" font-size="8" font-weight="700" fill="#dc2626">기본 2035년 고갈</text><polyline points="48.0,38.4 82.6,38.1 117.3,37.8 151.9,37.5 186.5,37.1 221.2,36.7 255.8,36.2 290.4,35.6 325.1,35.2 359.7,34.7 394.3,34.2 428.9,33.8 463.6,33.6 498.2,33.4 532.8,33.2 567.5,33.2 602.1,33.2 636.7,33.3 671.4,33.4 706.0,33.5" fill="none" stroke="#059669" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><polyline points="48.0,38.4 82.6,38.4 117.3,38.7 151.9,39.3 186.5,40.0 221.2,41.0 255.8,42.3 290.4,43.8 325.1,45.6 359.7,47.6 394.3,50.0 428.9,52.6 463.6,55.6 498.2,58.9 532.8,62.4 567.5,66.2 602.1,70.3 636.7,74.6 671.4,79.1 706.0,83.8" fill="none" stroke="#0284c7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><polyline points="48.0,38.4 82.6,38.6 117.3,39.2 151.9,40.2 186.5,41.5 221.2,43.2 255.8,45.1 290.4,47.5 325.1,50.3 359.7,53.3 394.3,56.8 428.9,60.7 463.6,64.9 498.2,69.5 532.8,74.5 567.5,79.8 602.1,85.4 636.7,91.3 671.4,97.6 706.0,104.1" fill="none" stroke="#d97706" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /><polyline points="48.0,38.4 82.6,38.8 117.3,39.8 151.9,41.4 186.5,43.5 221.2,46.1 255.8,49.0 290.4,52.5 325.1,56.4 359.7,60.8 394.3,65.6 428.9,70.8 463.6,76.5 498.2,82.6 532.8,89.1 567.5,96.0 602.1,103.2 636.7,110.8 671.4,118.6 706.0,126.8" fill="none" stroke="#e11d48" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" /></svg>
+  <div class="report-chart-legend"><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#059669"></span>낙관</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#0284c7"></span>기본</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#d97706"></span>비관</span><span class="report-chart-legend-item"><span class="report-chart-legend-swatch" style="background:#e11d48"></span>한계</span></div>
+</figure>
+<table class="data-table">
+  <thead><tr><th style="width:12%">시나리오</th><th>가정</th><th style="width:18%">운영손익 적자</th><th style="width:18%">가용자금 고갈</th></tr></thead>
+  <tbody><tr>
+  <td><strong>낙관</strong></td>
+  <td class="text-left" style="font-size:8pt">등록금 +2% · 기타수입 0%/년 · 충원 +2%p · 중도탈락 +0%p · 고정비절감 2%/년</td>
+  <td>2041년</td>
+  <td>구간(~2044년) 내 없음</td>
+</tr><tr>
+  <td><strong>기본</strong></td>
+  <td class="text-left" style="font-size:8pt">등록금 0% · 기타수입 0%/년 · 충원 0%p · 중도탈락 +0%p · 고정비절감 0%/년</td>
+  <td>2026년</td>
+  <td>2035년</td>
+</tr><tr>
+  <td><strong>비관</strong></td>
+  <td class="text-left" style="font-size:8pt">등록금 0% · 기타수입 -2%/년 · 충원 -3%p · 중도탈락 +1.5%p · 고정비절감 0%/년</td>
+  <td>2026년</td>
+  <td>2033년</td>
+</tr><tr>
+  <td><strong>한계</strong></td>
+  <td class="text-left" style="font-size:8pt">등록금 0% · 기타수입 -5%/년 · 충원 -8%p · 중도탈락 +3%p · 고정비절감 0%/년</td>
+  <td>2026년</td>
+  <td>2031년</td>
+</tr></tbody>
+</table>
+<div class="fp-narrative" data-fp-narrative="scenarios"><p>낙관 시나리오는 등록금 2% 인상과 고정비 연 2% 절감을 가정한 결과, 가용자금 고갈 없이 전망 구간을 유지하며 <strong>주의</strong> 단계로 개선됩니다. 운영손익 적자 전환 시점 역시 <strong>2041년</strong>으로 대폭 이연됩니다.</p>
+<p>기본 시나리오는 현행 구조 유지를 가정한 것으로, <strong>2026년</strong> 손익 적자가 시작되어 <strong>2035년</strong>에 가용자금이 고갈되는 <strong>경고</strong> 단계입니다. 현 구조를 그대로 유지할 경우 재정 유동성 고갈을 피하기 어렵습니다.</p>
+<p>비관 시나리오는 기타수입 감소 및 충원율 악화를 반영한 경우로, 가용자금 고갈 시점이 기본 대비 2년 당겨진 <strong>2033년</strong>으로 나타납니다. 2035년 시점의 가용자금 적자 폭도 <strong>-259.3억원</strong>으로 확대됩니다.</p>
+<p>한계 시나리오는 극단적인 수입 감소와 충원율 하락을 가정한 위험 상황으로, 가용자금 고갈이 <strong>2031년</strong>까지 앞당겨집니다. 2044년 가용자금 적자는 <strong>-2,318.7억원</strong>에 달해 재정 위험이 극대화됩니다.</p>
+<p>종합하면 시나리오 간 가용자금 고갈 시점은 <strong>2031년</strong>에서 <strong>미고갈</strong>까지 커다란 차이를 보입니다. 고정비 절감과 등록금 조정 여부가 초당대학교의 재정 수명을 결정짓는 핵심 요인임을 입증합니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">6 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="7">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제2부 한계진단 ① 위험단계 판정</h1>
+<div class="fp-stage-banner fp-stage-warn">위험단계 <strong>경고</strong><span class="fp-stage-hint">가용자금이 2035년(6~10년 차)에 소진됩니다.</span></div>
+<div class="fp-basis-note" style="margin-top:3mm">판정 기준 — 경영위기: 5년 이내 가용자금 고갈 · 경고: 6~10년 차 고갈 · 주의: 11년 차 이후 고갈 또는 운영적자 존재 · 정상: 고갈·적자 없음.
+이 분류는 재정추계에 따른 참고 분류이며 교육부 한계대학 지정이 아니다.</div>
+<h2 class="subsection-title">재정 한계 3대 분기점 (기본 시나리오)</h2>
+
+<div class="fp-milestone-grid">
+  <div class="fp-milestone fp-milestone-risk">
+    <p class="fp-milestone-step">1단계</p>
+    <p class="fp-milestone-title">운영손익 적자</p>
+    <p class="fp-milestone-year">2026년</p>
+    <p class="fp-milestone-desc">연간 수입이 지출을 하회하기 시작하는 시점</p>
+  </div>
+  <div class="fp-milestone fp-milestone-risk">
+    <p class="fp-milestone-step">2단계</p>
+    <p class="fp-milestone-title">자금수지 적자</p>
+    <p class="fp-milestone-year">2026년</p>
+    <p class="fp-milestone-desc">당기 자금수지가 음(−)으로 전환, 적립·이월자금 잠식 시작</p>
+  </div>
+  <div class="fp-milestone fp-milestone-risk">
+    <p class="fp-milestone-step">3단계</p>
+    <p class="fp-milestone-title">가용자금 고갈</p>
+    <p class="fp-milestone-year">2035년</p>
+    <p class="fp-milestone-desc">분석연도부터 10년 후 · 대응 골든타임의 종점</p>
+  </div>
+</div>
+<h2 class="subsection-title">판정 근거 상세</h2>
+<div class="fp-narrative" data-fp-narrative="diagnosis-verdict"><p>초당대학교의 재정 위험단계 판정 결과는 전망 구간 6~10년 차 내에 가용자금이 소진되는 <strong>경고</strong> 단계입니다. 분석연도 2025년 기준 2035년에 가용자금이 고갈되므로, 구조 개편을 추진할 수 있는 골든타임 내에 위치하고 있습니다. 당장의 당기 유동성은 유지되고 있으나 중기적 유동성 고갈 위험이 확인됩니다.</p>
+<p>운영손익 적자 구조의 원인은 학령인구 감소에 따른 등록금수입 감소와 경직성 지출의 지속적 증가에 있습니다. 2025년 등록금수입 <strong>165.2억원</strong>이 2044년 <strong>87.5억원</strong>으로 급감하는 동안, 총지출은 2025년 <strong>392.3억원</strong>에서 2044년 <strong>426.9억원</strong>으로 오르는 구조적 불균형이 작동합니다. 이로 인해 손익 적자가 수십억 원대로 확대됩니다.</p>
+<p>자금수지 및 가용자금 소진 메커니즘은 2026년 <strong>-0.5억원</strong>의 당기 자금적자 발생에서 출발합니다. 적자가 매년 누적되면서 초기 <strong>276.5억원</strong>의 가용자금이 빠르게 소진됩니다. 결국 <strong>2035년</strong>에 가용자금이 <strong>-58.1억원</strong>으로 전환되며 완전히 고갈되는 경로를 거치게 됩니다.</p>
+<p>손익 및 자금수지 적자 전환까지 남은 기간은 단 <strong>1년</strong>(2026년)에 불과하며, 가용자금 고갈까지는 <strong>10년</strong>(2035년)이 남아있습니다. 적자가 가속화되기 전인 1~2년 내에 지출 구조 개편에 착수해야만 자금 고갈을 막을 수 있습니다. 경영진의 신속한 의사결정이 절실한 시점입니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">7 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="8">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제2부 한계진단 ② 구조 진단·민감도</h1>
+<h2 class="subsection-title">재정 구조 지표 (분석연도 기준)</h2>
+<table class="data-table fp-compact-table">
+  <thead><tr><th style="width:28%">지표</th><th style="width:24%">값</th><th>해석 기준</th></tr></thead>
+  <tbody>
+<tr><td class="text-left">고정비 합계 (연간)</td><td><strong>246.5억원</strong></td><td class="text-left">보수·관리운영비·교육외비용 합계 (3·2년 평균)</td></tr>
+<tr><td class="text-left">보수 상승률 (5년 CAGR)</td><td><strong>1.1%</strong></td><td class="text-left">고정비 에스컬레이션에 적용</td></tr>
+<tr><td class="text-left">등록금 의존도 (분석연도)</td><td><strong>41.5%</strong></td><td class="text-left">등록금수입 ÷ 총수입</td></tr>
+<tr><td class="text-left">학생 1인당 고정비</td><td><strong>10.1백만원</strong></td><td class="text-left">재학생 감소 시 1인당 부담 증가</td></tr>
+<tr><td class="text-left">기타수입 / 국가장학금</td><td><strong>162.7 / 70.3억원</strong></td><td class="text-left">등록금 외 재원 (기준액)</td></tr>
+<tr><td class="text-left">가용자금 (분석연도 초)</td><td><strong>276.5억원</strong></td><td class="text-left">이월 + 임의기금 + 원금보존기금</td></tr>
+<tr><td class="text-left">학령인구 지수 경로</td><td><strong>100 → 50.1</strong></td><td class="text-left">소재 시도 18세 인구, 2026년=100</td></tr></tbody>
+</table>
+<div class="fp-narrative" data-fp-narrative="diagnosis-structure"><p>지출 측면에서 고정비 합계가 <strong>246.5억원</strong>에 달해 전체 재정 운영의 높은 경직성을 유발하고 있습니다. 학생수가 감소하더라도 인건비 및 관리운영비 등 고정적 지출이 신속하게 줄어들지 않아 수지 악화를 가속화합니다. 재정 규모 대비 고정비 부담이 지나치게 높은 편입니다.</p>
+<p>수입 측면에서는 등록금 의존도가 <strong>41.5%</strong> 수준으로 비교적 높은 편이며, 기타수입 <strong>162.7억원</strong> 및 국가장학금 <strong>70.3억원</strong> 외에 수입 다변화 수단이 부족합니다. 등록금 수입의 축소가 대학 전체 재정의 위기로 곧바로 직결되는 약점을 가집니다. 수입 기반이 정원 규모에 과도하게 연동되어 있습니다.</p>
+<p>또한 전남 지역의 학령인구 감소 경로에 따라 학령지수가 <strong>50.1</strong>까지 하락하는 외부 환경은 재학생 충원 유지를 어렵게 만듭니다. 이러한 지역적 한계는 자체적인 입학 홍보 노력만으로 극복하기 어려운 구조적 제약요인입니다. 지역 학령인구 감소가 대학 재정 건전성을 위협하는 근본 원인입니다.</p></div>
+<h2 class="subsection-title">민감도 분석 — 가용자금 고갈 시점 변화 (기본 시나리오)</h2>
+<table class="data-table fp-compact-table">
+  <thead><tr><th>변수 (±1 단위)</th><th>악화 시 고갈 이동</th><th>개선 시 고갈 이동</th></tr></thead>
+  <tbody><tr>
+  <td class="text-left">보수(임금) ±1%p</td>
+  <td class="fp-neg">-2년</td>
+  <td class="fp-pos">+2년</td>
+</tr><tr>
+  <td class="text-left">CPI(변동비) ±1%p</td>
+  <td class="fp-neg">-1년</td>
+  <td class="fp-pos">+1년</td>
+</tr><tr>
+  <td class="text-left">등록금 인상 ±1%p</td>
+  <td>0년</td>
+  <td class="fp-pos">+1년</td>
+</tr><tr>
+  <td class="text-left">정원 감축 ±1%/년</td>
+  <td class="fp-neg">-1년</td>
+  <td>0년</td>
+</tr><tr>
+  <td class="text-left">충원율 ±1%p</td>
+  <td>0년</td>
+  <td>0년</td>
+</tr></tbody>
+</table>
+<div class="fp-narrative" data-fp-narrative="diagnosis-sensitivity"><p>민감도 분석 결과, 보수(임금) 변동이 ±1%p 움직일 때 고갈 시점이 <strong>±2년</strong>으로 가장 크게 변동하는 것으로 나타났습니다. 뒤이어 CPI(변동비) ±1%p 변동 시 고갈 시점이 <strong>±1년</strong> 움직이며, 등록금 인상 ±1%p 적용 시 고갈 시점이 <strong>+1년</strong> 연장됩니다. 임금 통제가 재정 수명 연장에 가장 영향력이 큽니다.</p>
+<p>대학이 내부적으로 가장 통제 가능한 변수는 보수상승률 조율, 고정비 절감, 등록금 인상 정책 등입니다. 반면 CPI 상승률이나 지역 학령인구 감소는 외부 불가항력적 변수에 해당합니다. 따라서 대학은 통제 가능한 고정비 감축 변수에 역량을 집중해야 합니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">8 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="9">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제3부 대응전략 ① 재정 방어선 구축</h1>
+<h2 class="subsection-title">목표탐색 — 고갈 지연에 필요한 고정비 절감률 (기본 시나리오)</h2>
+<p class="fp-basis-note">고정비(보수·관리운영비·교육외비용)를 매년 일정 비율 절감할 때 가용자금 고갈 시점이 얼마나 늦춰지는지 역산한 결과</p>
+<table class="data-table fp-compact-table">
+  <thead><tr><th>목표</th><th>목표 고갈 연도</th><th>필요 절감률</th><th>판정</th></tr></thead>
+  <tbody><tr>
+  <td>고갈 +1년 지연</td>
+  <td>2036년</td>
+  <td><strong>0.4%/년</strong></td>
+  <td><span class="fp-pos">달성 가능</span></td>
+</tr><tr>
+  <td>고갈 +2년 지연</td>
+  <td>2037년</td>
+  <td><strong>0.8%/년</strong></td>
+  <td><span class="fp-pos">달성 가능</span></td>
+</tr><tr>
+  <td>고갈 +3년 지연</td>
+  <td>2038년</td>
+  <td><strong>1.1%/년</strong></td>
+  <td><span class="fp-pos">달성 가능</span></td>
+</tr><tr>
+  <td>고갈 +4년 지연</td>
+  <td>2039년</td>
+  <td><strong>1.4%/년</strong></td>
+  <td><span class="fp-pos">달성 가능</span></td>
+</tr><tr>
+  <td>고갈 +5년 지연</td>
+  <td>2040년</td>
+  <td><strong>1.6%/년</strong></td>
+  <td><span class="fp-pos">달성 가능</span></td>
+</tr></tbody>
+</table>
+<h2 class="subsection-title">우선순위 대응 카드</h2>
+<div class="fp-action-grid"><div class="fp-action-card">
+  <div class="fp-action-head"><span class="fp-action-priority">우선순위 1</span><span class="fp-action-delay">고갈 지연 효과 약 5년</span></div>
+  <p class="fp-action-title">고정비(보수·관리운영비·교육외비용) 연 1.6% 절감</p>
+  <p class="fp-action-effect">지출 경직성 완화 — 고갈 2040년으로 이연</p>
+</div><div class="fp-action-card">
+  <div class="fp-action-head"><span class="fp-action-priority">우선순위 2</span><span class="fp-action-delay">고갈 지연 효과 약 1년</span></div>
+  <p class="fp-action-title">등록금 인상률 +1%p 적용</p>
+  <p class="fp-action-effect">학생 1인당 등록금 수입 개선</p>
+</div><div class="fp-action-card">
+  <div class="fp-action-head"><span class="fp-action-priority">우선순위 3</span></div>
+  <p class="fp-action-title">신입생·재학생 충원율 +1%p 방어 (모집 경쟁력·중도탈락 관리)</p>
+  <p class="fp-action-effect">등록금 수입 궤적 유지</p>
+</div><div class="fp-action-card">
+  <div class="fp-action-head"><span class="fp-action-priority">우선순위 4</span></div>
+  <p class="fp-action-title">법인전입금 연 7억 확충</p>
+  <p class="fp-action-effect">가용자금 방어선 상향 (추계 모델 미반영 — 정량 효과 별도 산정)</p>
+</div></div>
+<h2 class="subsection-title">대응전략 총론</h2>
+<div class="fp-narrative" data-fp-narrative="strategy-overview"><p>목표탐색 분석 결과, 가용자금 고갈을 1년 지연시키는 데 필요한 고정비 절감률은 연 <strong>0.4%</strong>로 나타났습니다. 지연 기간을 5년(2040년 고갈)으로 늘리기 위해서는 연 <strong>1.6%</strong>의 고정비 절감이 필요하며 이는 달성 가능한 수치입니다. 적극적인 절감 노력이 수반될 경우 유의미한 시점 이연이 가능합니다.</p>
+<p>따라서 우선순위 대응 방향 총론은 고정비 연 <strong>1.6%</strong> 절감을 통해 고갈 시점을 2040년으로 <strong>5년</strong> 지연시키는 것을 최우선 과제로 삼는 것입니다. 이와 함께 등록금 인상률 +1%p 적용과 충원율 방어를 병행해야 합니다. 또한 법인전입금 연 7억원 확충을 추진하여 다층적 재정 방어선을 구축해야 합니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">9 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="10">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">제3부 대응전략 ② 단계별 실행 로드맵</h1>
+<div class="roadmap-list report-part3-roadmap">
+  <div class="roadmap-item">
+    <div class="roadmap-head"><span class="roadmap-phase">단기 · 2025~2026년</span><p class="roadmap-title">재정 방어선 확보</p></div>
+    <div class="fp-narrative" data-fp-narrative="strategy-shortterm"><p>단기(1~2년차) 실행 과제로 대학은 2026년 예정된 운영손익 및 자금수지 적자 전환(<strong>-0.5억원</strong>)을 차단하기 위해 즉시 고정비 연 <strong>0.4%~1.6%</strong> 절감 체계에 착수해야 합니다. 보수 상승률 억제와 관리운영비 효율화를 추진하고 신입생 충원율 방어선 체계를 조기에 구축해야 합니다. 아울러 월별 가용자금 모니터링을 강화하여 자금 소진 흐름을 정밀하게 통제해야 합니다. 초기 1~2년 내의 선제적 지출 통제가 중장기 재정 안정을 좌우합니다.</p></div>
+  </div>
+  <div class="roadmap-item roadmap-mid">
+    <div class="roadmap-head"><span class="roadmap-phase roadmap-phase-mid">중기 · 2027~2029년</span><p class="roadmap-title">수입 다변화·구조 조정</p></div>
+    <div class="fp-narrative" data-fp-narrative="strategy-midterm"><p>중기(3~5년차) 실행 과제는 수입 구조 개선과 구조조정을 통한 재정 기반의 내실화입니다. 법인전입금을 연 <strong>7억원</strong> 수준으로 확충하여 가용자금 방어선을 상향하고, 등록금 인상률 <strong>+1%p</strong> 적용을 추진해야 합니다. 동시에 재학생 감소 추세에 맞춰 정원 감축 및 학제 구조조정을 단계적으로 이행해야 합니다. 고정비 절감 연 <strong>1.6%</strong> 목표를 지속 유지하여 가용자금 고갈 시점을 <strong>2040년</strong>까지 연장해야 합니다.</p></div>
+  </div>
+  <div class="roadmap-item" style="border-left-color:#7c3aed">
+    <div class="roadmap-head"><span class="roadmap-phase" style="color:#5b21b6;background:#ede9fe">장기 · 2030년~</span><p class="roadmap-title">지속가능 재정 모델 전환</p></div>
+    <div class="fp-narrative" data-fp-narrative="strategy-longterm"><p>장기(6년차~) 실행 과제는 학령지수 <strong>50.1</strong> 시대에 대비한 근본적인 재정 균형 모델로의 전환입니다. 고갈 예상 시점인 <strong>2035년</strong> 또는 지연 목표 연도인 <strong>2040년</strong>에 맞춰 대학의 적정 수용 규모를 재정립해야 합니다. 특성화 중심의 학과 개편과 캠퍼스 공간 효율화를 차질 없이 완수해야 합니다. 필요시 지역 내 타 대학과의 통폐합 및 연합대학 구축 등 구조적 개편 옵션을 적극 검토해야 합니다.</p></div>
+  </div>
+</div>
+<h2 class="subsection-title">마무리 총평</h2>
+<div class="fp-narrative" data-fp-narrative="closing"><p>초당대학교 재정의 핵심 리스크는 학령인구 감소에 따른 등록금수입 급감과 <strong>246.5억원</strong> 규모의 고정비 경직성으로 인해 <strong>2035년</strong> 가용자금이 고갈되는 점입니다. 당장 <strong>2026년</strong>부터 수지 적자가 발생하므로 조속한 지출 구조 개선이 요구됩니다. 대응 골든타임을 실기할 경우 재정 위기가 급속도로 심화될 수 있습니다.</p>
+<p>경영진은 우선 고정비 연 <strong>1.6%</strong> 절감안을 의결하여 고갈 시점을 <strong>2040년</strong>으로 5년 지연시키는 골든타임을 확보해야 합니다. 아울러 법인전입금 연 7억원 확충 및 등록금 인상안 검토 등 다각적인 재정 방어 수립을 추진해야 합니다. 핵심 과제에 대한 최고경영진의 즉각적이고 단호한 정책적 결단이 요구됩니다.</p></div>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">10 / 11</span></footer>
+</article>
+<article class="report-page" data-fp-page="11">
+<div class="fp-page-head"><span>초당대학교</span><span>2025년 대학별 재정추계 분석</span></div>
+<div class="report-page-body">
+<h1 class="section-title">부록 — 추계 방법론·가정</h1>
+<h2 class="subsection-title">추계 산식</h2>
+<ul class="fp-method-list">
+  <li><strong>학생수</strong> — 소재 시도 학령인구 감소 지수(18세, 2026년=100)에 충원율·중도탈락 가정을 적용해 신입생·재학생을 연도별로 추계한다.</li>
+  <li><strong>수입</strong> — 등록금수입(가중평균 수업료 × 재학생) + 맞춤형국가장학금(재학생 비례) + 기타수입(증감률 가정 적용). 2024년까지는 교비 결산 실적을 사용한다.</li>
+  <li><strong>지출</strong> — 고정비(보수·관리운영비·교육외비용, 보수 CAGR로 상승) + 변동비(연구학생경비 × 재학생, CPI 연동).</li>
+  <li><strong>가용자금</strong> — 교비 이월자금 + 임의기금 + 원금보존기금(산학협력단 제외)에서 출발해 당기 자금수지를 누적한다. 고갈 = 가용자금 ≤ 0.</li>
+</ul>
+<h2 class="subsection-title">시나리오 가정</h2>
+<pre class="fp-appendix-pre">- 낙관(best): 등록금 인상 +2.0%/년 · 고정비 절감 2%/년 · 충원율 +2%p · 기타수입 증감 0%
+- 기본(base): 등록금 동결 · 조정 없음 (현행 구조 유지)
+- 비관(worst): 기타수입 -2%/년 · 중도탈락 +1.5%p · 충원율 -3%p
+- 한계(stress): 기타수입 -5%/년 · 중도탈락 +3%p · 충원율 -8%p
+- 공통: 물가(CPI)는 기본설정 값 적용, 보수 상승률은 대학별 보수 CAGR 적용</pre>
+<h2 class="subsection-title">위험단계 판정 기준</h2>
+<pre class="fp-appendix-pre">- 경영위기(crisis): 분석연도부터 5년 이내 가용자금 고갈
+- 경고(warn): 6~10년 차 가용자금 고갈
+- 주의(caution): 11년 차 이후 고갈, 또는 고갈은 없으나 운영수지 적자 존재
+- 정상(ok): 전망 구간 내 고갈·운영적자 없음</pre>
+<h2 class="subsection-title">유의사항</h2>
+<ul class="fp-method-list">
+  <li>본 보고서는 공시·결산 자료 기반 시뮬레이션이며, 정원 조정·법인전입 등 개별 대학의 중장기 계획은 반영되지 않았다.</li>
+  <li>위험단계는 참고 분류이며 교육부 한계대학 지정과 무관하다.</li>
+  <li>물가(CPI) 2.5%, 보수 상승률은 대학별 보수 5년 CAGR(1.1%)을 적용했다.</li>
+</ul>
+</div>
+<footer class="report-page-footer">초당대학교 재정추계 분석 보고서 · <span class="report-page-num">11 / 11</span></footer>
+</article>
+  </div>
+</body>
+</html>

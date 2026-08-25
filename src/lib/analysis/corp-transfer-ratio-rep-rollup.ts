@@ -220,7 +220,7 @@ export function toCorpTransferRatioRows(
     schoolCodeStd: row.schoolRepCode,
     schoolName: row.schoolRepName,
     schoolDivision: row.schoolDivision,
-    schoolKind: "",
+    schoolKind: row.schoolDivision,
     region: row.region,
     estb: row.estb,
     ordinaryExpenseTransfer: row.ordinaryExpenseTransfer,

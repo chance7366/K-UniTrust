@@ -1,0 +1,9 @@
+{
+  "analysisYear": 2025,
+  "schoolCodeStd": "0000190",
+  "schoolName": "초당대학교",
+  "generatedAt": "2026-08-24T05:56:12.191Z",
+  "model": "gemini-3.6-flash",
+  "guidelinesVersion": "2.6.0",
+  "htmlFile": "report.html"
+}

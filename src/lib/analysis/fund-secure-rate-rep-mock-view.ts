@@ -2,10 +2,12 @@ import type {
   FundSecureRepCohort,
   FundSecureRepRow,
 } from "@/lib/analysis/fund-secure-rate-rep-rollup";
+import type { TwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
+import { parseTwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
 
 export type FundSecureRepMockQuery = {
   year?: number | null;
-  cohort?: FundSecureRepCohort;
+  cohort?: TwoSchoolViewCohort;
   section?: "data" | "charts";
   estb?: string;
   region?: string;
@@ -16,7 +18,7 @@ export type FundSecureRepMockData = {
   years: number[];
   displayYear: number | null;
   rosterYear: number | null;
-  cohort: FundSecureRepCohort;
+  cohort: TwoSchoolViewCohort;
   section: "data" | "charts";
   cohortCounts: Record<FundSecureRepCohort, number>;
   rows: FundSecureRepRow[];
@@ -28,8 +30,8 @@ export type FundSecureRepMockData = {
   hasData: boolean;
 };
 
-function parseCohort(value: string | undefined): FundSecureRepCohort {
-  return value === "junior-college" ? "junior-college" : "university";
+function parseCohort(value: string | undefined): TwoSchoolViewCohort {
+  return parseTwoSchoolViewCohort(value);
 }
 
 export function parseFundSecureRepMockQuery(

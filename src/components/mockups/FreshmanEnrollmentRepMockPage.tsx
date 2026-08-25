@@ -11,14 +11,12 @@ import {
 } from "@/components/analysis/GlassMintTabGroup";
 import { RepDbDownButton } from "@/components/analysis/RepDbDownButton";
 import { CorpTransferRatioAdvancedChartDashboard } from "@/components/analysis/CorpTransferRatioAdvancedChartDashboard";
+import { FreshmanIndicatorStatsPanel } from "@/components/analysis/IndicatorStatsTabPanels";
+import { INDICATOR_STATS_TAB_HELP } from "@/lib/analysis/indicator-stats-geo";
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { HelpGuidePanel } from "@/components/analysis/FundSecureRateAdvancedHelp";
 import { SchoolNameSearchInput } from "@/components/analysis/SchoolNameSearchInput";
-import {
-  FRESHMAN_REP_DB_HELP,
-  FRESHMAN_REP_DB_HELP_SUB,
-  FRESHMAN_REP_DB_HELP_TITLE,
-} from "@/lib/analysis/freshman-enrollment-rep-db-help";
+import { isJuniorSchoolDivision } from "@/lib/analysis/all-universities-cohort";
 import { CHART_TYPO } from "@/lib/analysis/finance-charts-typography";
 import {
   FDB_PAGE_SHELL,
@@ -33,9 +31,16 @@ import { FDB_TABLE_COLOR } from "@/lib/analysis/finance-db-table-colors";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import { FRESHMAN_FILL_ADVANCED_HELP } from "@/lib/analysis/freshman-enrollment-advanced-help";
 import {
-  FRESHMAN_REP_COHORT_LABEL,
-  toRepFreshmanEnrollmentRows,
+  FRESHMAN_REP_DB_HELP,
+  FRESHMAN_REP_DB_HELP_SUB,
+  FRESHMAN_REP_DB_HELP_TITLE,
+} from "@/lib/analysis/freshman-enrollment-rep-db-help";
+import {
+  FRESHMAN_REP_VIEW_COHORT_LABEL,
+  FRESHMAN_REP_VIEW_COHORTS,
+  toRepFreshmanEnrollmentRowsForView,
   type FreshmanRepCohort,
+  type FreshmanRepViewCohort,
   type FreshmanRepCompareField,
   type FreshmanRepRow,
   type FreshmanRepVerifySummary,
@@ -54,12 +59,7 @@ import {
   type FreshmanChartMetric,
 } from "@/lib/analysis/student-fill-advanced-chart-rows";
 
-const COHORTS: FreshmanRepCohort[] = [
-  "university",
-  "graduate",
-  "combined",
-  "junior-college",
-];
+const COHORTS: FreshmanRepViewCohort[] = FRESHMAN_REP_VIEW_COHORTS;
 
 const COMBINED_KPI_SUB: Record<FreshmanChartMetric, string> = {
   within: "Σ입학자(정원내) ÷ (Σ대학 모집 정원내 + Σ대학원 입학정원)",
@@ -83,7 +83,7 @@ const FIELD_LABEL: Record<FreshmanRepCompareField, string> = {
   fillRateWithinOutside: "정원내외 충원율",
 };
 
-const RATE_NOTE: Record<FreshmanRepCohort, string> = {
+const RATE_NOTE: Record<FreshmanRepViewCohort, string> = {
   university:
     "정원내 = 입학자 정원내 ÷ 모집인원 정원내 · 정원내외 = 입학자 계 ÷ 모집인원 계",
   "junior-college":
@@ -92,6 +92,8 @@ const RATE_NOTE: Record<FreshmanRepCohort, string> = {
     "모집인원 없음 · 정원내 = 입학자 정원내 ÷ 입학정원 · 정원내외 = 입학자 계 ÷ 입학정원",
   combined:
     "입학정원=대학+대학원 · 모집인원=대학전문만 · 입학자=대학+대학원 · 정원내 = 합산 입학자 정원내 ÷ (대학 모집 정원내 + 대학원 입학정원) · 정원내외 = 합산 입학자 계 ÷ (대학 모집 계 + 대학원 입학정원)",
+  "all-universities":
+    "전체대학 = 대학통합 행 + 전문대학 행 · 율은 각 행의 기존 분모 규칙을 유지한 뒤 합산 · 규모는 대학 1만/5천명, 전문대학 4천/2천명 기준을 행별로 적용",
 };
 
 function fmtCount(n: number | null | undefined): string {
@@ -240,12 +242,13 @@ function DataTable({
   mismatchNames,
 }: {
   rows: FreshmanRepRow[];
-  cohort: FreshmanRepCohort;
+  cohort: FreshmanRepViewCohort;
   mismatchNames: Set<string>;
 }) {
   const showRecruit = cohort !== "graduate";
+  const showSource = cohort === "all-universities";
   const tableHeadClass = FDB_TABLE_HEAD.base;
-  const metricColCount = showRecruit ? 9 : 6;
+  const metricColCount = (showRecruit ? 9 : 6) + (showSource ? 1 : 0);
   return (
     <div className={FDB_TABLE_SCROLL}>
       <table
@@ -265,6 +268,14 @@ function DataTable({
             >
               학교명
             </th>
+            {showSource ? (
+              <th
+                rowSpan={2}
+                className={`${FDB_TABLE_HEAD.rowSpan} ${FDB_TABLE.headRowSpan} text-center`}
+              >
+                구분
+              </th>
+            ) : null}
             <th
               rowSpan={2}
               className={`${FDB_TABLE_HEAD.rowSpan} ${FDB_TABLE.headRowSpan} text-center`}
@@ -321,7 +332,7 @@ function DataTable({
             const metricCell = `${FDB_TABLE.cellMetric} border-r border-border/40 text-right font-mono ${FDB_TYPO.tableMetric}`;
             return (
               <tr
-                key={`${row.year}-${row.schoolRepCode}-${row.schoolRepName}`}
+                key={`${row.year}-${row.schoolRepCode}-${row.schoolDivision}-${row.schoolRepName}`}
                 className={`border-b border-border/40 ${
                   mismatch
                     ? "bg-accent-orange/10"
@@ -342,7 +353,9 @@ function DataTable({
                         {row.campusCount}개
                       </span>
                     ) : null}
-                    {(cohort === "graduate" || cohort === "combined") &&
+                    {(cohort === "graduate" ||
+                      cohort === "combined" ||
+                      cohort === "all-universities") &&
                     row.gradProgramCount > 1 ? (
                       <span
                         className={`shrink-0 rounded bg-accent/10 px-1.5 py-0.5 font-normal text-accent ${FDB_TYPO.legend}`}
@@ -359,6 +372,13 @@ function DataTable({
                     ) : null}
                   </span>
                 </td>
+                {showSource ? (
+                  <td className={`${FDB_TABLE.cell} border-r border-border/40 text-center`}>
+                    {isJuniorSchoolDivision(row.schoolDivision)
+                      ? "전문대학"
+                      : "대학통합"}
+                  </td>
+                ) : null}
                 <td className={metricCell}>{fmtCount(row.admissionQuota)}</td>
                 {showRecruit ? (
                   <>
@@ -389,10 +409,12 @@ function CohortChartDashboard({
   cohort,
   rows,
   years,
+  rowsByCohort,
 }: {
-  cohort: FreshmanRepCohort;
+  cohort: FreshmanRepViewCohort;
   rows: FreshmanRepRow[];
   years: number[];
+  rowsByCohort?: Record<FreshmanRepCohort, FreshmanRepRow[]>;
 }) {
   const [metric, setMetric] = useState<FreshmanChartMetric>("within");
   const chartYears = useMemo(
@@ -402,13 +424,17 @@ function CohortChartDashboard({
   const chartRows = useMemo(
     () =>
       toFreshmanAdvancedChartRows(
-        toRepFreshmanEnrollmentRows(rows, cohort),
+      toRepFreshmanEnrollmentRowsForView(rows, cohort),
         metric,
       ),
     [rows, cohort, metric],
   );
   const kpiSub =
-    cohort === "combined"
+    cohort === "all-universities"
+      ? metric === "within"
+        ? "대학통합·전문대학 각 분모 규칙을 유지한 뒤 Σ입학자(정원내) ÷ Σ분모"
+        : "대학통합·전문대학 각 분모 규칙을 유지한 뒤 Σ입학자(계) ÷ Σ분모"
+      : cohort === "combined"
       ? COMBINED_KPI_SUB[metric]
       : cohort === "graduate"
         ? GRADUATE_KPI_SUB[metric]
@@ -428,6 +454,7 @@ function CohortChartDashboard({
       rows={chartRows}
       years={chartYears}
       hasData
+      initialMainTab="stats"
       rateLabel={FRESHMAN_CHART_METRIC_LABELS[metric]}
       kpiSub={kpiSub}
       riskProfile={getFreshmanChartRiskProfile(metric)}
@@ -435,6 +462,15 @@ function CohortChartDashboard({
       helpPack={FRESHMAN_FILL_ADVANCED_HELP}
       geoChartsLayout="split"
       distributionTabLayout="density-v2"
+      statsTabHelp={INDICATOR_STATS_TAB_HELP}
+      statsTabContent={({ year, estb, schoolDivision, schoolKinds }) => (
+        <FreshmanIndicatorStatsPanel
+          rows={rows}
+          cohort={cohort}
+          rowsByCohort={rowsByCohort}
+          filters={{ year, estb, schoolDivision, schoolKinds }}
+        />
+      )}
       filterToolbarLeading={
         <ChartMetricToggle
           value={metric}
@@ -473,7 +509,7 @@ export function FreshmanEnrollmentRepMockPage({
 
   function navigate(next: {
     year?: number | null;
-    cohort?: FreshmanRepCohort;
+    cohort?: FreshmanRepViewCohort;
     section?: "data" | "charts";
     region?: string;
     q?: string;
@@ -535,7 +571,7 @@ export function FreshmanEnrollmentRepMockPage({
           onChange={(id) => navigate({ cohort: id, resetFilters: true })}
           items={COHORTS.map((id) => ({
             id,
-            label: FRESHMAN_REP_COHORT_LABEL[id],
+            label: FRESHMAN_REP_VIEW_COHORT_LABEL[id],
             count: fmtCount(data.cohortCounts[id]),
           }))}
         />
@@ -552,6 +588,7 @@ export function FreshmanEnrollmentRepMockPage({
             cohort={data.cohort}
             rows={data.chartRows}
             years={data.years}
+            rowsByCohort={data.chartRowsByCohort}
           />
         </div>
       ) : (

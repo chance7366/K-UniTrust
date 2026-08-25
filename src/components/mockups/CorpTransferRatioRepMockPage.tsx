@@ -11,6 +11,8 @@ import {
 import { RepDbDownButton } from "@/components/analysis/RepDbDownButton";
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { CorpTransferRatioChartDashboard } from "@/components/analysis/CorpTransferRatioChartDashboard";
+import { CorpTransferIndicatorStatsPanel } from "@/components/analysis/IndicatorStatsTabPanels";
+import { INDICATOR_STATS_TAB_HELP } from "@/lib/analysis/indicator-stats-geo";
 import { HelpGuidePanel } from "@/components/analysis/FundSecureRateAdvancedHelp";
 import { SchoolNameSearchInput } from "@/components/analysis/SchoolNameSearchInput";
 import {
@@ -30,9 +32,13 @@ import {
 import { FDB_TABLE_COLOR } from "@/lib/analysis/finance-db-table-colors";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import {
-  CORP_TRANSFER_REP_COHORT_LABEL,
+  TWO_SCHOOL_VIEW_TABS,
+  twoSchoolRowLabel,
+  twoSchoolViewTabCount,
+  type TwoSchoolViewCohort,
+} from "@/lib/analysis/all-universities-cohort";
+import {
   toCorpTransferRatioRows,
-  type CorpTransferRepCohort,
   type CorpTransferRepRow,
 } from "@/lib/analysis/corp-transfer-ratio-rep-rollup";
 import {
@@ -40,8 +46,6 @@ import {
   buildCorpTransferRepMockHref,
   type CorpTransferRepMockData,
 } from "@/lib/analysis/corp-transfer-ratio-rep-mock-view";
-
-const COHORTS: CorpTransferRepCohort[] = ["university", "junior-college"];
 
 const RATE_NOTE =
   "전입금합계 = 경상비 + 법정부담 + 자산 · 전입금비율 = 전입금합계 ÷ 등록금수입";
@@ -103,7 +107,13 @@ function FilterSelect({
   );
 }
 
-function DataTable({ rows }: { rows: CorpTransferRepRow[] }) {
+function DataTable({
+  rows,
+  showSource,
+}: {
+  rows: CorpTransferRepRow[];
+  showSource: boolean;
+}) {
   const tableHeadClass = FDB_TABLE_HEAD.base;
   const metricCell = `${FDB_TABLE.cellMetric} border-r border-border/40 text-right font-mono ${FDB_TYPO.tableMetric}`;
 
@@ -118,9 +128,12 @@ function DataTable({ rows }: { rows: CorpTransferRepRow[] }) {
         >
           <colgroup>
             <col style={{ width: FDB_SCHOOL_NAME_COL_PX }} />
-            {Array.from({ length: METRIC_COL_COUNT }, (_, i) => (
-              <col key={i} />
-            ))}
+            {Array.from(
+              { length: METRIC_COL_COUNT + (showSource ? 1 : 0) },
+              (_, i) => (
+                <col key={i} />
+              ),
+            )}
           </colgroup>
           <thead className="sticky top-0 z-[1] bg-surface-2">
             <tr className="border-b border-border bg-surface-2">
@@ -130,6 +143,14 @@ function DataTable({ rows }: { rows: CorpTransferRepRow[] }) {
               >
                 학교명
               </th>
+              {showSource ? (
+                <th
+                  rowSpan={2}
+                  className={`${FDB_TABLE_HEAD.rowSpan} ${FDB_TABLE.headRowSpan} text-center`}
+                >
+                  구분
+                </th>
+              ) : null}
               <th
                 colSpan={4}
                 className={`${tableHeadClass} border-b border-border/50 border-r border-border/50 ${FDB_TABLE.headGroup} text-center`}
@@ -163,7 +184,7 @@ function DataTable({ rows }: { rows: CorpTransferRepRow[] }) {
           <tbody>
             {rows.map((row, i) => (
               <tr
-                key={`${row.year}-${row.schoolRepCode}-${row.schoolRepName}`}
+                key={`${row.year}-${row.schoolRepCode}-${row.schoolDivision}-${row.schoolRepName}`}
                 className={`border-b border-border/40 ${
                   i % 2 === 0 ? "bg-surface" : "bg-surface-2/30"
                 }`}
@@ -189,6 +210,13 @@ function DataTable({ rows }: { rows: CorpTransferRepRow[] }) {
                     ) : null}
                   </span>
                 </td>
+                {showSource ? (
+                  <td
+                    className={`${FDB_TABLE.cell} border-r border-border/40 text-center`}
+                  >
+                    {twoSchoolRowLabel(row.schoolDivision)}
+                  </td>
+                ) : null}
                 <td className={metricCell}>
                   {fmtMillionWon(row.ordinaryExpenseTransfer)}
                 </td>
@@ -230,7 +258,7 @@ export function CorpTransferRatioRepMockPage({
 
   function navigate(next: {
     year?: number | null;
-    cohort?: CorpTransferRepCohort;
+    cohort?: TwoSchoolViewCohort;
     section?: "data" | "charts";
     region?: string;
     q?: string;
@@ -288,10 +316,10 @@ export function CorpTransferRatioRepMockPage({
           ariaLabel="코호트"
           active={data.cohort}
           onChange={(id) => navigate({ cohort: id, resetFilters: true })}
-          items={COHORTS.map((id) => ({
-            id,
-            label: CORP_TRANSFER_REP_COHORT_LABEL[id],
-            count: fmtCount(data.cohortCounts[id]),
+          items={TWO_SCHOOL_VIEW_TABS.map((tab) => ({
+            id: tab.id,
+            label: tab.label,
+            count: fmtCount(twoSchoolViewTabCount(data.cohortCounts, tab.id)),
           }))}
         />
         <RepDbDownButton
@@ -307,6 +335,15 @@ export function CorpTransferRatioRepMockPage({
             rows={toCorpTransferRatioRows(data.chartRows)}
             years={data.years}
             hasData={data.chartRows.length > 0}
+            initialMainTab="stats"
+            statsTabHelp={INDICATOR_STATS_TAB_HELP}
+            statsTabContent={(filters) => (
+              <CorpTransferIndicatorStatsPanel
+                rows={data.chartRows}
+                cohort={data.cohort}
+                filters={filters}
+              />
+            )}
             renderHelpButton={({ active, onClick }) => (
               <GlassHelpButton tone="blue" active={active} onClick={onClick} />
             )}
@@ -389,7 +426,10 @@ export function CorpTransferRatioRepMockPage({
                   : `선택한 연도(${data.displayYear}년)에 해당하는 데이터가 없습니다.`}
               </p>
             ) : (
-              <DataTable rows={data.rows} />
+              <DataTable
+                rows={data.rows}
+                showSource={data.cohort === "all-universities"}
+              />
             )}
           </section>
         </>

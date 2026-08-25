@@ -2,10 +2,12 @@ import type {
   CorpTransferRepCohort,
   CorpTransferRepRow,
 } from "@/lib/analysis/corp-transfer-ratio-rep-rollup";
+import type { TwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
+import { parseTwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
 
 export type CorpTransferRepMockQuery = {
   year?: number | null;
-  cohort?: CorpTransferRepCohort;
+  cohort?: TwoSchoolViewCohort;
   section?: "data" | "charts";
   estb?: string;
   region?: string;
@@ -16,7 +18,7 @@ export type CorpTransferRepMockData = {
   years: number[];
   displayYear: number | null;
   rosterYear: number | null;
-  cohort: CorpTransferRepCohort;
+  cohort: TwoSchoolViewCohort;
   section: "data" | "charts";
   cohortCounts: Record<CorpTransferRepCohort, number>;
   rows: CorpTransferRepRow[];
@@ -28,8 +30,8 @@ export type CorpTransferRepMockData = {
   hasData: boolean;
 };
 
-function parseCohort(value: string | undefined): CorpTransferRepCohort {
-  return value === "junior-college" ? "junior-college" : "university";
+function parseCohort(value: string | undefined): TwoSchoolViewCohort {
+  return parseTwoSchoolViewCohort(value);
 }
 
 export function parseCorpTransferRepMockQuery(

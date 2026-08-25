@@ -20,7 +20,7 @@ export function useSidebarVisitorStats(): VisitorStatsView | null {
   useEffect(() => {
     let cancelled = false;
 
-    void fetch("/api/analytics/visitors/record", {
+    void fetch("/api/analytics/visitors", {
       method: "POST",
       credentials: "same-origin",
     })

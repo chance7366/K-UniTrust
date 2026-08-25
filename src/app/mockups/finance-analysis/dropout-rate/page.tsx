@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 
+import { parseStudentFillViewCohort } from "@/lib/analysis/all-universities-cohort";
 import { buildDropoutRepHref } from "@/lib/analysis/dropout-rate-rep-mock-view";
 
 type PageProps = {
@@ -14,12 +15,7 @@ export default async function DropoutRateRepMockRoute({
   redirect(
     buildDropoutRepHref({
       year: sp.year ? Number(sp.year) : null,
-      cohort:
-        sp.cohort === "junior-college" ||
-        sp.cohort === "graduate" ||
-        sp.cohort === "combined"
-          ? sp.cohort
-          : "university",
+      cohort: parseStudentFillViewCohort(sp.cohort),
       section: sp.section === "charts" ? "charts" : "data",
       estb: sp.estb,
       region: sp.region,

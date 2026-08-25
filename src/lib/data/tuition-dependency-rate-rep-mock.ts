@@ -16,6 +16,7 @@ import {
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { persistTuitionDepRepDb } from "@/lib/data/tuition-dependency-rate-rep-db";
 import { readCsvFile } from "@/lib/csv/read";
+import { sourceRowsForTwoSchoolView } from "@/lib/analysis/all-universities-cohort";
 
 export {
   buildTuitionDepRepMockHref,
@@ -111,7 +112,7 @@ export async function loadTuitionDepRepMockDashboard(
     }),
   };
 
-  const source = allCohortRows[cohort];
+  const source = sourceRowsForTwoSchoolView(allCohortRows, cohort);
   const estbs = [...new Set(source.map((r) => r.estb).filter(Boolean))].sort(
     (a, b) => a.localeCompare(b, "ko"),
   );
@@ -150,13 +151,18 @@ export async function loadTuitionDepRepMockDashboard(
         yearRosterYear != null
           ? rosterAll.filter((row) => row.year === yearRosterYear)
           : [];
-      return buildTuitionDepRepRows({
-        cohort,
-        displayYear: year,
-        roster: yearRoster,
-        eduFund,
-        industryCash,
-      });
+      const build = (c: TuitionDepRepCohort) =>
+        buildTuitionDepRepRows({
+          cohort: c,
+          displayYear: year,
+          roster: yearRoster,
+          eduFund,
+          industryCash,
+        });
+      if (cohort === "all-universities") {
+        return [...build("university"), ...build("junior-college")];
+      }
+      return build(cohort);
     }),
     hasData: true,
   };

@@ -11,9 +11,15 @@ import {
 } from "@/components/analysis/GlassMintTabGroup";
 import { RepDbDownButton } from "@/components/analysis/RepDbDownButton";
 import { CorpTransferRatioAdvancedChartDashboard } from "@/components/analysis/CorpTransferRatioAdvancedChartDashboard";
+import { DropoutIndicatorStatsPanel } from "@/components/analysis/IndicatorStatsTabPanels";
+import { INDICATOR_STATS_TAB_HELP } from "@/lib/analysis/indicator-stats-geo";
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { HelpGuidePanel } from "@/components/analysis/FundSecureRateAdvancedHelp";
 import { SchoolNameSearchInput } from "@/components/analysis/SchoolNameSearchInput";
+import {
+  STUDENT_FILL_VIEW_TABS,
+  studentFillRowLabel,
+} from "@/lib/analysis/all-universities-cohort";
 import { DROPOUT_ADVANCED_HELP } from "@/lib/analysis/dropout-rate-advanced-help";
 import {
   DROPOUT_REP_DB_HELP,
@@ -33,8 +39,8 @@ import {
 import { FDB_TABLE_COLOR } from "@/lib/analysis/finance-db-table-colors";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import {
-  DROPOUT_REP_COHORT_LABEL,
   toRepDropoutChartRows,
+  type DropoutRepViewCohort,
   type DropoutRepCohort,
   type DropoutRepRow,
 } from "@/lib/analysis/dropout-rate-rep-rollup";
@@ -51,14 +57,7 @@ import {
   type DropoutChartMetric,
 } from "@/lib/analysis/student-fill-advanced-chart-rows";
 
-const COHORTS: DropoutRepCohort[] = [
-  "university",
-  "graduate",
-  "combined",
-  "junior-college",
-];
-
-const RATE_NOTE: Record<DropoutRepCohort, string> = {
+const RATE_NOTE: Record<DropoutRepViewCohort, string> = {
   university:
     "재적 중도탈락율 = 중도탈락 ÷ 재적학생 · 신입생 중도탈락율 = 신입생 중도탈락 ÷ 신입생",
   "junior-college":
@@ -66,6 +65,8 @@ const RATE_NOTE: Record<DropoutRepCohort, string> = {
   graduate: "재적 중도탈락율 = 중도탈락 ÷ 재적학생 · 대학원은 신입생 중도탈락 없음",
   combined:
     "재적 = 대학+대학원 합산 후 율 계산 · 신입생 = 대학만(대학원 신입생 중도탈락 없음)",
+  "all-universities":
+    "전체대학 = 대학통합 행 + 전문대학 행 · 재적 율은 행별 재적학생을 합산 · 신입생 율은 대학통합(대학만)+전문대학 · 규모는 대학 1만/5천명, 전문대학 4천/2천명 기준을 행별로 적용",
 };
 
 function fmtCount(n: number | null | undefined): string {
@@ -117,7 +118,7 @@ function SchoolNameCell({
   cohort,
 }: {
   row: DropoutRepRow;
-  cohort: DropoutRepCohort;
+  cohort: DropoutRepViewCohort;
 }) {
   return (
     <td
@@ -132,7 +133,9 @@ function SchoolNameCell({
             {row.campusCount}개
           </span>
         ) : null}
-        {(cohort === "graduate" || cohort === "combined") &&
+        {(cohort === "graduate" ||
+          cohort === "combined" ||
+          cohort === "all-universities") &&
         row.gradProgramCount > 1 ? (
           <span
             className={`shrink-0 rounded bg-accent/10 px-1.5 py-0.5 font-normal text-accent ${FDB_TYPO.legend}`}
@@ -157,12 +160,21 @@ function DataTable({
   cohort,
 }: {
   rows: DropoutRepRow[];
-  cohort: DropoutRepCohort;
+  cohort: DropoutRepViewCohort;
 }) {
   const tableHeadClass = FDB_TABLE_HEAD.base;
   const metricCell = `${FDB_TABLE.cellMetric} border-r border-border/40 text-right font-mono ${FDB_TYPO.tableMetric}`;
   const isGraduate = cohort === "graduate";
-  const metricCount = isGraduate ? 3 : 6;
+  const showSource = cohort === "all-universities";
+  const metricCount = (isGraduate ? 3 : 6) + (showSource ? 1 : 0);
+  const sourceHead = showSource ? (
+    <th
+      rowSpan={isGraduate ? 1 : 2}
+      className={`${FDB_TABLE_HEAD.rowSpan} ${isGraduate ? FDB_TABLE.headSingle : FDB_TABLE.headRowSpan} text-center`}
+    >
+      구분
+    </th>
+  ) : null;
 
   return (
     <div className={FDB_TABLE_SCROLL}>
@@ -183,6 +195,7 @@ function DataTable({
               >
                 학교명
               </th>
+              {sourceHead}
               <th
                 className={`${tableHeadClass} ${FDB_TABLE.headSingle} text-center`}
               >
@@ -209,6 +222,7 @@ function DataTable({
               >
                 학교명
               </th>
+              {sourceHead}
               <th
                 colSpan={3}
                 className={`${tableHeadClass} border-b border-border/50 border-r border-border/50 ${FDB_TABLE.headGroup} text-center`}
@@ -248,12 +262,19 @@ function DataTable({
         <tbody>
           {rows.map((row, i) => (
             <tr
-              key={`${row.year}-${row.schoolRepCode}-${row.schoolRepName}`}
+              key={`${row.year}-${row.schoolRepCode}-${row.schoolDivision}-${row.schoolRepName}`}
               className={`border-b border-border/40 ${
                 i % 2 === 0 ? "bg-surface" : "bg-surface-2/30"
               }`}
             >
               <SchoolNameCell row={row} cohort={cohort} />
+              {showSource ? (
+                <td
+                  className={`${FDB_TABLE.cell} border-r border-border/40 text-center`}
+                >
+                  {studentFillRowLabel(row.schoolDivision)}
+                </td>
+              ) : null}
               <td className={metricCell}>{fmtCount(row.enrolled.students)}</td>
               <td className={metricCell}>{fmtCount(row.enrolled.dropouts)}</td>
               <td className={`${metricCell} ${FDB_TABLE_COLOR.ratePrimary}`}>
@@ -280,10 +301,12 @@ function CohortChartDashboard({
   cohort,
   rows,
   years,
+  rowsByCohort,
 }: {
-  cohort: DropoutRepCohort;
+  cohort: DropoutRepViewCohort;
   rows: DropoutRepRow[];
   years: number[];
+  rowsByCohort?: Record<DropoutRepCohort, DropoutRepRow[]>;
 }) {
   const [metric, setMetric] = useState<DropoutChartMetric>("enrolled");
   const chartYears = useMemo(
@@ -310,6 +333,7 @@ function CohortChartDashboard({
       rows={chartRows}
       years={chartYears}
       hasData
+      initialMainTab="stats"
       rateLabel={DROPOUT_CHART_METRIC_LABELS[activeMetric]}
       kpiSub={DROPOUT_CHART_KPI_SUB[activeMetric]}
       riskProfile={getDropoutChartRiskProfile(activeMetric)}
@@ -317,6 +341,15 @@ function CohortChartDashboard({
       helpPack={DROPOUT_ADVANCED_HELP}
       geoChartsLayout="split"
       distributionTabLayout="density-v2"
+      statsTabHelp={INDICATOR_STATS_TAB_HELP}
+      statsTabContent={({ year, estb, schoolDivision, schoolKinds }) => (
+        <DropoutIndicatorStatsPanel
+          rows={rows}
+          cohort={cohort}
+          rowsByCohort={rowsByCohort}
+          filters={{ year, estb, schoolDivision, schoolKinds }}
+        />
+      )}
       filterToolbarLeading={
         cohort === "graduate" ? undefined : (
           <ChartMetricToggle
@@ -347,7 +380,7 @@ export function DropoutRateRepMockPage({
 
   function navigate(next: {
     year?: number | null;
-    cohort?: DropoutRepCohort;
+    cohort?: DropoutRepViewCohort;
     section?: "data" | "charts";
     region?: string;
     q?: string;
@@ -405,10 +438,10 @@ export function DropoutRateRepMockPage({
           ariaLabel="코호트"
           active={data.cohort}
           onChange={(id) => navigate({ cohort: id, resetFilters: true })}
-          items={COHORTS.map((id) => ({
-            id,
-            label: DROPOUT_REP_COHORT_LABEL[id],
-            count: fmtCount(data.cohortCounts[id]),
+          items={STUDENT_FILL_VIEW_TABS.map((tab) => ({
+            id: tab.id,
+            label: tab.label,
+            count: fmtCount(data.cohortCounts[tab.id]),
           }))}
         />
         <RepDbDownButton
@@ -424,6 +457,7 @@ export function DropoutRateRepMockPage({
             cohort={data.cohort}
             rows={data.chartRows}
             years={data.years}
+            rowsByCohort={data.chartRowsByCohort}
           />
         </div>
       ) : (

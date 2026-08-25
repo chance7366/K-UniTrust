@@ -354,7 +354,7 @@ export function toIncomePropertyDisplayRows(
     schoolName: row.schoolRepName,
     corpName: "",
     schoolDivision: row.schoolDivision,
-    schoolKind: "",
+    schoolKind: row.schoolDivision,
     region: row.region,
     estb: row.estb,
     schoolStatus: "",

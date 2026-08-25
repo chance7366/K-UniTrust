@@ -15,6 +15,12 @@ export async function proxy(request: NextRequest) {
   if (PUBLIC_PATHS.has(pathname)) {
     return NextResponse.next();
   }
+  if (
+    process.env.NODE_ENV !== "production" &&
+    pathname.startsWith("/mockups")
+  ) {
+    return NextResponse.next();
+  }
 
   const role = await parseAccessToken(request.cookies.get(ACCESS_COOKIE)?.value);
   if (role) {

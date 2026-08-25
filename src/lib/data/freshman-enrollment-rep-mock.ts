@@ -12,7 +12,9 @@ import {
   pickNearestYear,
   sumCohortRates,
   verifyAgainstConsolidated,
+  type FreshmanRepCohort,
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
+import { emptyStudentFillCohortRows } from "@/lib/analysis/all-universities-cohort";
 import { persistFreshmanRepDb } from "@/lib/data/freshman-enrollment-rep-db";
 import { readCsvFile } from "@/lib/csv/read";
 
@@ -86,6 +88,7 @@ export async function loadFreshmanRepMockDashboard(
       "junior-college": 0,
       graduate: 0,
       combined: 0,
+      "all-universities": 0,
     },
     rows: [],
     allCohortRows: {
@@ -98,6 +101,7 @@ export async function loadFreshmanRepMockDashboard(
     filters: { estb: estbFilter, region: regionFilter, q },
     totals: { fillRateWithin: null, fillRateWithinOutside: null },
     chartRows: [],
+    chartRowsByCohort: emptyStudentFillCohortRows(),
     verify: null,
     hasData: years.length > 0 && roster.length > 0,
   };
@@ -142,7 +146,10 @@ export async function loadFreshmanRepMockDashboard(
     }),
   };
 
-  const source = allCohortRows[cohort];
+  const source =
+    cohort === "all-universities"
+      ? [...allCohortRows.combined, ...allCohortRows["junior-college"]]
+      : allCohortRows[cohort];
   const estbs = [...new Set(source.map((r) => r.estb).filter(Boolean))].sort(
     (a, b) => a.localeCompare(b, "ko"),
   );
@@ -177,26 +184,68 @@ export async function loadFreshmanRepMockDashboard(
       "junior-college": allCohortRows["junior-college"].length,
       graduate: allCohortRows.graduate.length,
       combined: allCohortRows.combined.length,
+      "all-universities":
+        allCohortRows.combined.length + allCohortRows["junior-college"].length,
     },
     rows,
     allCohortRows,
     filterOptions: { estbs, regions },
     filters: { estb: estbFilter, region: regionFilter, q },
     totals: sumCohortRates(rows, cohort),
-    chartRows: years.flatMap((year) => {
-      const yearRosterYear = pickNearestYear(rosterYears, year);
-      const yearRoster =
-        yearRosterYear != null
-          ? rosterAll.filter((row) => row.year === yearRosterYear)
-          : [];
-      return buildFreshmanRepRows({
-        cohort,
-        displayYear: year,
-        roster: yearRoster,
-        undergrad,
-        grad,
-      });
-    }),
+    ...(() => {
+      const chartRowsByCohort = emptyStudentFillCohortRows<
+        ReturnType<typeof buildFreshmanRepRows>[number]
+      >();
+      if (cohort === "all-universities") {
+        for (const year of years) {
+          const yearRosterYear = pickNearestYear(rosterYears, year);
+          const yearRoster =
+            yearRosterYear != null
+              ? rosterAll.filter((row) => row.year === yearRosterYear)
+              : [];
+          const cohorts: FreshmanRepCohort[] = [
+            "university",
+            "junior-college",
+            "graduate",
+            "combined",
+          ];
+          for (const c of cohorts) {
+            chartRowsByCohort[c].push(
+              ...buildFreshmanRepRows({
+                cohort: c,
+                displayYear: year,
+                roster: yearRoster,
+                undergrad,
+                grad,
+              }),
+            );
+          }
+        }
+        return {
+          chartRows: [
+            ...chartRowsByCohort.combined,
+            ...chartRowsByCohort["junior-college"],
+          ],
+          chartRowsByCohort,
+        };
+      }
+      return {
+        chartRows: years.flatMap((year) => {
+          const yearRosterYear = pickNearestYear(rosterYears, year);
+          const yearRoster =
+            yearRosterYear != null
+              ? rosterAll.filter((row) => row.year === yearRosterYear)
+              : [];
+          return buildFreshmanRepRows({
+            cohort,
+            displayYear: year,
+            roster: yearRoster,
+            undergrad,
+            grad,
+          });
+        }),
+      };
+    })(),
     verify,
     hasData: true,
   };

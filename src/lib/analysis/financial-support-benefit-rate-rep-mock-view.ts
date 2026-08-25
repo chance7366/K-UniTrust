@@ -2,10 +2,12 @@ import type {
   FinSupportRepCohort,
   FinSupportRepRow,
 } from "@/lib/analysis/financial-support-benefit-rate-rep-rollup";
+import type { TwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
+import { parseTwoSchoolViewCohort } from "@/lib/analysis/all-universities-cohort";
 
 export type FinSupportRepMockQuery = {
   year?: number | null;
-  cohort?: FinSupportRepCohort;
+  cohort?: TwoSchoolViewCohort;
   section?: "data" | "charts";
   estb?: string;
   region?: string;
@@ -16,7 +18,7 @@ export type FinSupportRepMockData = {
   years: number[];
   displayYear: number | null;
   rosterYear: number | null;
-  cohort: FinSupportRepCohort;
+  cohort: TwoSchoolViewCohort;
   section: "data" | "charts";
   cohortCounts: Record<FinSupportRepCohort, number>;
   rows: FinSupportRepRow[];
@@ -28,8 +30,8 @@ export type FinSupportRepMockData = {
   hasData: boolean;
 };
 
-function parseCohort(value: string | undefined): FinSupportRepCohort {
-  return value === "junior-college" ? "junior-college" : "university";
+function parseCohort(value: string | undefined): TwoSchoolViewCohort {
+  return parseTwoSchoolViewCohort(value);
 }
 
 export function parseFinSupportRepMockQuery(

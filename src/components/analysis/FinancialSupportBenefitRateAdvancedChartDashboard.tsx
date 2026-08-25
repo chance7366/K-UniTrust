@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   Bar,
   BarChart,
@@ -93,7 +93,7 @@ const RISK_TIER_COLORS: Record<string, string> = {
   good: CHART.emerald,
 };
 
-type MainTab = "risk" | "geo" | "distribution" | "pipeline";
+type MainTab = "stats" | "risk" | "geo" | "distribution" | "pipeline";
 
 function KpiCard({
   label,
@@ -492,6 +492,13 @@ type FinancialSupportBenefitRateAdvancedChartDashboardProps = {
   /** default=BoxPlot+위험단계 / density-v2=밀도분포+위험단계·히스토그램 2열(목업) */
   distributionTabLayout?: DistributionTabLayout;
   initialMainTab?: MainTab;
+  statsTabContent?: (ctx: {
+    year: number;
+    estb: string;
+    schoolDivision: string;
+    schoolKinds: string[];
+  }) => ReactNode;
+  statsTabHelp?: HelpSection;
 };
 
 export function FinancialSupportBenefitRateAdvancedChartDashboard({
@@ -502,6 +509,8 @@ export function FinancialSupportBenefitRateAdvancedChartDashboard({
   geoChartsLayout: _geoChartsLayout = "stacked",
   distributionTabLayout = "default",
   initialMainTab = "risk",
+  statsTabContent,
+  statsTabHelp,
 }: FinancialSupportBenefitRateAdvancedChartDashboardProps) {
   const chartYears = useMemo(() => sortAdvancedChartYears(years), [years]);
   const [year, setYear] = useState(() => latestAdvancedChartYear(years));
@@ -765,6 +774,18 @@ export function FinancialSupportBenefitRateAdvancedChartDashboard({
   );
 
   const mainTabs: { id: MainTab; label: string; help: HelpSection }[] = [
+    ...(statsTabContent
+      ? [
+          {
+            id: "stats" as const,
+            label: "지표통계",
+            help: statsTabHelp ?? {
+              title: "지표통계 탭",
+              body: "학교구분별·규모별·권역별·지역별로 원자료를 합산합니다.",
+            },
+          },
+        ]
+      : []),
     { id: "risk", label: "위험군대학", help: FINANCIAL_SUPPORT_BENEFIT_ADVANCED_TAB_HELP.risk },
     { id: "geo", label: "지역·규모", help: FINANCIAL_SUPPORT_BENEFIT_ADVANCED_TAB_HELP.geo },
     {
@@ -876,6 +897,15 @@ export function FinancialSupportBenefitRateAdvancedChartDashboard({
           </span>
         ))}
       </div>
+
+      {mainTab === "stats" && statsTabContent
+        ? statsTabContent({
+            year,
+            estb,
+            schoolDivision,
+            schoolKinds,
+          })
+        : null}
 
       {mainTab === "risk" ? (
         <>

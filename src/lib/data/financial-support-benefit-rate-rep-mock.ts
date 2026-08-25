@@ -16,6 +16,7 @@ import {
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { persistFinSupportRepDb } from "@/lib/data/financial-support-benefit-rate-rep-db";
 import { readCsvFile } from "@/lib/csv/read";
+import { sourceRowsForTwoSchoolView } from "@/lib/analysis/all-universities-cohort";
 
 export {
   buildFinSupportRepMockHref,
@@ -113,7 +114,7 @@ export async function loadFinSupportRepMockDashboard(
     }),
   };
 
-  const source = allCohortRows[cohort];
+  const source = sourceRowsForTwoSchoolView(allCohortRows, cohort);
   const estbs = [...new Set(source.map((r) => r.estb).filter(Boolean))].sort(
     (a, b) => a.localeCompare(b, "ko"),
   );
@@ -152,13 +153,18 @@ export async function loadFinSupportRepMockDashboard(
         yearRosterYear != null
           ? rosterAll.filter((row) => row.year === yearRosterYear)
           : [];
-      return buildFinSupportRepRows({
-        cohort,
-        displayYear: year,
-        roster: yearRoster,
-        support,
-        eduFund,
-      });
+      const build = (c: FinSupportRepCohort) =>
+        buildFinSupportRepRows({
+          cohort: c,
+          displayYear: year,
+          roster: yearRoster,
+          support,
+          eduFund,
+        });
+      if (cohort === "all-universities") {
+        return [...build("university"), ...build("junior-college")];
+      }
+      return build(cohort);
     }),
     hasData: true,
   };

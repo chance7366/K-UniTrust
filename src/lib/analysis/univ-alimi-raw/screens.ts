@@ -143,6 +143,30 @@ export const UNIV_ALIMI_COL: Record<
   "edu-operation": {
     undergrad: EDU_FUND_IDENTITY,
   },
+  "tuition-fund": {
+    undergrad: EDU_FUND_IDENTITY,
+  },
+  "tuition-fund-expense": {
+    undergrad: EDU_FUND_IDENTITY,
+  },
+  "tuition-balance": {
+    undergrad: EDU_FUND_IDENTITY,
+  },
+  "tuition-operation": {
+    undergrad: EDU_FUND_IDENTITY,
+  },
+  "non-tuition-fund": {
+    undergrad: EDU_FUND_IDENTITY,
+  },
+  "non-tuition-fund-expense": {
+    undergrad: EDU_FUND_IDENTITY,
+  },
+  "non-tuition-balance": {
+    undergrad: EDU_FUND_IDENTITY,
+  },
+  "non-tuition-operation": {
+    undergrad: EDU_FUND_IDENTITY,
+  },
   "corp-fund": {
     undergrad: EDU_FUND_IDENTITY,
   },
@@ -272,6 +296,94 @@ const EDU_BALANCE_HELP: UnivAlimiHelpCopy = {
 const EDU_OPERATION_HELP: UnivAlimiHelpCopy = {
   overview:
     "교비회계 운영계산서의 수익·비용·운영차액 항목을 계정과목별로 공시한다.",
+  source: "대학재정알리미",
+  management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
+  notes:
+    "학교코드는 학교코드 메뉴에서 참조한다. 금액 단위는 원 자료 기준이다.",
+  undergradForm:
+    "1행 헤더 · 회계연도 · 학교코드 · 학교명 · 법인명 · 학급 · 설립 · 학종 · 지역 · 운영계산서 계정과목",
+};
+
+const TUITION_FUND_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "등록금회계 자금계산서의 수입 항목(자금수입총계·운영수입·등록금 등)을 계정과목별로 공시한다.",
+  source: "대학재정알리미",
+  management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
+  notes:
+    "학교코드는 학교코드 메뉴에서 참조한다. 금액 단위는 원 자료 기준이다.",
+  undergradForm:
+    "1행 헤더 · 회계연도 · 학교코드 · 학교명 · 법인명 · 학급 · 설립 · 학종 · 지역 · 자금수입 계정과목",
+};
+
+const TUITION_FUND_EXPENSE_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "등록금회계 자금계산서의 지출 항목(자금지출총계·운영지출·보수 등)을 계정과목별로 공시한다.",
+  source: "대학재정알리미",
+  management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
+  notes:
+    "학교코드는 학교코드 메뉴에서 참조한다. 금액 단위는 원 자료 기준이다.",
+  undergradForm:
+    "1행 헤더 · 회계연도 · 학교코드 · 학교명 · 법인명 · 학급 · 설립 · 학종 · 지역 · 자금지출 계정과목",
+};
+
+const TUITION_BALANCE_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "등록금회계 대차대조표의 자산·부채·기본금 항목을 계정과목별로 공시한다.",
+  source: "대학재정알리미",
+  management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
+  notes:
+    "학교코드는 학교코드 메뉴에서 참조한다. 금액 단위는 원 자료 기준이다.",
+  undergradForm:
+    "1행 헤더 · 회계연도 · 학교코드 · 학교명 · 법인명 · 학급 · 설립 · 학종 · 소지역 · 대차대조표 계정과목",
+};
+
+const TUITION_OPERATION_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "등록금회계 운영계산서의 수익·비용·운영차액 항목을 계정과목별로 공시한다.",
+  source: "대학재정알리미",
+  management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
+  notes:
+    "학교코드는 학교코드 메뉴에서 참조한다. 금액 단위는 원 자료 기준이다.",
+  undergradForm:
+    "1행 헤더 · 회계연도 · 학교코드 · 학교명 · 법인명 · 학급 · 설립 · 학종 · 지역 · 운영계산서 계정과목",
+};
+
+const NON_TUITION_FUND_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "비등록금회계 자금계산서의 수입 항목(자금수입총계·운영수입 등)을 계정과목별로 공시한다.",
+  source: "대학재정알리미",
+  management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
+  notes:
+    "학교코드는 학교코드 메뉴에서 참조한다. 금액 단위는 원 자료 기준이다.",
+  undergradForm:
+    "1행 헤더 · 회계연도 · 학교코드 · 학교명 · 법인명 · 학급 · 설립 · 학종 · 지역 · 자금수입 계정과목",
+};
+
+const NON_TUITION_FUND_EXPENSE_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "비등록금회계 자금계산서의 지출 항목(자금지출총계·운영지출 등)을 계정과목별로 공시한다.",
+  source: "대학재정알리미",
+  management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
+  notes:
+    "학교코드는 학교코드 메뉴에서 참조한다. 금액 단위는 원 자료 기준이다.",
+  undergradForm:
+    "1행 헤더 · 회계연도 · 학교코드 · 학교명 · 법인명 · 학급 · 설립 · 학종 · 지역 · 자금지출 계정과목",
+};
+
+const NON_TUITION_BALANCE_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "비등록금회계 대차대조표의 자산·부채·기본금 항목을 계정과목별로 공시한다.",
+  source: "대학재정알리미",
+  management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
+  notes:
+    "학교코드는 학교코드 메뉴에서 참조한다. 금액 단위는 원 자료 기준이다.",
+  undergradForm:
+    "1행 헤더 · 회계연도 · 학교코드 · 학교명 · 법인명 · 학급 · 설립 · 학종 · 소지역 · 대차대조표 계정과목",
+};
+
+const NON_TUITION_OPERATION_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "비등록금회계 운영계산서의 수익·비용·운영차액 항목을 계정과목별로 공시한다.",
   source: "대학재정알리미",
   management: "매년 회계연도별 자료로 관리한다. 대학·대학원 구분은 없다.",
   notes:
@@ -477,6 +589,78 @@ export const UNIV_ALIMI_SCREENS: Record<
     apiBase: "/api/ingest/univ-map/alimi/edu-operation",
     datasets: ["undergrad"],
     help: EDU_OPERATION_HELP,
+  },
+  "tuition-fund": {
+    id: "tuition-fund",
+    tabId: "tuition-fund",
+    title: "등록금자금(수입)",
+    subtitle: "대학재정알리미 · 등록금회계 자금계산서 수입",
+    apiBase: "/api/ingest/univ-map/alimi/tuition-fund",
+    datasets: ["undergrad"],
+    help: TUITION_FUND_HELP,
+  },
+  "tuition-fund-expense": {
+    id: "tuition-fund-expense",
+    tabId: "tuition-fund-expense",
+    title: "등록금자금(지출)",
+    subtitle: "대학재정알리미 · 등록금회계 자금계산서 지출",
+    apiBase: "/api/ingest/univ-map/alimi/tuition-fund-expense",
+    datasets: ["undergrad"],
+    help: TUITION_FUND_EXPENSE_HELP,
+  },
+  "tuition-balance": {
+    id: "tuition-balance",
+    tabId: "tuition-balance",
+    title: "등록금대차",
+    subtitle: "대학재정알리미 · 등록금회계 대차대조표",
+    apiBase: "/api/ingest/univ-map/alimi/tuition-balance",
+    datasets: ["undergrad"],
+    help: TUITION_BALANCE_HELP,
+  },
+  "tuition-operation": {
+    id: "tuition-operation",
+    tabId: "tuition-operation",
+    title: "등록금운영",
+    subtitle: "대학재정알리미 · 등록금회계 운영계산서",
+    apiBase: "/api/ingest/univ-map/alimi/tuition-operation",
+    datasets: ["undergrad"],
+    help: TUITION_OPERATION_HELP,
+  },
+  "non-tuition-fund": {
+    id: "non-tuition-fund",
+    tabId: "non-tuition-fund",
+    title: "비등록금자금(수입)",
+    subtitle: "대학재정알리미 · 비등록금회계 자금계산서 수입",
+    apiBase: "/api/ingest/univ-map/alimi/non-tuition-fund",
+    datasets: ["undergrad"],
+    help: NON_TUITION_FUND_HELP,
+  },
+  "non-tuition-fund-expense": {
+    id: "non-tuition-fund-expense",
+    tabId: "non-tuition-fund-expense",
+    title: "비등록금자금(지출)",
+    subtitle: "대학재정알리미 · 비등록금회계 자금계산서 지출",
+    apiBase: "/api/ingest/univ-map/alimi/non-tuition-fund-expense",
+    datasets: ["undergrad"],
+    help: NON_TUITION_FUND_EXPENSE_HELP,
+  },
+  "non-tuition-balance": {
+    id: "non-tuition-balance",
+    tabId: "non-tuition-balance",
+    title: "비등록금대차",
+    subtitle: "대학재정알리미 · 비등록금회계 대차대조표",
+    apiBase: "/api/ingest/univ-map/alimi/non-tuition-balance",
+    datasets: ["undergrad"],
+    help: NON_TUITION_BALANCE_HELP,
+  },
+  "non-tuition-operation": {
+    id: "non-tuition-operation",
+    tabId: "non-tuition-operation",
+    title: "비등록금운영",
+    subtitle: "대학재정알리미 · 비등록금회계 운영계산서",
+    apiBase: "/api/ingest/univ-map/alimi/non-tuition-operation",
+    datasets: ["undergrad"],
+    help: NON_TUITION_OPERATION_HELP,
   },
   "corp-fund": {
     id: "corp-fund",

@@ -4,6 +4,7 @@ import path from "path";
 import {
   getReportBinaryFile,
   getReportTextFile,
+  isBlobReportStorageEnabled,
   listReportSchoolCodes,
   putReportBinaryFile,
   putReportTextFile,
@@ -62,13 +63,8 @@ export async function saveUniversityReport(args: {
   model: string;
 }): Promise<UniversityReportMeta> {
   const dir = reportDir(args.analysisYear, args.schoolCodeStd);
-  await mkdir(dir, { recursive: true });
-
   const generatedAt = new Date().toISOString();
   const htmlFile = "report.html";
-  const htmlPath = path.join(dir, htmlFile);
-  const metaPath = path.join(dir, "meta.json");
-
   const meta: UniversityReportMeta = {
     analysisYear: args.analysisYear,
     schoolCodeStd: args.schoolCodeStd,
@@ -78,9 +74,17 @@ export async function saveUniversityReport(args: {
     guidelinesVersion: UNIVERSITY_REPORT_GUIDELINES_VERSION,
     htmlFile,
   };
+  const metaJson = JSON.stringify(meta, null, 2);
 
-  await writeFile(htmlPath, args.html, "utf8");
-  await writeFile(metaPath, JSON.stringify(meta, null, 2), "utf8");
+  let savedLocally = false;
+  try {
+    await mkdir(dir, { recursive: true });
+    await writeFile(path.join(dir, htmlFile), args.html, "utf8");
+    await writeFile(path.join(dir, "meta.json"), metaJson, "utf8");
+    savedLocally = true;
+  } catch {
+    /* Vercel serverless FS is read-only */
+  }
 
   await putReportTextFile({
     domain: "competitiveness",
@@ -94,8 +98,14 @@ export async function saveUniversityReport(args: {
     analysisYear: args.analysisYear,
     schoolCodeStd: args.schoolCodeStd,
     fileName: "meta.json",
-    content: JSON.stringify(meta, null, 2),
+    content: metaJson,
   });
+
+  if (!savedLocally && !isBlobReportStorageEnabled()) {
+    throw new Error(
+      "보고서를 저장할 수 없습니다. Vercel에 BLOB_READ_WRITE_TOKEN을 설정하세요.",
+    );
+  }
 
   return meta;
 }
@@ -208,11 +218,11 @@ export async function listUniversityReportsForYear(
   analysisYear: number,
 ): Promise<UniversityReportMeta[]> {
   const yearDir = path.join(REPORTS_ROOT, String(analysisYear));
-  let entries: string[];
+  let entries: string[] = [];
   try {
     entries = await readdir(yearDir);
   } catch {
-    return [];
+    entries = [];
   }
 
   const metas: UniversityReportMeta[] = [];

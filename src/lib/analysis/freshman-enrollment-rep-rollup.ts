@@ -1,4 +1,5 @@
 import { resolveSchoolDivisionFromFields } from "@/lib/analysis/school-division";
+import { isJuniorSchoolDivision } from "@/lib/analysis/all-universities-cohort";
 import type { FreshmanEnrollmentRow } from "@/lib/ingest/freshman-enrollment-config";
 
 export type FreshmanRepCohort =
@@ -7,12 +8,30 @@ export type FreshmanRepCohort =
   | "graduate"
   | "combined";
 
+export type FreshmanRepViewCohort = FreshmanRepCohort | "all-universities";
+
 export const FRESHMAN_REP_COHORT_LABEL: Record<FreshmanRepCohort, string> = {
   university: "대학",
   "junior-college": "전문대학",
   graduate: "대학원",
   combined: "대학통합",
 };
+
+export const FRESHMAN_REP_VIEW_COHORT_LABEL: Record<
+  FreshmanRepViewCohort,
+  string
+> = {
+  ...FRESHMAN_REP_COHORT_LABEL,
+  "all-universities": "전체대학",
+};
+
+export const FRESHMAN_REP_VIEW_COHORTS: FreshmanRepViewCohort[] = [
+  "university",
+  "graduate",
+  "combined",
+  "junior-college",
+  "all-universities",
+];
 
 export const FRESHMAN_REP_COHORT_DIVISION: Record<
   Exclude<FreshmanRepCohort, "combined">,
@@ -585,7 +604,7 @@ export function verifyAgainstConsolidated(
 
 export function sumCohortRates(
   rows: FreshmanRepRow[],
-  cohort: FreshmanRepCohort,
+  cohort: FreshmanRepViewCohort,
 ) {
   return sumRatesForRows(rows, cohort);
 }
@@ -657,7 +676,9 @@ export function toRepFreshmanEnrollmentRows(
           : row.recruit.total;
     return {
       year: row.year,
-      schoolKind: "",
+      schoolKind: isJuniorSchoolDivision(row.schoolDivision)
+        ? "전문대학"
+        : "대학",
       estb: row.estb,
       schoolDivision: row.schoolDivision,
       region: row.region,
@@ -678,9 +699,31 @@ export function toRepFreshmanEnrollmentRows(
   });
 }
 
+export function freshmanRateCohortForRow(
+  row: FreshmanRepRow,
+  view: FreshmanRepViewCohort,
+): FreshmanRepCohort {
+  if (view !== "all-universities") return view;
+  return isJuniorSchoolDivision(row.schoolDivision)
+    ? "junior-college"
+    : "combined";
+}
+
+export function toRepFreshmanEnrollmentRowsForView(
+  rows: FreshmanRepRow[],
+  cohort: FreshmanRepViewCohort,
+): FreshmanEnrollmentRow[] {
+  if (cohort !== "all-universities") {
+    return toRepFreshmanEnrollmentRows(rows, cohort);
+  }
+  return rows.flatMap((row) =>
+    toRepFreshmanEnrollmentRows([row], freshmanRateCohortForRow(row, cohort)),
+  );
+}
+
 function sumRatesForRows(
   rows: FreshmanRepRow[],
-  cohort: FreshmanRepCohort,
+  cohort: FreshmanRepViewCohort,
 ): { fillRateWithin: number | null; fillRateWithinOutside: number | null } {
   let enrolledWithin = 0;
   let enrolledTotal = 0;
@@ -689,10 +732,11 @@ function sumRatesForRows(
   for (const row of rows) {
     enrolledWithin += row.enrolled.within;
     enrolledTotal += row.enrolled.total;
-    if (cohort === "graduate") {
+    const rateCohort = freshmanRateCohortForRow(row, cohort);
+    if (rateCohort === "graduate") {
       denomWithin += row.admissionQuota;
       denomTotal += row.admissionQuota;
-    } else if (cohort === "combined") {
+    } else if (rateCohort === "combined") {
       denomWithin += row.recruit.within + row.gradAdmissionQuota;
       denomTotal += row.recruit.total + row.gradAdmissionQuota;
     } else {

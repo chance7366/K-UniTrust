@@ -9,13 +9,27 @@ import {
   type FreshmanRepCohort,
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 
+import {
+  studentFillSchoolKind,
+  type StudentFillViewCohort,
+} from "@/lib/analysis/all-universities-cohort";
+
 export type DropoutRepCohort = FreshmanRepCohort;
+export type DropoutRepViewCohort = StudentFillViewCohort;
 
 export const DROPOUT_REP_COHORT_LABEL: Record<DropoutRepCohort, string> = {
   university: "대학",
   "junior-college": "전문대학",
   graduate: "대학원",
   combined: "대학통합",
+};
+
+export const DROPOUT_REP_VIEW_COHORT_LABEL: Record<
+  DropoutRepViewCohort,
+  string
+> = {
+  ...DROPOUT_REP_COHORT_LABEL,
+  "all-universities": "전체대학",
 };
 
 export const DROPOUT_REP_COHORT_DIVISION: Record<
@@ -301,7 +315,7 @@ export function toRepDropoutChartRows(
       schoolCodeStd: row.schoolRepCode,
       schoolName: row.schoolRepName,
       schoolDivision: row.schoolDivision,
-      schoolKind: "",
+      schoolKind: studentFillSchoolKind(row.schoolDivision),
       region: row.region,
       estb: row.estb,
       tuitionRevenue: bucket.students,

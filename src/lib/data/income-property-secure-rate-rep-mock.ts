@@ -16,6 +16,7 @@ import {
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { persistIncomePropertyRepDb } from "@/lib/data/income-property-secure-rate-rep-db";
 import { readCsvFile } from "@/lib/csv/read";
+import { sourceRowsForTwoSchoolView } from "@/lib/analysis/all-universities-cohort";
 
 export {
   buildIncomePropertyRepMockHref,
@@ -114,7 +115,7 @@ export async function loadIncomePropertyRepMockDashboard(
     }),
   };
 
-  const source = allCohortRows[cohort];
+  const source = sourceRowsForTwoSchoolView(allCohortRows, cohort);
   const estbs = [...new Set(source.map((r) => r.estb).filter(Boolean))].sort(
     (a, b) => a.localeCompare(b, "ko"),
   );
@@ -153,13 +154,18 @@ export async function loadIncomePropertyRepMockDashboard(
         yearRosterYear != null
           ? rosterAll.filter((row) => row.year === yearRosterYear)
           : [];
-      return buildIncomePropertyRepRows({
-        cohort,
-        displayYear: year,
-        roster: yearRoster,
-        property,
-        eduFund,
-      });
+      const build = (c: IncomePropertyRepCohort) =>
+        buildIncomePropertyRepRows({
+          cohort: c,
+          displayYear: year,
+          roster: yearRoster,
+          property,
+          eduFund,
+        });
+      if (cohort === "all-universities") {
+        return [...build("university"), ...build("junior-college")];
+      }
+      return build(cohort);
     }),
     hasData: true,
   };
