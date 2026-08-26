@@ -62,7 +62,8 @@ export async function POST() {
 
     const response = NextResponse.json(result.stats);
     return applyVisitorCookies(response, result);
-  } catch {
+  } catch (error) {
+    console.error("[visitor-stats] record failed", error);
     return NextResponse.json(
       { error: "방문자 통계를 기록하지 못했습니다." },
       { status: 500 },

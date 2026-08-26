@@ -1,11 +1,12 @@
+import {
+  blobAuthOptions,
+  isVercelBlobEnabled,
+} from "@/lib/vercel-blob-env";
+
 export type ReportDomain = "competitiveness" | "financial-projection";
 
-function blobToken(): string | undefined {
-  return process.env.BLOB_READ_WRITE_TOKEN?.trim() || undefined;
-}
-
 export function isBlobReportStorageEnabled(): boolean {
-  return Boolean(blobToken());
+  return isVercelBlobEnabled();
 }
 
 function reportPathname(
@@ -24,8 +25,7 @@ export async function putReportTextFile(args: {
   fileName: string;
   content: string;
 }): Promise<void> {
-  const token = blobToken();
-  if (!token) return;
+  if (!isBlobReportStorageEnabled()) return;
 
   const { put } = await import("@vercel/blob");
   await put(
@@ -40,10 +40,10 @@ export async function putReportTextFile(args: {
       access: "private",
       addRandomSuffix: false,
       allowOverwrite: true,
-      token,
       contentType: args.fileName.endsWith(".html")
         ? "text/html; charset=utf-8"
         : "application/json; charset=utf-8",
+      ...blobAuthOptions(),
     },
   );
 }
@@ -55,8 +55,7 @@ export async function putReportBinaryFile(args: {
   fileName: string;
   content: Buffer;
 }): Promise<void> {
-  const token = blobToken();
-  if (!token) return;
+  if (!isBlobReportStorageEnabled()) return;
 
   const { put } = await import("@vercel/blob");
   await put(
@@ -71,8 +70,8 @@ export async function putReportBinaryFile(args: {
       access: "private",
       addRandomSuffix: false,
       allowOverwrite: true,
-      token,
       contentType: "application/pdf",
+      ...blobAuthOptions(),
     },
   );
 }
@@ -83,8 +82,7 @@ export async function getReportTextFile(args: {
   schoolCodeStd: string;
   fileName: string;
 }): Promise<string | null> {
-  const token = blobToken();
-  if (!token) return null;
+  if (!isBlobReportStorageEnabled()) return null;
 
   try {
     const { get } = await import("@vercel/blob");
@@ -95,16 +93,10 @@ export async function getReportTextFile(args: {
         args.schoolCodeStd,
         args.fileName,
       ),
-      { access: "private", token },
+      { access: "private", useCache: false, ...blobAuthOptions() },
     );
-    if (!result) return null;
-    if ("text" in result && typeof result.text === "function") {
-      return await result.text();
-    }
-    if ("stream" in result && result.stream) {
-      return await new Response(result.stream).text();
-    }
-    return null;
+    if (!result?.stream) return null;
+    return await new Response(result.stream).text();
   } catch {
     return null;
   }
@@ -116,8 +108,7 @@ export async function getReportBinaryFile(args: {
   schoolCodeStd: string;
   fileName: string;
 }): Promise<Buffer | null> {
-  const token = blobToken();
-  if (!token) return null;
+  if (!isBlobReportStorageEnabled()) return null;
 
   try {
     const { get } = await import("@vercel/blob");
@@ -128,16 +119,11 @@ export async function getReportBinaryFile(args: {
         args.schoolCodeStd,
         args.fileName,
       ),
-      { access: "private", token },
+      { access: "private", useCache: false, ...blobAuthOptions() },
     );
-    if (!result) return null;
-    const bytes =
-      "arrayBuffer" in result && typeof result.arrayBuffer === "function"
-        ? await result.arrayBuffer()
-        : "stream" in result && result.stream
-          ? await new Response(result.stream).arrayBuffer()
-          : null;
-    return bytes ? Buffer.from(bytes) : null;
+    if (!result?.stream) return null;
+    const bytes = await new Response(result.stream).arrayBuffer();
+    return Buffer.from(bytes);
   } catch {
     return null;
   }
@@ -147,13 +133,12 @@ export async function listReportSchoolCodes(args: {
   domain: ReportDomain;
   analysisYear: number;
 }): Promise<string[]> {
-  const token = blobToken();
-  if (!token) return [];
+  if (!isBlobReportStorageEnabled()) return [];
 
   try {
     const { list } = await import("@vercel/blob");
     const prefix = `reports/${args.domain}/${args.analysisYear}/`;
-    const { blobs } = await list({ prefix, token });
+    const { blobs } = await list({ prefix, ...blobAuthOptions() });
     const codes = new Set<string>();
     for (const blob of blobs) {
       const match = blob.pathname.match(

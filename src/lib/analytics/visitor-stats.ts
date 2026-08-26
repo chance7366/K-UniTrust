@@ -1,6 +1,11 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 
+import {
+  blobAuthOptions,
+  isVercelBlobEnabled,
+} from "@/lib/vercel-blob-env";
+
 export type VisitorStats = {
   totalUniqueVisitors: number;
   dailyUniqueVisitors: Record<string, number>;
@@ -15,10 +20,6 @@ export type VisitorStatsView = {
 
 const STATS_PATH = path.join(process.cwd(), "data", "json", "visitor-stats.json");
 const BLOB_PATH = "analytics/visitor-stats.json";
-
-function blobToken(): string | undefined {
-  return process.env.BLOB_READ_WRITE_TOKEN?.trim() || undefined;
-}
 
 export function kstDateKey(date = new Date()): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(
@@ -78,44 +79,45 @@ export function toVisitorStatsView(
 }
 
 async function readBlobStats(): Promise<VisitorStats | null> {
-  const token = blobToken();
-  if (!token) return null;
+  if (!isVercelBlobEnabled()) return null;
 
   try {
     const { get } = await import("@vercel/blob");
-    const result = await get(BLOB_PATH, { access: "private", token });
-    if (!result) return null;
-    const text =
-      "text" in result && typeof result.text === "function"
-        ? await result.text()
-        : "stream" in result && result.stream
-          ? await new Response(result.stream).text()
-          : null;
+    const result = await get(BLOB_PATH, {
+      access: "private",
+      useCache: false,
+      ...blobAuthOptions(),
+    });
+    if (!result?.stream) return null;
+    const text = await new Response(result.stream).text();
     if (!text) return null;
     return normalizeStats(JSON.parse(text));
-  } catch {
+  } catch (error) {
+    console.error("[visitor-stats] blob read failed", error);
     return null;
   }
 }
 
 async function writeBlobStats(stats: VisitorStats): Promise<void> {
-  const token = blobToken();
-  if (!token) return;
+  if (!isVercelBlobEnabled()) return;
 
   const { put } = await import("@vercel/blob");
   await put(BLOB_PATH, JSON.stringify(stats, null, 2), {
     access: "private",
     addRandomSuffix: false,
     allowOverwrite: true,
-    token,
+    cacheControlMaxAge: 0,
     contentType: "application/json; charset=utf-8",
+    ...blobAuthOptions(),
   });
 }
 
 export async function loadVisitorStats(): Promise<VisitorStats> {
-  if (blobToken()) {
+  if (isVercelBlobEnabled()) {
     const remote = await readBlobStats();
     if (remote) return remote;
+    // Vercel 배포본 visitor-stats.json은 항상 0이라 운영 집계로 쓰지 않는다.
+    if (process.env.VERCEL) return emptyStats();
   }
   try {
     const raw = await readFile(STATS_PATH, "utf8");
@@ -141,14 +143,20 @@ async function saveVisitorStats(stats: VisitorStats): Promise<void> {
     /* read-only FS (Vercel) */
   }
 
-  if (blobToken()) {
-    await writeBlobStats(next);
-    return;
+  if (isVercelBlobEnabled()) {
+    try {
+      await writeBlobStats(next);
+      return;
+    } catch (error) {
+      console.error("[visitor-stats] blob write failed", error);
+      if (!savedLocally) throw error;
+      return;
+    }
   }
 
   if (!savedLocally) {
     throw new Error(
-      "방문자 통계를 저장할 수 없습니다. Vercel에 BLOB_READ_WRITE_TOKEN을 설정하세요.",
+      "방문자 통계를 저장할 수 없습니다. Vercel Blob(BLOB_STORE_ID 또는 BLOB_READ_WRITE_TOKEN)을 설정하세요.",
     );
   }
 }
