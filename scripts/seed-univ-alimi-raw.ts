@@ -48,6 +48,30 @@ const FILES: {
       "d:/바이브코딩/데이터관리/대학알리미/재적학생/(업로드)재적학생_대학원.xlsx",
   },
   {
+    indicator: "foreign-students",
+    kind: "undergrad",
+    filePath:
+      "d:/바이브코딩/K-UniTrust Dashborad/데이터관리/대학알리미/외국인/(업로드)외국인학생_대학전문.xlsx",
+  },
+  {
+    indicator: "foreign-students",
+    kind: "grad",
+    filePath:
+      "d:/바이브코딩/K-UniTrust Dashborad/데이터관리/대학알리미/외국인/(업로드)외국인학생_대학원.xlsx",
+  },
+  {
+    indicator: "foreign-dropout",
+    kind: "undergrad",
+    filePath:
+      "d:/바이브코딩/K-UniTrust Dashborad/데이터관리/대학알리미/외국인/(업로드)외국인중도탈락_대학전문.xlsx",
+  },
+  {
+    indicator: "foreign-dropout",
+    kind: "grad",
+    filePath:
+      "d:/바이브코딩/K-UniTrust Dashborad/데이터관리/대학알리미/외국인/(업로드)외국인중도탈락_대학원.xlsx",
+  },
+  {
     indicator: "origin-school",
     kind: "undergrad",
     filePath:

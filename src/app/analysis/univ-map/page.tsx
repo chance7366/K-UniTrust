@@ -137,6 +137,30 @@ async function TabContent({
         />
       );
     }
+    case "foreign-students": {
+      const data = await loadUnivAlimiRawDashboard(
+        "foreign-students",
+        parseUnivAlimiRawQuery(sp),
+      );
+      return (
+        <UnivAlimiRawDashboard
+          data={data}
+          screen={UNIV_ALIMI_SCREENS["foreign-students"]}
+        />
+      );
+    }
+    case "foreign-dropout": {
+      const data = await loadUnivAlimiRawDashboard(
+        "foreign-dropout",
+        parseUnivAlimiRawQuery(sp),
+      );
+      return (
+        <UnivAlimiRawDashboard
+          data={data}
+          screen={UNIV_ALIMI_SCREENS["foreign-dropout"]}
+        />
+      );
+    }
     case "origin-school": {
       const data = await loadUnivAlimiRawDashboard(
         "origin-school",

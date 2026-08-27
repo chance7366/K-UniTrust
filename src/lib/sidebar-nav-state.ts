@@ -3,6 +3,7 @@ export type SidebarOpenSections = {
   financeAnalysis: boolean;
   competitiveness: boolean;
   financialProjection: boolean;
+  studentFillAnalysis: boolean;
 };
 
 export type SidebarNavPersisted = {

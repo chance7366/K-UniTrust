@@ -15,6 +15,8 @@ export const UNIV_ALIMI_IDENTITY_CHROME_IDS = new Set([
   "enrolled-enrollment",
   "dropout-rate",
   "enrolled-students",
+  "foreign-students",
+  "foreign-dropout",
   "origin-school",
   "avg-tuition",
 ]);

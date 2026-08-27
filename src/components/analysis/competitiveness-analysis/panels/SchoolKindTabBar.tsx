@@ -1,7 +1,8 @@
 "use client";
 
-import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import type { SchoolKindFilter } from "@/lib/competitiveness-analysis/step1-indicators";
+
+import "@/components/analysis/glass-help-button.css";
 
 export function SchoolKindTabBar({
   active,
@@ -22,11 +23,7 @@ export function SchoolKindTabBar({
   ];
 
   return (
-    <div
-      className="inline-flex gap-0.5 rounded-md border border-border bg-surface-2 p-0.5"
-      role="tablist"
-      aria-label={ariaLabel}
-    >
+    <div className="glass-mint-seg glass-mint-seg--pill" role="tablist" aria-label={ariaLabel}>
       {tabs.map((tab) => {
         const isActive = active === tab.id;
 
@@ -37,22 +34,10 @@ export function SchoolKindTabBar({
             role="tab"
             aria-selected={isActive}
             onClick={() => onChange(tab.id)}
-            className={`inline-flex h-[30px] items-center gap-1 rounded px-2.5 text-sm transition-colors ${
-              isActive
-                ? "bg-surface font-semibold text-indigo-700 shadow-sm ring-1 ring-border/60"
-                : "font-medium text-muted hover:text-foreground"
-            }`}
+            className={`glass-mint-seg-item${isActive ? " is-on" : ""}`}
           >
             {tab.label}
-            <span
-              className={`rounded-full px-1.5 text-[10px] font-semibold ${
-                isActive
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "bg-surface text-muted"
-              }`}
-            >
-              {tab.count.toLocaleString("ko-KR")}
-            </span>
+            <span className="glass-mint-seg-count">{tab.count.toLocaleString("ko-KR")}</span>
           </button>
         );
       })}

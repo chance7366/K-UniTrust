@@ -124,6 +124,14 @@ export const UNIV_ALIMI_COL: Record<
     undergrad: UNDERGRAD_IDENTITY,
     grad: ENROLLED_GRAD,
   },
+  "foreign-students": {
+    undergrad: UNDERGRAD_IDENTITY,
+    grad: UNDERGRAD_IDENTITY,
+  },
+  "foreign-dropout": {
+    undergrad: UNDERGRAD_IDENTITY,
+    grad: UNDERGRAD_IDENTITY,
+  },
   "origin-school": {
     undergrad: UNDERGRAD_IDENTITY,
   },
@@ -247,6 +255,32 @@ const ENROLLED_STUDENTS_HELP: UnivAlimiHelpCopy = {
     "3행 헤더 · 학교코드 · 학교명 · 학생정원 · 재학생/휴학생/학위취득유예/재적학생(남·여·정원내외)",
   gradForm:
     "3행 헤더 · 학교코드 · 학교명 · 본분교 · 대학원명 · 재학생/휴학생/재적학생(남·여·정원내외)",
+};
+
+const FOREIGN_STUDENTS_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "학위과정·연수과정 외국인학생 수와 언어능력·기숙사 수용 현황을 공시한다.",
+  source: "대학알리미",
+  management: "8월 공시이며, 매년 연도별 자료로 관리한다.",
+  notes:
+    "학부(대학, 전문대학)와 대학원 별도 관리가 필요. 학교코드는 학교코드 메뉴에서 참조한다.",
+  undergradForm:
+    "3행 헤더 · 학교코드 · 학교명 · 학위과정(대학)·교육과정공동운영생·연수과정 · 언어능력 · 기숙사 수용",
+  gradForm:
+    "3행 헤더 · 학교코드 · 학교명 · 석사·박사·석박사통합 · 교육과정공동운영생·연수과정 · 언어능력 · 기숙사 수용",
+};
+
+const FOREIGN_DROPOUT_HELP: UnivAlimiHelpCopy = {
+  overview:
+    "외국 재적학생 대비 중도탈락 학생 수를 과정별로 나누어 외국학생 중도탈락률을 산출한다.",
+  source: "대학알리미",
+  management: "8월 공시이며, 매년 연도별 자료로 관리한다.",
+  notes:
+    "학부(대학, 전문대학)와 대학원 별도 관리가 필요. 학교코드는 학교코드 메뉴에서 참조한다.",
+  undergradForm:
+    "2행 헤더 · 학교코드 · 학교명 · 외국 재적학생 · 중도탈락 학생 · 외국학생 중도탈락률",
+  gradForm:
+    "3행 헤더 · 학교코드 · 학교명 · 외국 재적학생(석사·박사·석박사통합) · 중도탈락 학생 · 외국학생 중도탈락률",
 };
 
 const ORIGIN_SCHOOL_HELP: UnivAlimiHelpCopy = {
@@ -535,6 +569,24 @@ export const UNIV_ALIMI_SCREENS: Record<
     apiBase: "/api/ingest/univ-map/alimi/enrolled-students",
     datasets: BOTH_DATASETS,
     help: ENROLLED_STUDENTS_HELP,
+  },
+  "foreign-students": {
+    id: "foreign-students",
+    tabId: "foreign-students",
+    title: "외국인학생",
+    subtitle: "대학알리미 · 외국인학생 현황",
+    apiBase: "/api/ingest/univ-map/alimi/foreign-students",
+    datasets: BOTH_DATASETS,
+    help: FOREIGN_STUDENTS_HELP,
+  },
+  "foreign-dropout": {
+    id: "foreign-dropout",
+    tabId: "foreign-dropout",
+    title: "외국학생중도탈락",
+    subtitle: "대학알리미 · 외국학생 중도탈락 현황",
+    apiBase: "/api/ingest/univ-map/alimi/foreign-dropout",
+    datasets: BOTH_DATASETS,
+    help: FOREIGN_DROPOUT_HELP,
   },
   "origin-school": {
     id: "origin-school",

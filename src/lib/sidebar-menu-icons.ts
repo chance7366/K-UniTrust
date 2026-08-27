@@ -8,6 +8,7 @@ import {
   Coins,
   Compass,
   Database,
+  Globe,
   Factory,
   GraduationCap,
   HandCoins,
@@ -40,6 +41,7 @@ export const SIDEBAR_SECTION_ICONS = {
   financeAnalysis: PieChart,
   competitiveness: Trophy,
   financialProjection: LineChart,
+  studentFillAnalysis: Users,
 } as const;
 
 const GROUP_ICONS: Record<string, LucideIcon> = {
@@ -69,6 +71,8 @@ const TAB_ICONS: Record<string, SidebarIconConfig> = {
   "enrolled-enrollment-rate": { icon: UserCheck },
   "dropout-rate": { icon: UserMinus, className: "text-rose-500" },
   "enrolled-students": { icon: Users },
+  "foreign-students": { icon: Globe },
+  "foreign-dropout": { icon: UserMinus, className: "text-rose-500" },
   "avg-tuition": { icon: Receipt, className: "text-amber-600" },
   "origin-school": { icon: Compass },
   "edu-fund": { icon: Landmark },

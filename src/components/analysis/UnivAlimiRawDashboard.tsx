@@ -613,7 +613,8 @@ export function UnivAlimiRawDashboard({
                 }
                 uniformMetricCols={
                   screen.id === "enrolled-enrollment" ||
-                  screen.id === "dropout-rate"
+                  screen.id === "dropout-rate" ||
+                  screen.id === "foreign-dropout"
                 }
               />
             )}

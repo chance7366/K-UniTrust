@@ -81,6 +81,20 @@ export const UNIV_MAP_MENU_GROUPS: UnivMapMenuGroup[] = [
         groupLabel: "대학알리미",
       },
       {
+        id: "foreign-students",
+        label: "외국인학생",
+        description: "대학알리미 원본 · 외국인학생 현황",
+        groupId: "university-alimi",
+        groupLabel: "대학알리미",
+      },
+      {
+        id: "foreign-dropout",
+        label: "외국학생중도탈락",
+        description: "대학알리미 원본 · 외국학생 중도탈락 현황",
+        groupId: "university-alimi",
+        groupLabel: "대학알리미",
+      },
+      {
         id: "avg-tuition",
         label: "평균등록금",
         description: "대학알리미 원본 · 1인당 평균 등록금",

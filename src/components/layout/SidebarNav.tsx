@@ -18,6 +18,12 @@ import {
   getFinancialProjectionTabHref,
   isFinancialProjectionPath,
 } from "@/lib/analysis/financial-projection-tabs";
+import {
+  STUDENT_FILL_ANALYSIS_MENU_GROUPS,
+  getStudentFillAnalysisActiveTabId,
+  getStudentFillAnalysisTabHref,
+  isStudentFillAnalysisPath,
+} from "@/lib/analysis/student-fill-analysis-tabs";
 import { isFpAnalysisYear } from "@/lib/competitiveness-analysis/financial-projection/years";
 import {
   FINANCE_ANALYSIS_MENU_GROUPS,
@@ -227,6 +233,7 @@ export function SidebarNav() {
   const onFinanceAnalysis = isFinanceAnalysisPath(pathname);
   const onCompetitiveness = isCompetitivenessAnalysisPath(pathname);
   const onFinancialProjection = isFinancialProjectionPath(pathname);
+  const onStudentFillAnalysis = isStudentFillAnalysisPath(pathname);
   const onUnivMap = isUnivMapPath(pathname);
   const activeFinanceTab = getFinanceAnalysisActiveTabId(
     pathname,
@@ -242,12 +249,16 @@ export function SidebarNav() {
   const activeFinancialProjectionTab = getFinancialProjectionActiveTabId(
     pathname,
   );
+  const activeStudentFillAnalysisTab = getStudentFillAnalysisActiveTabId(
+    pathname,
+  );
 
   const [openSections, setOpenSections] = useState({
     univMap: onUnivMap,
     financeAnalysis: onFinanceAnalysis,
     competitiveness: onCompetitiveness,
     financialProjection: onFinancialProjection,
+    studentFillAnalysis: onStudentFillAnalysis,
   });
   const [financeGroupOpen, setFinanceGroupOpen] = useState<
     Record<string, boolean>
@@ -287,6 +298,9 @@ export function SidebarNav() {
   );
   const [financialProjectionGroupOpen, setFinancialProjectionGroupOpen] =
     useState<Record<string, boolean>>({});
+  const [studentFillGroupOpen, setStudentFillGroupOpen] = useState<
+    Record<string, boolean>
+  >({});
   const skipPersist = useRef(true);
 
   useEffect(() => {
@@ -298,9 +312,11 @@ export function SidebarNav() {
           persisted.openSections.financeAnalysis || s.financeAnalysis,
         competitiveness:
           persisted.openSections.competitiveness || s.competitiveness,
-        financialProjection:
-          persisted.openSections.financialProjection || s.financialProjection,
-      }));
+          financialProjection:
+            persisted.openSections.financialProjection || s.financialProjection,
+          studentFillAnalysis:
+            persisted.openSections.studentFillAnalysis || s.studentFillAnalysis,
+        }));
       setUnivMapGroupOpen((prev) =>
         mergeGroupOpen(prev, persisted.univMapGroupOpen),
       );
@@ -320,6 +336,7 @@ export function SidebarNav() {
       financeAnalysis: onFinanceAnalysis ? true : s.financeAnalysis,
       competitiveness: onCompetitiveness ? true : s.competitiveness,
       financialProjection: onFinancialProjection ? true : s.financialProjection,
+      studentFillAnalysis: onStudentFillAnalysis ? true : s.studentFillAnalysis,
     }));
 
     const univMapGroupId = onUnivMap
@@ -353,6 +370,8 @@ export function SidebarNav() {
     activeCompetitivenessTab,
     onFinancialProjection,
     activeFinancialProjectionTab,
+    onStudentFillAnalysis,
+    activeStudentFillAnalysisTab,
   ]);
 
   useEffect(() => {
@@ -470,6 +489,30 @@ export function SidebarNav() {
             }}
             groupOpen={financialProjectionGroupOpen}
             setGroupOpen={setFinancialProjectionGroupOpen}
+          />
+        ) : null}
+      </div>
+
+      <div className="news-menu-section">
+        <NewsSectionHeader
+          label="학생충원분석"
+          open={openSections.studentFillAnalysis}
+          onToggle={() =>
+            setOpenSections((s) => ({
+              ...s,
+              studentFillAnalysis: !s.studentFillAnalysis,
+            }))
+          }
+          sectionIcon={SIDEBAR_SECTION_ICONS.studentFillAnalysis}
+        />
+        {openSections.studentFillAnalysis ? (
+          <MenuGroups
+            groups={STUDENT_FILL_ANALYSIS_MENU_GROUPS}
+            activeTabId={activeStudentFillAnalysisTab}
+            onSection={onStudentFillAnalysis}
+            getHref={getStudentFillAnalysisTabHref}
+            groupOpen={studentFillGroupOpen}
+            setGroupOpen={setStudentFillGroupOpen}
           />
         ) : null}
       </div>

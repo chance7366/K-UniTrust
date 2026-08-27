@@ -6,6 +6,8 @@ export type UnivAlimiIndicatorId =
   | "enrolled-enrollment"
   | "dropout-rate"
   | "enrolled-students"
+  | "foreign-students"
+  | "foreign-dropout"
   | "origin-school"
   | "avg-tuition"
   | "edu-fund"

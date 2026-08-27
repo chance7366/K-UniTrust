@@ -32,6 +32,14 @@ export const UNIV_ALIMI_CSV_KEY: Record<
     undergrad: "univMapEnrolledStudentsUndergrad",
     grad: "univMapEnrolledStudentsGrad",
   },
+  "foreign-students": {
+    undergrad: "univMapForeignStudentsUndergrad",
+    grad: "univMapForeignStudentsGrad",
+  },
+  "foreign-dropout": {
+    undergrad: "univMapForeignDropoutUndergrad",
+    grad: "univMapForeignDropoutGrad",
+  },
   "origin-school": {
     undergrad: "univMapOriginSchoolUndergrad",
   },
@@ -120,6 +128,14 @@ export const UNIV_ALIMI_META_FILE: Record<
     undergrad: "univ_map_enrolled_students_undergrad.meta.json",
     grad: "univ_map_enrolled_students_grad.meta.json",
   },
+  "foreign-students": {
+    undergrad: "univ_map_foreign_students_undergrad.meta.json",
+    grad: "univ_map_foreign_students_grad.meta.json",
+  },
+  "foreign-dropout": {
+    undergrad: "univ_map_foreign_dropout_undergrad.meta.json",
+    grad: "univ_map_foreign_dropout_grad.meta.json",
+  },
   "origin-school": {
     undergrad: "univ_map_origin_school_undergrad.meta.json",
   },
@@ -207,6 +223,14 @@ export const UNIV_ALIMI_BRONZE_ID: Record<
   "enrolled-students": {
     undergrad: "enrolled-students-undergrad",
     grad: "enrolled-students-grad",
+  },
+  "foreign-students": {
+    undergrad: "foreign-students-undergrad",
+    grad: "foreign-students-grad",
+  },
+  "foreign-dropout": {
+    undergrad: "foreign-dropout-undergrad",
+    grad: "foreign-dropout-grad",
   },
   "origin-school": {
     undergrad: "origin-school-undergrad",
