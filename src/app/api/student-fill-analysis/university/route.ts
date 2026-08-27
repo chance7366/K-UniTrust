@@ -7,7 +7,7 @@ import {
   readStudentFillEdition,
   readStudentFillUniversityReport,
 } from "@/lib/analysis/student-fill-analysis/store";
-import type { StudentFillSchoolRow } from "@/lib/analysis/student-fill-analysis/types";
+import type { StudentFillSchoolRow, StudentFillNationalYear } from "@/lib/analysis/student-fill-analysis/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -70,7 +70,6 @@ export async function GET(request: Request) {
         const admitAll = divisionSchools.reduce((s, r) => s + r.admitTotal, 0);
         
         const enrolledFill = divisionSchools.reduce((s, r) => s + (r.enrolledFill ?? 0), 0);
-        const enrolledFillIn = divisionSchools.reduce((s, r) => s + (r.enrolledFillIn ?? 0), 0); // wait, enrolledFillIn doesn't exist, it's enrolledFillWithin in aux, but not in row. Wait, row has enrolledFillRateIn. Let's just use enrolledFillDenom.
         const enrolledFillDenom = divisionSchools.reduce((s, r) => s + (r.enrolledFillDenom ?? 0), 0);
         
         const dropoutCount = divisionSchools.reduce((s, r) => s + (r.dropoutCount ?? 0), 0);
