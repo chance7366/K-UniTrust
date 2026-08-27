@@ -248,6 +248,13 @@ function aggregate(rows: StudentFillSchoolRow[], year: number): StudentFillNatio
     admitOut,
     outShare: pct(admitOut, admitAll),
     rateAll: pct(admitAll, recruitAll),
+    enrolledFillRate: null,
+    enrolledFillRateIn: null,
+    dropoutRate: null,
+    freshmanDropoutRate: null,
+    foreignShare: null,
+    foreignDropRate: null,
+    leaveShare: null,
   };
 }
 

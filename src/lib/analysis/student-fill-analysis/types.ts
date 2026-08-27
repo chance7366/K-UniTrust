@@ -69,6 +69,13 @@ export type StudentFillNationalYear = {
   admitOut: number;
   outShare: number | null;
   rateAll: number | null;
+  enrolledFillRate: number | null;
+  enrolledFillRateIn: number | null;
+  dropoutRate: number | null;
+  freshmanDropoutRate: number | null;
+  foreignShare: number | null;
+  foreignDropRate: number | null;
+  leaveShare: number | null;
 };
 
 export type StudentFillEdition = {

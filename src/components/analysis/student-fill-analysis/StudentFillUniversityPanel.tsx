@@ -48,6 +48,12 @@ import "@/app/mockups/competitiveness-analysis/financial-projection/university/f
 
 type LookupTab = "result" | "diagnosis" | "action";
 type TrendPoint = StudentFillSchoolRow & { year: number };
+type MergedTrendPoint = TrendPoint & {
+  nationalRateAll?: number | null;
+  nationalEnrolledFillRate?: number | null;
+  nationalDropoutRate?: number | null;
+  nationalForeignShare?: number | null;
+};
 
 function fmtCount(n: number | null | undefined): string {
   if (n == null || !Number.isFinite(n)) return "—";
@@ -143,7 +149,7 @@ export function StudentFillUniversityPanel() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCode, setSelectedCode] = useState(codeParam);
   const [lookupTab, setLookupTab] = useState<LookupTab>("result");
-  const [trend, setTrend] = useState<TrendPoint[]>([]);
+  const [trend, setTrend] = useState<MergedTrendPoint[]>([]);
   const [report, setReport] = useState<StudentFillUniversityReport | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -194,11 +200,24 @@ export function StudentFillUniversityPanel() {
       .then(async (res) => {
         const body = (await res.json()) as {
           trend?: TrendPoint[];
+          nationalTrend?: any[];
           report?: StudentFillUniversityReport | null;
           error?: string;
         };
         if (!res.ok) throw new Error(body.error ?? "시계열을 불러오지 못했습니다.");
-        setTrend(body.trend ?? []);
+        
+        const merged: MergedTrendPoint[] = (body.trend ?? []).map((t) => {
+          const nat = body.nationalTrend?.find((n) => n.year === t.year);
+          return {
+            ...t,
+            nationalRateAll: nat?.rateAll ?? null,
+            nationalEnrolledFillRate: nat?.enrolledFillRate ?? null,
+            nationalDropoutRate: nat?.dropoutRate ?? null,
+            nationalForeignShare: nat?.foreignShare ?? null,
+          };
+        });
+        
+        setTrend(merged);
         setReport(body.report ?? null);
       })
       .catch(() => {
@@ -542,8 +561,15 @@ export function StudentFillUniversityPanel() {
 
                   {lookupTab === "result" ? (
                     <>
-                    <section className="rounded-xl border border-border p-4">
-                      <h3 className="text-sm font-semibold">재적현황</h3>
+                      <div className="sticky top-0 z-10 -mx-1 mb-2 flex flex-wrap gap-2 bg-surface/95 px-1 py-2 backdrop-blur">
+                        <button onClick={() => document.getElementById('sec-roster')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">재적현황</button>
+                        <button onClick={() => document.getElementById('sec-freshman')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">신입생충원</button>
+                        <button onClick={() => document.getElementById('sec-enrolled')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">재학·탈락</button>
+                        <button onClick={() => document.getElementById('sec-foreign')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">외국인</button>
+                        <button onClick={() => document.getElementById('sec-summary')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">종합</button>
+                      </div>
+                      <section id="sec-roster" className="scroll-mt-14 rounded-xl border border-border p-4">
+                        <h3 className="text-sm font-semibold">재적현황</h3>
                       <p className={`mt-1 ${FDB_TYPO.legend}`}>
                         재학생(A) + 휴학(B) + 학사학위취득유예(C) = 재적(D). 재학생(충원)은 상반기 재학생충원입니다.
                       </p>
@@ -563,7 +589,7 @@ export function StudentFillUniversityPanel() {
                       </div>
                     </section>
 
-                    <section className="rounded-xl border border-border p-4">
+                    <section id="sec-freshman" className="scroll-mt-14 rounded-xl border border-border p-4">
                       <h3 className="text-sm font-semibold">신입생충원</h3>
                       <div className="mt-3 h-40">
                         <ResponsiveContainer width="100%" height="100%">
@@ -574,6 +600,7 @@ export function StudentFillUniversityPanel() {
                             <Tooltip />
                             <Legend />
                             <Line type="monotone" dataKey="rateAll" name="정원내외충원율" stroke="#2a7a55" connectNulls dot={false} />
+                            <Line type="monotone" dataKey="nationalRateAll" name="동일집단 충원율" stroke="#2a7a55" strokeDasharray="3 3" connectNulls dot={false} />
                             <Line type="monotone" dataKey="rateIn" name="정원내충원율" stroke="#3B82F6" connectNulls dot={false} />
                             <Line type="monotone" dataKey="outShare" name="정원외비중" stroke="#d97706" connectNulls dot={false} />
                           </LineChart>
@@ -597,7 +624,7 @@ export function StudentFillUniversityPanel() {
                       </div>
                     </section>
 
-                    <section className="rounded-xl border border-border p-4">
+                    <section id="sec-enrolled" className="scroll-mt-14 rounded-xl border border-border p-4">
                       <h3 className="text-sm font-semibold">재학·탈락</h3>
                       <div className="mt-3 h-40">
                         <ResponsiveContainer width="100%" height="100%">
@@ -608,7 +635,9 @@ export function StudentFillUniversityPanel() {
                             <Tooltip />
                             <Legend />
                             <Line type="monotone" dataKey="enrolledFillRate" name="재학생충원율" stroke="#2a7a55" connectNulls dot={false} />
+                            <Line type="monotone" dataKey="nationalEnrolledFillRate" name="동일집단 재학생충원율" stroke="#2a7a55" strokeDasharray="3 3" connectNulls dot={false} />
                             <Line type="monotone" dataKey="dropoutRate" name="중도탈락율" stroke="#dc2626" connectNulls dot={false} />
+                            <Line type="monotone" dataKey="nationalDropoutRate" name="동일집단 중도탈락율" stroke="#dc2626" strokeDasharray="3 3" connectNulls dot={false} />
                             <Line type="monotone" dataKey="freshmanDropoutRate" name="신입생탈락율" stroke="#7c3aed" connectNulls dot={false} />
                           </LineChart>
                         </ResponsiveContainer>
@@ -629,7 +658,7 @@ export function StudentFillUniversityPanel() {
                       </div>
                     </section>
 
-                    <section className="rounded-xl border border-border p-4">
+                    <section id="sec-foreign" className="scroll-mt-14 rounded-xl border border-border p-4">
                       <h3 className="text-sm font-semibold">외국인</h3>
                       <p className={`mt-1 ${FDB_TYPO.legend}`}>
                         기본은 학위(A). 공시 행이 없으면 칸을 비웁니다. 정원외 ≠ 외국인.
@@ -643,6 +672,7 @@ export function StudentFillUniversityPanel() {
                             <Tooltip />
                             <Legend />
                             <Line type="monotone" dataKey="foreignShare" name="학위 비중" stroke="#2a7a55" connectNulls dot={false} />
+                            <Line type="monotone" dataKey="nationalForeignShare" name="동일집단 학위비중" stroke="#2a7a55" strokeDasharray="3 3" connectNulls dot={false} />
                             <Line type="monotone" dataKey="foreignDropRate" name="학위 탈락율" stroke="#dc2626" connectNulls dot={false} />
                           </LineChart>
                         </ResponsiveContainer>
@@ -663,7 +693,7 @@ export function StudentFillUniversityPanel() {
                       </div>
                     </section>
 
-                    <section className="overflow-hidden rounded-xl border border-border">
+                    <section id="sec-summary" className="scroll-mt-14 overflow-hidden rounded-xl border border-border">
                       <div className="border-b border-border/60 px-4 py-3">
                         <h3 className="text-sm font-semibold">종합</h3>
                       </div>
