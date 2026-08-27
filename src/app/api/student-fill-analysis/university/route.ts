@@ -52,7 +52,13 @@ export async function GET(request: Request) {
       report = await readStudentFillUniversityReport(year, code);
       const points: StudentFillTrendPoint[] = [];
       const natPoints: StudentFillNationalYear[] = [];
-      for (const y of [...years].sort((a, b) => a - b)) {
+      const trendYears = [...years]
+        .filter((y) => y <= year)
+        .sort((a, b) => b - a)
+        .slice(0, 5)
+        .sort((a, b) => a - b);
+
+      for (const y of trendYears) {
         const edition = y === year ? stored : await readStudentFillEdition(y);
         if (!edition) continue;
         const attached = y === year ? schools : await attachStudentFillAux(edition.schools, y);
