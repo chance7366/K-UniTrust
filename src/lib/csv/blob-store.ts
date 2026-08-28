@@ -43,17 +43,24 @@ export async function putCsvStoreFile(
 export async function getCsvStoreFile(fileName: string): Promise<string | null> {
   if (!isVercelBlobEnabled()) return null;
 
-  try {
-    const { get } = await import("@vercel/blob");
-    const result = await get(blobPath(fileName), {
-      access: "private",
-      useCache: false,
-      ...blobAuthOptions(),
-    });
-    if (!result?.stream) return null;
-    const text = await new Response(result.stream).text();
-    return text || null;
-  } catch {
-    return null;
+  const { get } = await import("@vercel/blob");
+  const delays = [0, 250, 800];
+  for (let i = 0; i < delays.length; i++) {
+    if (delays[i]) {
+      await new Promise((r) => setTimeout(r, delays[i]));
+    }
+    try {
+      const result = await get(blobPath(fileName), {
+        access: "private",
+        useCache: false,
+        ...blobAuthOptions(),
+      });
+      if (!result?.stream) continue;
+      const text = await new Response(result.stream).text();
+      if (text) return text;
+    } catch (err) {
+      console.warn("[csv-blob] read failed", fileName, err);
+    }
   }
+  return null;
 }

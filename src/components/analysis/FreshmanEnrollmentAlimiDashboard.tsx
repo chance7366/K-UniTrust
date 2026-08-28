@@ -152,6 +152,7 @@ function UploadRow({
           const body = (await res.json()) as {
             ok?: boolean;
             rowCount?: number;
+            years?: number[];
             overwrittenYears?: number[];
             newYears?: number[];
             error?: string;
@@ -169,7 +170,25 @@ function UploadRow({
           setMessage(
             `${body.rowCount ?? 0}건${parts.length ? ` · ${parts.join(" · ")}` : ""}`,
           );
-          router.refresh();
+          const yearCandidates = [
+            ...(body.newYears ?? []),
+            ...(body.overwrittenYears ?? []),
+            ...(body.years ?? []),
+          ];
+          const nextYear = yearCandidates.length
+            ? Math.max(...yearCandidates)
+            : null;
+          if (nextYear != null) {
+            router.push(
+              buildFreshmanEnrollmentAlimiHref({
+                dataset: kind,
+                year: nextYear,
+                resetFilters: true,
+              }),
+            );
+          } else {
+            router.refresh();
+          }
         } catch (err) {
           setError(
             err instanceof Error ? err.message : "업로드에 실패했습니다.",
@@ -448,7 +467,11 @@ export function FreshmanEnrollmentAlimiDashboard({
                 <YearFilterSelect
                   label="표시 연도"
                   value={displayYear}
-                  years={activeSheet.years}
+                  years={
+                    !activeSheet.years.includes(displayYear)
+                      ? [displayYear, ...activeSheet.years]
+                      : activeSheet.years
+                  }
                   onChange={(year) => navigate({ year, resetFilters: true })}
                 />
                 <FilterSelect

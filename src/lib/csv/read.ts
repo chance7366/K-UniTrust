@@ -58,15 +58,30 @@ export async function readCsvFile(
   }
 
   const filePath = csvPath(key);
-  const fileStat = await stat(filePath);
-  const cached = csvMemoryCache.get(key);
+  try {
+    const fileStat = await stat(filePath);
+    const cached = csvMemoryCache.get(key);
 
-  if (cached && cached.mtimeMs === fileStat.mtimeMs) {
-    return cached.rows;
+    if (cached && cached.mtimeMs === fileStat.mtimeMs) {
+      return cached.rows;
+    }
+
+    const raw = await readFile(filePath, "utf8");
+    const records = parseCsvText(raw);
+    csvMemoryCache.set(key, { mtimeMs: fileStat.mtimeMs, rows: records });
+    return records;
+  } catch (err) {
+    if (isVercelBlobEnabled() && process.env.VERCEL) {
+      const retry = await getCsvStoreFile(CSV_FILES[key]);
+      if (retry != null) {
+        const records = parseCsvText(retry);
+        csvMemoryCache.set(key, {
+          mtimeMs: Date.now(),
+          rows: records,
+        });
+        return records;
+      }
+    }
+    throw err;
   }
-
-  const raw = await readFile(filePath, "utf8");
-  const records = parseCsvText(raw);
-  csvMemoryCache.set(key, { mtimeMs: fileStat.mtimeMs, rows: records });
-  return records;
 }

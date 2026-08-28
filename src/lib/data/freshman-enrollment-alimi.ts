@@ -159,7 +159,7 @@ export async function loadFreshmanEnrollmentAlimiDashboard(
   const activeSheet = activeLoaded.sheet;
 
   const displayYear =
-    query.year != null && activeSheet.years.includes(query.year)
+    query.year != null
       ? query.year
       : (activeSheet.years[0] ?? null);
 
