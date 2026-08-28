@@ -5,6 +5,11 @@ import { bumpCsvStoreRevision, putCsvStoreFile } from "@/lib/csv/blob-store";
 import { CSV_DIR, CSV_FILES, csvPath, type CsvFileKey } from "@/lib/csv/paths";
 import { invalidateCsvCache } from "@/lib/csv/read";
 import { invalidateYearSliceCache } from "@/lib/csv/year-slice-cache";
+import {
+  invalidateProdCsvRevisionCache,
+  putProdStoreText,
+  shouldSyncProdDataStore,
+} from "@/lib/prod-store-sync";
 import { isVercelBlobEnabled } from "@/lib/vercel-blob-env";
 
 export async function writeCsvFile(
@@ -34,7 +39,17 @@ export async function writeCsvFile(
   }
 
   await putCsvStoreFile(CSV_FILES[key], body, "text/csv; charset=utf-8");
-  await bumpCsvStoreRevision();
+  if (isVercelBlobEnabled()) {
+    await bumpCsvStoreRevision();
+  } else if (shouldSyncProdDataStore()) {
+    await putProdStoreText(
+      "csv",
+      CSV_FILES[key],
+      body,
+      "text/csv; charset=utf-8",
+    );
+    invalidateProdCsvRevisionCache();
+  }
   invalidateCsvCache(key);
   invalidateYearSliceCache();
   return filePath;

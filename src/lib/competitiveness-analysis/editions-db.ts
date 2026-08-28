@@ -33,6 +33,7 @@ import {
 } from "@/lib/competitiveness-analysis/parse-indicator-year";
 import { loadTargetUniversitiesFromCsv } from "@/lib/ingest/target-universities-upload";
 import { applyFundShortageFlags } from "@/lib/ingest/fund-shortage-detection";
+import { shouldSyncProdDataStore } from "@/lib/prod-store-sync";
 import { shouldReadRemoteCsvStore } from "@/lib/vercel-blob-env";
 
 export type EditionSummary = {
@@ -308,7 +309,7 @@ async function writeIndexRows(rows: EditionIndexRow[]): Promise<void> {
 }
 
 async function readPayload(year: number): Promise<EditionPayloadFile | null> {
-  if (!shouldReadRemoteCsvStore()) {
+  if (!shouldReadRemoteCsvStore() && !shouldSyncProdDataStore()) {
     const cached = payloadCache.get(year);
     if (cached) return cached;
   }

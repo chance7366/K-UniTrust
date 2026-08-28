@@ -1,16 +1,20 @@
 /**
- * 운영(Vercel)에 올린 대학알리미 CSV를 로컬 data/csv 로 가져온다.
- * Usage:
+ * 운영(Vercel) 대학알리미 CSV를 로컬 data/csv 로 가져온다.
+ *
+ *   npx tsx --env-file=.env scripts/pull-prod-univ-alimi.ts
  *   npx tsx --env-file=.env scripts/pull-prod-univ-alimi.ts enrolled-students grad
- *   npx tsx --env-file=.env scripts/pull-prod-univ-alimi.ts enrolled-students
  */
+import { ingestFreshmanEnrollmentAlimiUpload } from "../src/lib/ingest/freshman-enrollment-alimi-upload.ts";
+import { ingestSchoolCodeUpload } from "../src/lib/ingest/school-code-upload.ts";
 import { ingestUnivAlimiRawUpload } from "../src/lib/ingest/univ-alimi-raw-upload.ts";
 import {
   getUnivAlimiDatasets,
   isUnivAlimiIndicator,
   parseUnivAlimiDataset,
+  UNIV_ALIMI_SCREENS,
 } from "../src/lib/analysis/univ-alimi-raw/screens.ts";
 import type { UnivAlimiDatasetKind } from "../src/lib/analysis/univ-alimi-raw/types.ts";
+import type { UnivAlimiIndicatorId } from "../src/lib/analysis/univ-alimi-raw/types.ts";
 
 const PROD = (
   process.env.KUNITRUST_PROD_URL ?? "https://k-uni-trust-six.vercel.app"
@@ -47,24 +51,33 @@ async function login(): Promise<string> {
   return cookie;
 }
 
-async function pullOne(
+async function download(
   cookie: string,
-  indicator: string,
-  dataset: UnivAlimiDatasetKind,
-) {
-  const url = `${PROD}/api/ingest/univ-map/alimi/${indicator}/${dataset}/export`;
+  url: string,
+): Promise<{ ok: true; buffer: Buffer } | { ok: false; status: number; detail: string }> {
   const res = await fetch(url, { headers: { cookie } });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(
-      `${indicator}/${dataset} 내보내기 실패 (${res.status}): ${text.slice(0, 300)}`,
-    );
+    return { ok: false, status: res.status, detail: text.slice(0, 240) };
   }
-  const buffer = Buffer.from(await res.arrayBuffer());
+  return { ok: true, buffer: Buffer.from(await res.arrayBuffer()) };
+}
+
+async function pullAlimi(
+  cookie: string,
+  indicator: UnivAlimiIndicatorId,
+  dataset: UnivAlimiDatasetKind,
+) {
+  const url = `${PROD}/api/ingest/univ-map/alimi/${indicator}/${dataset}/export`;
+  const got = await download(cookie, url);
+  if (!got.ok) {
+    console.log(`skip ${indicator}/${dataset} (${got.status}) ${got.detail}`);
+    return;
+  }
   const result = await ingestUnivAlimiRawUpload(
-    indicator as never,
+    indicator,
     dataset,
-    buffer,
+    got.buffer,
     `${indicator}_${dataset}_prod.xlsx`,
   );
   console.log(
@@ -72,9 +85,81 @@ async function pullOne(
   );
 }
 
+async function pullFreshman(cookie: string, dataset: UnivAlimiDatasetKind) {
+  const url = `${PROD}/api/ingest/finance-analysis/freshman-enrollment-rate/${dataset}/export`;
+  const got = await download(cookie, url);
+  if (!got.ok) {
+    console.log(`skip freshman-enrollment/${dataset} (${got.status}) ${got.detail}`);
+    return;
+  }
+  const result = await ingestFreshmanEnrollmentAlimiUpload(
+    dataset,
+    got.buffer,
+    `freshman_enrollment_${dataset}_prod.xlsx`,
+  );
+  console.log(
+    `freshman-enrollment/${dataset}: rows=${result.rowCount} years=${result.years.join(",")}`,
+  );
+}
+
+async function pullSchoolCode(cookie: string) {
+  const url = `${PROD}/api/ingest/finance-analysis/school-code/export`;
+  const got = await download(cookie, url);
+  if (!got.ok) {
+    console.log(`skip school-code (${got.status}) ${got.detail}`);
+    return;
+  }
+  const result = await ingestSchoolCodeUpload(
+    got.buffer,
+    "school_code_prod.xlsx",
+  );
+  console.log(
+    `school-code: rows=${result.rowCount} years=${result.years.join(",")}`,
+  );
+}
+
+async function pullAllAlimiIndicators(cookie: string) {
+  const indicators = Object.keys(UNIV_ALIMI_SCREENS) as UnivAlimiIndicatorId[];
+  for (const indicator of indicators) {
+    for (const dataset of getUnivAlimiDatasets(indicator)) {
+      try {
+        await pullAlimi(cookie, indicator, dataset);
+      } catch (err) {
+        console.log(
+          `skip ${indicator}/${dataset}: ${err instanceof Error ? err.message : err}`,
+        );
+      }
+    }
+  }
+}
+
 async function main() {
-  const indicatorRaw = process.argv[2] ?? "enrolled-students";
+  const cookie = await login();
+  const indicatorRaw = process.argv[2];
   const datasetRaw = process.argv[3];
+
+  if (!indicatorRaw) {
+    await pullSchoolCode(cookie);
+    await pullFreshman(cookie, "undergrad");
+    await pullFreshman(cookie, "grad");
+    await pullAllAlimiIndicators(cookie);
+    return;
+  }
+
+  if (indicatorRaw === "school-code") {
+    await pullSchoolCode(cookie);
+    return;
+  }
+
+  if (indicatorRaw === "freshman-enrollment") {
+    const datasets: UnivAlimiDatasetKind[] = datasetRaw
+      ? [parseUnivAlimiDataset(datasetRaw)!].filter(Boolean)
+      : ["undergrad", "grad"];
+    for (const dataset of datasets) {
+      await pullFreshman(cookie, dataset);
+    }
+    return;
+  }
 
   if (!isUnivAlimiIndicator(indicatorRaw)) {
     throw new Error(`알 수 없는 지표: ${indicatorRaw}`);
@@ -88,9 +173,8 @@ async function main() {
     throw new Error(`잘못된 dataset: ${datasetRaw}`);
   }
 
-  const cookie = await login();
   for (const dataset of datasets) {
-    await pullOne(cookie, indicatorRaw, dataset);
+    await pullAlimi(cookie, indicatorRaw, dataset);
   }
 }
 

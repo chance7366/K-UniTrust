@@ -3,6 +3,11 @@ import { parse } from "csv-parse/sync";
 
 import { getCsvStoreFile, getCsvStoreRevision } from "@/lib/csv/blob-store";
 import { CSV_DIR, CSV_FILES, csvPath, type CsvFileKey } from "@/lib/csv/paths";
+import {
+  getProdCsvRevision,
+  getProdStoreText,
+  shouldSyncProdDataStore,
+} from "@/lib/prod-store-sync";
 import { shouldReadRemoteCsvStore } from "@/lib/vercel-blob-env";
 
 type CsvCacheEntry = {
@@ -67,6 +72,25 @@ export async function readCsvFile(
     }
   }
 
+  if (shouldSyncProdDataStore()) {
+    const revision = await getProdCsvRevision();
+    const cached = csvMemoryCache.get(key);
+    if (cached && cached.mtimeMs === revision && revision > 0) {
+      return cached.rows;
+    }
+
+    const remote = await getProdStoreText("csv", CSV_FILES[key]);
+    if (remote != null) {
+      const records = parseCsvText(remote);
+      csvMemoryCache.set(key, {
+        mtimeMs: revision > 0 ? revision : blobEpoch,
+        rows: records,
+      });
+      await persistOverlayToDisk(csvPath(key), remote);
+      return records;
+    }
+  }
+
   const filePath = csvPath(key);
   try {
     const fileStat = await stat(filePath);
@@ -83,6 +107,18 @@ export async function readCsvFile(
   } catch (err) {
     if (shouldReadRemoteCsvStore()) {
       const retry = await getCsvStoreFile(CSV_FILES[key]);
+      if (retry != null) {
+        const records = parseCsvText(retry);
+        csvMemoryCache.set(key, {
+          mtimeMs: Date.now(),
+          rows: records,
+        });
+        await persistOverlayToDisk(filePath, retry);
+        return records;
+      }
+    }
+    if (shouldSyncProdDataStore()) {
+      const retry = await getProdStoreText("csv", CSV_FILES[key]);
       if (retry != null) {
         const records = parseCsvText(retry);
         csvMemoryCache.set(key, {

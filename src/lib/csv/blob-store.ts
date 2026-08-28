@@ -51,6 +51,8 @@ export async function getStorePathText(pathname: string): Promise<string | null>
       const text = await new Response(result.stream).text();
       if (text) return text;
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      if (/404|403|not found|Forbidden/i.test(message)) return null;
       console.warn("[blob] read failed", pathname, err);
     }
   }

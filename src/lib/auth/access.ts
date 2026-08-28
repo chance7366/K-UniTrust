@@ -23,6 +23,10 @@ export function isReportGenerateApiPath(pathname: string): boolean {
   );
 }
 
+export function isDataStoreWriteApiPath(pathname: string): boolean {
+  return pathname === "/api/admin/data-store";
+}
+
 export function getAccessSecret(): string {
   const explicit = process.env.KUNITRUST_AUTH_SECRET?.trim();
   if (explicit) return explicit;

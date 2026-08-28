@@ -4,6 +4,11 @@ import path from "path";
 import { getCsvStoreFile, putCsvStoreFile } from "@/lib/csv/blob-store";
 import { CSV_DIR } from "@/lib/csv/paths";
 import {
+  getProdStoreText,
+  putProdStoreText,
+  shouldSyncProdDataStore,
+} from "@/lib/prod-store-sync";
+import {
   isVercelBlobEnabled,
   shouldReadRemoteCsvStore,
 } from "@/lib/vercel-blob-env";
@@ -23,6 +28,18 @@ export async function readTextOverlayFile(
         await writeFile(diskPath(fileName), remote, "utf8");
       } catch {
         // Vercel disk is read-only
+      }
+      return remote;
+    }
+  }
+  if (shouldSyncProdDataStore()) {
+    const remote = await getProdStoreText("csv", fileName);
+    if (remote) {
+      try {
+        await mkdir(CSV_DIR, { recursive: true });
+        await writeFile(diskPath(fileName), remote, "utf8");
+      } catch {
+        /* ignore */
       }
       return remote;
     }
@@ -53,4 +70,7 @@ export async function writeTextOverlayFile(
     }
   }
   await putCsvStoreFile(fileName, body, contentType);
+  if (!isVercelBlobEnabled() && shouldSyncProdDataStore()) {
+    await putProdStoreText("csv", fileName, body, contentType);
+  }
 }

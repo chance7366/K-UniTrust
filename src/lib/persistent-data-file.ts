@@ -11,6 +11,11 @@ import {
   isVercelBlobEnabled,
   shouldReadRemoteCsvStore,
 } from "@/lib/vercel-blob-env";
+import {
+  getProdStoreText,
+  putProdStoreText,
+  shouldSyncProdDataStore,
+} from "@/lib/prod-store-sync";
 
 const DATA_ROOT = path.join(process.cwd(), "data");
 
@@ -42,11 +47,25 @@ export async function readPersistentTextFile(
       return remote;
     }
   }
+  if (shouldSyncProdDataStore()) {
+    const remote = await getProdStoreText("data", relUnderData);
+    if (remote) {
+      await persistOverlayToDisk(relUnderData, remote);
+      return remote;
+    }
+  }
   try {
     return await readFile(diskPath(relUnderData), "utf8");
   } catch {
     if (shouldReadRemoteCsvStore()) {
       const retry = await getStorePathText(blobPath(relUnderData));
+      if (retry) {
+        await persistOverlayToDisk(relUnderData, retry);
+        return retry;
+      }
+    }
+    if (shouldSyncProdDataStore()) {
+      const retry = await getProdStoreText("data", relUnderData);
       if (retry) {
         await persistOverlayToDisk(relUnderData, retry);
         return retry;
@@ -76,6 +95,9 @@ export async function writePersistentTextFile(
     }
   }
   await putStorePath(blobPath(relUnderData), body, contentType);
+  if (!isVercelBlobEnabled() && shouldSyncProdDataStore()) {
+    await putProdStoreText("data", relUnderData, body, contentType);
+  }
 }
 
 export async function deletePersistentTextFile(

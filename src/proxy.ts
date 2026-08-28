@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 
 import {
   ACCESS_COOKIE,
+  isDataStoreWriteApiPath,
   isExcelUploadApiPath,
   isReportGenerateApiPath,
   parseAccessToken,
@@ -30,7 +31,9 @@ export async function proxy(request: NextRequest) {
       request.method === "PATCH";
     if (
       mutating &&
-      (isExcelUploadApiPath(pathname) || isReportGenerateApiPath(pathname)) &&
+      (isExcelUploadApiPath(pathname) ||
+        isReportGenerateApiPath(pathname) ||
+        (isDataStoreWriteApiPath(pathname) && request.method === "PUT")) &&
       role !== "admin"
     ) {
       return NextResponse.json(

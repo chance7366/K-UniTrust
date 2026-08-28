@@ -36,3 +36,5 @@ data/01_raw/api/
 
 # vercel
 .vercel
+.env.production.pull
+.env*.pull
