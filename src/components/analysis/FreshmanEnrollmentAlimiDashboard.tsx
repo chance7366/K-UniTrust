@@ -392,8 +392,9 @@ export function FreshmanEnrollmentAlimiDashboard({
                 엑셀 텍스트 형식 그대로 저장·표시합니다.
               </p>
               <p className="mt-2">
-                <span className="font-medium text-foreground">학교코드_표준</span>
-                도 텍스트 형식(앞자리 0 유지)으로 저장·표시합니다.
+                <span className="font-medium text-foreground">B열</span>은
+                학교코드_표준 또는 학교코드 모두 가능하며, 텍스트 형식(앞자리 0
+                유지)으로 저장·표시합니다.
               </p>
               <p className="mt-2">
                 <span className="font-medium text-foreground">대학전문</span> :

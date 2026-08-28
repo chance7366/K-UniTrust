@@ -36,6 +36,11 @@ export const FRESHMAN_ENROLLMENT_ALIMI_BRONZE_ID: Record<
   grad: "freshman-enrollment-rate-grad",
 };
 
+export function isAlimiSchoolCodeHeader(value: string): boolean {
+  const header = value.trim();
+  return header === "학교코드_표준" || header === "학교코드";
+}
+
 export function validateAlimiHeaderRow0(
   kind: FreshmanEnrollmentDatasetKind,
   row0: string[],
@@ -44,10 +49,12 @@ export function validateAlimiHeaderRow0(
   if (h0[0] !== "기준연도") {
     throw new Error("1행 A열은 '기준연도'여야 합니다.");
   }
+  if (!isAlimiSchoolCodeHeader(h0[1] ?? "")) {
+    throw new Error(
+      "1행 B열은 '학교코드_표준' 또는 '학교코드'여야 합니다.",
+    );
+  }
   if (kind === "grad") {
-    if (h0[1] !== "학교코드") {
-      throw new Error("대학원 양식 1행 B열은 '학교코드'여야 합니다.");
-    }
     if (h0[2] !== "학교대표") {
       throw new Error("대학원 양식 1행 C열은 '학교대표'여야 합니다.");
     }
@@ -58,9 +65,6 @@ export function validateAlimiHeaderRow0(
       throw new Error("대학원 양식에 '대학원명' 컬럼이 필요합니다.");
     }
     return;
-  }
-  if (h0[1] !== "학교코드_표준") {
-    throw new Error("1행 B열은 '학교코드_표준'이어야 합니다.");
   }
   if (h0[6] !== "학교") {
     throw new Error("대학전문 양식 1행 G열은 '학교'여야 합니다.");
