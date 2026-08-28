@@ -230,7 +230,13 @@ export function StudentFillUniversityResultPane({
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip formatter={(value: number) => `${value.toFixed(1)}%`} />
+                <Tooltip
+                  formatter={(value) =>
+                    typeof value === "number"
+                      ? `${value.toFixed(1)}%`
+                      : String(value ?? "")
+                  }
+                />
                 <Bar dataKey="value" name={METRIC_LABEL[primary]} radius={4}>
                   {geoBars.map((row) => (
                     <Cell key={row.name} fill={row.fill} />
