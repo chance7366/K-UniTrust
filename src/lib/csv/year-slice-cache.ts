@@ -9,6 +9,10 @@ export type YearSliceCache<T> = {
 
 const caches = new Map<string, YearSliceCache<unknown>>();
 
+export function invalidateYearSliceCache() {
+  caches.clear();
+}
+
 export function collectYearsFromRecords(
   csvRows: Record<string, string>[],
   yearOf: (row: Record<string, string>) => number | null,

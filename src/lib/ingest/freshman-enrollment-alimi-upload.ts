@@ -5,6 +5,7 @@ import {
   cleanCell,
   normalizeRow,
   parseAoaToSheet,
+  parseYearText,
 } from "@/lib/analysis/freshman-enrollment-alimi/row-utils";
 import type { HeaderMergeRange } from "@/lib/analysis/freshman-enrollment-alimi/header-merges";
 import type { FreshmanEnrollmentDatasetKind } from "@/lib/analysis/freshman-enrollment-alimi/types";
@@ -53,7 +54,7 @@ function sheetFromBuffer(
     };
   }
 
-  const wb = XLSX.read(buffer, { type: "buffer" });
+  const wb = XLSX.read(buffer, { type: "buffer", cellDates: true });
   const sheetName =
     wb.SheetNames.find((n) => n === "Sheet1") ?? wb.SheetNames[0]!;
   const sheet = wb.Sheets[sheetName]!;
@@ -119,12 +120,22 @@ export async function ingestFreshmanEnrollmentAlimiUpload(
   const uploadYears = new Set(
     parsed.rows.map((r) => r.year).filter((y): y is number => y != null),
   );
+  if (uploadYears.size === 0) {
+    throw new Error(
+      "엑셀에서 기준연도를 읽지 못했습니다. 첫 번째 열에 2026 또는 2026학년도처럼 연도가 있는지 확인하세요.",
+    );
+  }
 
   const csvKey = FRESHMAN_ENROLLMENT_ALIMI_CSV_KEY[kind];
   const existing = await readCsvFile(csvKey).catch(() => []);
+  const existingYearSet = new Set(
+    existing
+      .map((r) => parseYearText(r.year_text ?? ""))
+      .filter((y): y is number => y != null),
+  );
   const kept = existing.filter((r) => {
-    const year = Number(r.year_text);
-    return !uploadYears.has(year);
+    const year = parseYearText(r.year_text ?? "");
+    return year == null || !uploadYears.has(year);
   });
 
   const newRecords = parsed.rows.map((row) =>
@@ -146,13 +157,10 @@ export async function ingestFreshmanEnrollmentAlimiUpload(
     fileName,
   });
 
-  const existingYears = new Set(
-    kept
-      .map((r) => Number(r.year_text))
-      .filter((y) => Number.isFinite(y)),
+  const overwrittenYears = [...uploadYears].filter((y) =>
+    existingYearSet.has(y),
   );
-  const overwrittenYears = [...uploadYears].filter((y) => existingYears.has(y));
-  const newYears = [...uploadYears].filter((y) => !existingYears.has(y));
+  const newYears = [...uploadYears].filter((y) => !existingYearSet.has(y));
 
   const bronzePath = await writeBronzeSnapshot({
     domainId: "finance-analysis",
