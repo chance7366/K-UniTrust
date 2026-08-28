@@ -20,6 +20,9 @@ export function normalizeSchoolCodeText(value: string): string {
 
 export function cleanCell(v: unknown): string {
   if (v == null) return "";
+  if (v instanceof Date && Number.isFinite(v.getTime())) {
+    return String(v.getFullYear());
+  }
   if (typeof v === "number" && Number.isFinite(v) && Number.isInteger(v)) {
     return String(v);
   }
@@ -40,10 +43,22 @@ export function normalizeRow(row: unknown[], width: number): string[] {
 }
 
 export function parseYearText(v: string): number | null {
-  const m = v.match(/(\d{4})/);
+  const text = v.trim();
+  if (!text) return null;
+
+  const numeric = Number(text.replace(/,/g, ""));
+  if (Number.isFinite(numeric) && numeric >= 20000 && numeric < 80000) {
+    const excelEpoch = Date.UTC(1899, 11, 30);
+    const year = new Date(
+      excelEpoch + Math.floor(numeric) * 86400000,
+    ).getUTCFullYear();
+    if (year >= 1990 && year <= 2100) return year;
+  }
+
+  const m = text.match(/(\d{4})/);
   if (!m) return null;
   const n = Number(m[1]);
-  return Number.isFinite(n) && n >= 1900 ? n : null;
+  return Number.isFinite(n) && n >= 1900 && n <= 2100 ? n : null;
 }
 
 export function detectHeaderRowCount(aoa: unknown[][]): number {

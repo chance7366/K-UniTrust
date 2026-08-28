@@ -1,9 +1,9 @@
+import { mkdir, readFile, stat, writeFile } from "fs/promises";
 import { parse } from "csv-parse/sync";
-import { readFile, stat } from "fs/promises";
 
 import { getCsvStoreFile, getCsvStoreRevision } from "@/lib/csv/blob-store";
-import { CSV_FILES, csvPath, type CsvFileKey } from "@/lib/csv/paths";
-import { isVercelBlobEnabled } from "@/lib/vercel-blob-env";
+import { CSV_DIR, CSV_FILES, csvPath, type CsvFileKey } from "@/lib/csv/paths";
+import { shouldReadRemoteCsvStore } from "@/lib/vercel-blob-env";
 
 type CsvCacheEntry = {
   mtimeMs: number;
@@ -36,10 +36,19 @@ function parseCsvText(raw: string): Record<string, string>[] {
   }) as Record<string, string>[];
 }
 
+async function persistOverlayToDisk(filePath: string, body: string) {
+  try {
+    await mkdir(CSV_DIR, { recursive: true });
+    await writeFile(filePath, body, "utf8");
+  } catch {
+    // local disk copy is best-effort
+  }
+}
+
 export async function readCsvFile(
   key: CsvFileKey,
 ): Promise<Record<string, string>[]> {
-  if (isVercelBlobEnabled() && process.env.VERCEL) {
+  if (shouldReadRemoteCsvStore()) {
     const revision = await getCsvStoreRevision();
     const cached = csvMemoryCache.get(key);
     if (cached && cached.mtimeMs === revision && revision > 0) {
@@ -53,6 +62,7 @@ export async function readCsvFile(
         mtimeMs: revision > 0 ? revision : blobEpoch,
         rows: records,
       });
+      await persistOverlayToDisk(csvPath(key), remote);
       return records;
     }
   }
@@ -71,7 +81,7 @@ export async function readCsvFile(
     csvMemoryCache.set(key, { mtimeMs: fileStat.mtimeMs, rows: records });
     return records;
   } catch (err) {
-    if (isVercelBlobEnabled() && process.env.VERCEL) {
+    if (shouldReadRemoteCsvStore()) {
       const retry = await getCsvStoreFile(CSV_FILES[key]);
       if (retry != null) {
         const records = parseCsvText(retry);
@@ -79,6 +89,7 @@ export async function readCsvFile(
           mtimeMs: Date.now(),
           rows: records,
         });
+        await persistOverlayToDisk(filePath, retry);
         return records;
       }
     }

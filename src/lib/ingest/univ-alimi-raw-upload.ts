@@ -59,7 +59,7 @@ function sheetFromBuffer(
     };
   }
 
-  const wb = XLSX.read(buffer, { type: "buffer" });
+  const wb = XLSX.read(buffer, { type: "buffer", cellDates: true });
   const sheetName =
     wb.SheetNames.find((n) => n === "Sheet1") ?? wb.SheetNames[0]!;
   const sheet = wb.Sheets[sheetName]!;

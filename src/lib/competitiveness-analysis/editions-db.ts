@@ -1,5 +1,7 @@
-import { mkdir, readFile, stat, writeFile } from "fs/promises";
-import path from "path";
+import {
+  readPersistentTextFile,
+  writePersistentTextFile,
+} from "@/lib/persistent-data-file";
 
 import {
   DEFAULT_CATEGORY_WEIGHTS,
@@ -31,6 +33,7 @@ import {
 } from "@/lib/competitiveness-analysis/parse-indicator-year";
 import { loadTargetUniversitiesFromCsv } from "@/lib/ingest/target-universities-upload";
 import { applyFundShortageFlags } from "@/lib/ingest/fund-shortage-detection";
+import { shouldReadRemoteCsvStore } from "@/lib/vercel-blob-env";
 
 export type EditionSummary = {
   analysisYear: number;
@@ -75,17 +78,7 @@ type EditionPayloadFile = {
   results: EditionRunResults;
 };
 
-const EDITIONS_JSON_DIR = path.join(
-  process.cwd(),
-  "data",
-  "json",
-  "competitiveness-editions",
-);
-
-const payloadCache = new Map<
-  number,
-  { mtimeMs: number; payload: EditionPayloadFile }
->();
+const payloadCache = new Map<number, EditionPayloadFile>();
 
 let storageReady: Promise<void> | null = null;
 
@@ -111,8 +104,8 @@ function hasStoredJsonArray(raw: string): boolean {
   return t.length > 2 && t.startsWith("[");
 }
 
-function payloadPath(year: number): string {
-  return path.join(EDITIONS_JSON_DIR, `${year}.json`);
+function payloadRel(year: number): string {
+  return `json/competitiveness-editions/${year}.json`;
 }
 
 function emptyResults(): EditionRunResults {
@@ -315,20 +308,19 @@ async function writeIndexRows(rows: EditionIndexRow[]): Promise<void> {
 }
 
 async function readPayload(year: number): Promise<EditionPayloadFile | null> {
-  const filePath = payloadPath(year);
-  try {
-    const fileStat = await stat(filePath);
+  if (!shouldReadRemoteCsvStore()) {
     const cached = payloadCache.get(year);
-    if (cached && cached.mtimeMs === fileStat.mtimeMs) {
-      return cached.payload;
-    }
-    const raw = await readFile(filePath, "utf8");
+    if (cached) return cached;
+  }
+  try {
+    const raw = await readPersistentTextFile(payloadRel(year));
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as EditionPayloadFile;
     const payload: EditionPayloadFile = {
       settings: parsed.settings,
       results: normalizeResults(parsed.results),
     };
-    payloadCache.set(year, { mtimeMs: fileStat.mtimeMs, payload });
+    payloadCache.set(year, payload);
     return payload;
   } catch {
     return null;
@@ -339,15 +331,12 @@ async function writePayload(
   year: number,
   payload: EditionPayloadFile,
 ): Promise<void> {
-  await mkdir(EDITIONS_JSON_DIR, { recursive: true });
-  const filePath = payloadPath(year);
   const normalized: EditionPayloadFile = {
     settings: payload.settings,
     results: normalizeResults(payload.results),
   };
-  await writeFile(filePath, JSON.stringify(normalized), "utf8");
-  const fileStat = await stat(filePath);
-  payloadCache.set(year, { mtimeMs: fileStat.mtimeMs, payload: normalized });
+  await writePersistentTextFile(payloadRel(year), JSON.stringify(normalized));
+  payloadCache.set(year, normalized);
 }
 
 function payloadFromLegacyRow(

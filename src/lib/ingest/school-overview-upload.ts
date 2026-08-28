@@ -33,7 +33,7 @@ function sheetToAoa(buffer: Buffer, fileName: string): unknown[][] {
 
   const wb = XLSX.read(buffer, { type: "buffer" });
   const sheetName =
-    wb.SheetNames.find((n) => n.includes("?�교")) ?? wb.SheetNames[0]!;
+    wb.SheetNames.find((n) => n.includes("학교")) ?? wb.SheetNames[0]!;
   const sheet = wb.Sheets[sheetName]!;
   return XLSX.utils.sheet_to_json<unknown[]>(sheet, {
     header: 1,
@@ -46,7 +46,17 @@ function validateHeaders(row0: unknown[]) {
   const h0 = row0.map((c) => s(c));
   const expected = [...SCHOOL_OVERVIEW_TEMPLATE_HEADER];
 
-  const mismatches = expected.filter((label, i) => h0[i] !== label);
+  const mismatches = expected.filter((label, i) => {
+    const actual = h0[i] ?? "";
+    if (label === "학교코드_표준") {
+      return (
+        actual !== "학교코드_표준" &&
+        actual !== "학교코드" &&
+        actual !== "표준학교코드"
+      );
+    }
+    return actual !== label;
+  });
   if (mismatches.length) {
     throw new Error(
       `헤더가 올바르지 않습니다. 양식down 파일의 1행 헤더를 그대로 사용하세요. (불일치: ${mismatches.join(", ")})`,

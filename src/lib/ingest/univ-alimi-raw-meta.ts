@@ -1,12 +1,9 @@
-import { mkdir, readFile, writeFile } from "fs/promises";
-import path from "path";
-
-import { CSV_DIR } from "@/lib/csv/paths";
 import type { HeaderMergeRange } from "@/lib/analysis/freshman-enrollment-alimi/header-merges";
 import type {
   UnivAlimiDatasetKind,
   UnivAlimiIndicatorId,
 } from "@/lib/analysis/univ-alimi-raw/types";
+import { readTextOverlayFile, writeTextOverlayFile } from "@/lib/csv/overlay-file";
 import { UNIV_ALIMI_META_FILE } from "@/lib/ingest/univ-alimi-raw-config";
 
 export type UnivAlimiRawMeta = {
@@ -17,7 +14,7 @@ export type UnivAlimiRawMeta = {
   fileName: string | null;
 };
 
-function metaPath(
+function metaFileName(
   indicator: UnivAlimiIndicatorId,
   kind: UnivAlimiDatasetKind,
 ): string {
@@ -25,15 +22,16 @@ function metaPath(
   if (!file) {
     throw new Error("이 지표는 해당 구분을 지원하지 않습니다.");
   }
-  return path.join(CSV_DIR, file);
+  return file;
 }
 
 export async function readUnivAlimiRawMeta(
   indicator: UnivAlimiIndicatorId,
   kind: UnivAlimiDatasetKind,
 ): Promise<UnivAlimiRawMeta | null> {
+  const raw = await readTextOverlayFile(metaFileName(indicator, kind));
+  if (!raw) return null;
   try {
-    const raw = await readFile(metaPath(indicator, kind), "utf8");
     return JSON.parse(raw) as UnivAlimiRawMeta;
   } catch {
     return null;
@@ -45,6 +43,9 @@ export async function writeUnivAlimiRawMeta(
   kind: UnivAlimiDatasetKind,
   meta: UnivAlimiRawMeta,
 ): Promise<void> {
-  await mkdir(CSV_DIR, { recursive: true });
-  await writeFile(metaPath(indicator, kind), JSON.stringify(meta, null, 2), "utf8");
+  await writeTextOverlayFile(
+    metaFileName(indicator, kind),
+    JSON.stringify(meta, null, 2),
+    "application/json; charset=utf-8",
+  );
 }

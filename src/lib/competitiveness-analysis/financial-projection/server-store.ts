@@ -1,10 +1,12 @@
-import { mkdir, readFile, rm, writeFile } from "fs/promises";
-import path from "path";
-
 import type { SimulationParams } from "@/lib/competitiveness-analysis/financial-projection/types";
 import type { UnivBaseData } from "@/lib/competitiveness-analysis/financial-projection/types";
 import type { FpRunEdition } from "@/lib/competitiveness-analysis/financial-projection/run-results-cache";
 import { isFpAnalysisYear } from "@/lib/competitiveness-analysis/financial-projection/years";
+import {
+  deletePersistentTextFile,
+  readPersistentTextFile,
+  writePersistentTextFile,
+} from "@/lib/persistent-data-file";
 
 export type FpServerSession = {
   analysisYear: number;
@@ -18,33 +20,24 @@ export type FpServerSession = {
   updatedAt: string;
 };
 
-const DIR = path.join(process.cwd(), "data", "json", "financial-projection");
-
-function yearDir(year: number) {
-  return path.join(DIR, String(year));
+function sessionRel(year: number) {
+  return `json/financial-projection/${year}/session.json`;
 }
 
-function sessionPath(year: number) {
-  return path.join(yearDir(year), "session.json");
-}
-
-function runsPath(year: number) {
-  return path.join(yearDir(year), "runs.v3.json");
+function runsRel(year: number) {
+  return `json/financial-projection/${year}/runs.v3.json`;
 }
 
 export function assertFpYear(year: number): number | null {
   return isFpAnalysisYear(year) ? year : null;
 }
 
-async function ensureYearDir(year: number) {
-  await mkdir(yearDir(year), { recursive: true });
-}
-
 export async function readFpServerSession(
   year: number,
 ): Promise<FpServerSession | null> {
   try {
-    const raw = await readFile(sessionPath(year), "utf8");
+    const raw = await readPersistentTextFile(sessionRel(year));
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as FpServerSession;
     if (parsed?.analysisYear !== year || !Array.isArray(parsed.universities)) {
       return null;
@@ -56,13 +49,16 @@ export async function readFpServerSession(
 }
 
 export async function writeFpServerSession(session: FpServerSession) {
-  await ensureYearDir(session.analysisYear);
-  await writeFile(sessionPath(session.analysisYear), JSON.stringify(session), "utf8");
+  await writePersistentTextFile(
+    sessionRel(session.analysisYear),
+    JSON.stringify(session),
+  );
 }
 
 export async function readFpServerRun(year: number): Promise<FpRunEdition | null> {
   try {
-    const raw = await readFile(runsPath(year), "utf8");
+    const raw = await readPersistentTextFile(runsRel(year));
+    if (!raw) return null;
     const parsed = JSON.parse(raw) as FpRunEdition;
     if (parsed?.v !== 3 || !parsed.signature) return null;
     return parsed;
@@ -72,12 +68,11 @@ export async function readFpServerRun(year: number): Promise<FpRunEdition | null
 }
 
 export async function writeFpServerRun(year: number, edition: FpRunEdition) {
-  await ensureYearDir(year);
-  await writeFile(runsPath(year), JSON.stringify(edition), "utf8");
+  await writePersistentTextFile(runsRel(year), JSON.stringify(edition));
 }
 
 export async function clearFpServerRun(year: number) {
-  await rm(runsPath(year), { force: true });
+  await deletePersistentTextFile(runsRel(year));
 }
 
 export async function saveFpServerBaseline(opts: {

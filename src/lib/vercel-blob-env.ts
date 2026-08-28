@@ -17,3 +17,8 @@ export function blobAuthOptions(): { token?: string } {
   const token = blobReadWriteToken();
   return token ? { token } : {};
 }
+
+/** Blob overlay: Vercel runtime OIDC, or an explicit read-write token locally. */
+export function shouldReadRemoteCsvStore(): boolean {
+  return Boolean(blobReadWriteToken() || process.env.VERCEL);
+}
