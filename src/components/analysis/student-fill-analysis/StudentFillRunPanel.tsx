@@ -8,13 +8,17 @@ import { GraduationCap, Globe, Layers3, Users } from "lucide-react";
 
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { DashboardKpiCard, type DashboardKpiAccent } from "@/components/analysis/DashboardKpiCard";
-import { GlassMintTabGroup } from "@/components/analysis/GlassMintTabGroup";
+import { FinanceSectionTabRow, GlassMintTabGroup } from "@/components/analysis/GlassMintTabGroup";
 import {
   GlassHelpButton,
 } from "@/components/analysis/GlassHelpButton";
 import { HelpGuidePanel } from "@/components/analysis/FundSecureRateAdvancedHelp";
 import { SchoolNameSearchInput } from "@/components/analysis/SchoolNameSearchInput";
-import { SchoolKindTabBar } from "@/components/analysis/competitiveness-analysis/panels/SchoolKindTabBar";
+import { StudentFillRunChartsDashboard } from "@/components/analysis/student-fill-analysis/StudentFillRunChartsDashboard";
+import {
+  SchoolKindTabBar,
+  type SchoolKindTabId,
+} from "@/components/analysis/competitiveness-analysis/panels/SchoolKindTabBar";
 import { FDB_TABLE, FDB_TABLE_HEAD } from "@/lib/analysis/finance-db-table-density";
 import { FDB_TABLE_COLOR } from "@/lib/analysis/finance-db-table-colors";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
@@ -34,7 +38,6 @@ import {
   downloadExportXlsx,
   type ExportCell,
 } from "@/lib/competitiveness-analysis/export-run-results";
-import type { SchoolKindFilter } from "@/lib/competitiveness-analysis/step1-indicators";
 import { sfaFillStage } from "@/lib/analysis/student-fill-analysis/fill-stage";
 
 import "@/components/analysis/glass-help-button.css";
@@ -54,71 +57,77 @@ type ResultCol = {
   get: (row: StudentFillSchoolRow) => string | number | null | undefined;
 };
 
-const META_COLS: ResultCol[] = [
-  { label: "학교명", align: "left", kind: "text", tone: "school", get: (row) => row.schoolName },
-  { label: "재학생수", align: "right", kind: "int", get: (row) => row.enrolledTotal },
-  { label: "규모", align: "center", kind: "text", get: (row) => row.scale ?? "" },
-  { label: "지역", align: "center", kind: "text", get: (row) => row.region },
-  { label: "권역", align: "center", kind: "text", get: (row) => row.zone ?? "" },
-];
+function metaCols(includeDivision: boolean): ResultCol[] {
+  const divisionCol: ResultCol[] = includeDivision
+    ? [{ label: "학교구분", align: "center", kind: "text", get: (row) => row.schoolDivision }]
+    : [];
+  return [
+    { label: "학교명", align: "left", kind: "text", tone: "school", get: (row) => row.schoolName },
+    ...divisionCol,
+    { label: "재학생수", align: "right", kind: "int", get: (row) => row.enrolledTotal },
+    { label: "규모", align: "center", kind: "text", get: (row) => row.scale ?? "" },
+    { label: "지역", align: "center", kind: "text", get: (row) => row.region },
+    { label: "권역", align: "center", kind: "text", get: (row) => row.zone ?? "" },
+  ];
+}
 
-const STAGE_COLS: Record<ResultStage, ResultCol[]> = {
-  freshman: [
-    ...META_COLS,
-    { label: "정원내모집", align: "right", kind: "int", get: (row) => row.recruitWithin },
-    { label: "정원내입학", align: "right", kind: "int", get: (row) => row.admitWithin },
-    { label: "정원내충원율", align: "right", kind: "pct", tone: "rateSecondary", get: (row) => row.rateIn },
-    { label: "정원외모집", align: "right", kind: "int", get: (row) => row.recruitOutside },
-    { label: "정원외입학", align: "right", kind: "int", get: (row) => row.admitOutside },
-    { label: "정원외비중", align: "right", kind: "pct", get: (row) => row.outShare },
-    { label: "정원내외충원율", align: "right", kind: "pct", tone: "ratePrimary", get: (row) => row.rateAll },
-    { label: "신입생탈락", align: "right", kind: "int", get: (row) => row.freshmanDropoutCount },
-    { label: "신입생탈락율", align: "right", kind: "pct", get: (row) => row.freshmanDropoutRate },
-  ],
-  enrolled: [
-    ...META_COLS,
-    { label: "학생정원", align: "right", kind: "int", get: (row) => row.studentQuota },
-    { label: "재학생", align: "right", kind: "int", get: (row) => row.enrolledFill },
-    { label: "재학생충원율", align: "right", kind: "pct", tone: "ratePrimary", get: (row) => row.enrolledFillRate },
-    { label: "정원내충원율", align: "right", kind: "pct", get: (row) => row.enrolledFillRateIn },
-    { label: "정원외재학생", align: "right", kind: "int", get: (row) => row.enrolledOutside },
-    { label: "정원외비중", align: "right", kind: "pct", get: (row) => row.enrolledOutShare },
-    { label: "재적", align: "right", kind: "int", get: (row) => row.rosterTotal },
-    { label: "휴학", align: "right", kind: "int", get: (row) => row.leaveCount },
-    { label: "유예", align: "right", kind: "int", get: (row) => row.deferCount },
-    { label: "중도탈락", align: "right", kind: "int", get: (row) => row.dropoutCount },
-    { label: "중도탈락율", align: "right", kind: "pct", tone: "rateSecondary", get: (row) => row.dropoutRate },
-    { label: "신입생탈락", align: "right", kind: "int", get: (row) => row.freshmanDropoutCount },
-    { label: "신입생탈락율", align: "right", kind: "pct", get: (row) => row.freshmanDropoutRate },
-  ],
-  foreign: [
-    ...META_COLS,
-    { label: "학위외국인", align: "right", kind: "int", get: (row) => row.foreignDegree },
-    { label: "공동운영", align: "right", kind: "int", get: (row) => row.foreignJoint },
-    { label: "연수", align: "right", kind: "int", get: (row) => row.foreignTraining },
-    { label: "외국인계", align: "right", kind: "int", get: (row) => row.foreignTotal },
-    { label: "재적대비비중", align: "right", kind: "pct", tone: "ratePrimary", get: (row) => row.foreignShare },
-    { label: "언어능력충족율", align: "right", kind: "pct", get: (row) => row.langAbilityRate },
-    { label: "외국인탈락", align: "right", kind: "int", get: (row) => row.foreignDropCount },
-    { label: "외국인탈락율", align: "right", kind: "pct", tone: "rateSecondary", get: (row) => row.foreignDropRate },
-    { label: "전체외국인탈락율", align: "right", kind: "pct", get: (row) => row.foreignDropAllRate },
-  ],
-  summary: [
-    ...META_COLS,
-    { label: "정원내외충원율", align: "right", kind: "pct", tone: "ratePrimary", get: (row) => row.rateAll },
-    { label: "모집증감", align: "right", kind: "signedPct", get: (row) => row.recruitChange },
-    { label: "정원외비중", align: "right", kind: "pct", get: (row) => row.outShare },
-    { label: "휴학비중", align: "right", kind: "pct", get: (row) => row.leaveShare },
-    { label: "유예비중", align: "right", kind: "pct", get: (row) => row.deferShare },
-    { label: "학위외국인", align: "right", kind: "int", get: (row) => row.foreignDegree },
-    { label: "외국인비중", align: "right", kind: "pct", get: (row) => row.foreignShare },
-    { label: "연수인원", align: "right", kind: "int", get: (row) => row.foreignTraining },
-    { label: "언어능력", align: "right", kind: "pct", get: (row) => row.langAbilityRate },
-    { label: "신입생탈락율", align: "right", kind: "pct", get: (row) => row.freshmanDropoutRate },
-    { label: "외국인탈락율", align: "right", kind: "pct", tone: "rateSecondary", get: (row) => row.foreignDropRate },
-    { label: "전체외국인탈락율", align: "right", kind: "pct", get: (row) => row.foreignDropAllRate },
-  ],
-};
+function stageCols(stage: ResultStage, includeDivision: boolean): ResultCol[] {
+  const meta = metaCols(includeDivision);
+  const rest: Record<ResultStage, ResultCol[]> = {
+    freshman: [
+      { label: "정원내모집", align: "right", kind: "int", get: (row) => row.recruitWithin },
+      { label: "정원내입학", align: "right", kind: "int", get: (row) => row.admitWithin },
+      { label: "정원내충원율", align: "right", kind: "pct", tone: "rateSecondary", get: (row) => row.rateIn },
+      { label: "정원외모집", align: "right", kind: "int", get: (row) => row.recruitOutside },
+      { label: "정원외입학", align: "right", kind: "int", get: (row) => row.admitOutside },
+      { label: "정원외비중", align: "right", kind: "pct", get: (row) => row.outShare },
+      { label: "정원내외충원율", align: "right", kind: "pct", tone: "ratePrimary", get: (row) => row.rateAll },
+      { label: "신입생탈락", align: "right", kind: "int", get: (row) => row.freshmanDropoutCount },
+      { label: "신입생탈락율", align: "right", kind: "pct", get: (row) => row.freshmanDropoutRate },
+    ],
+    enrolled: [
+      { label: "학생정원", align: "right", kind: "int", get: (row) => row.studentQuota },
+      { label: "재학생", align: "right", kind: "int", get: (row) => row.enrolledFill },
+      { label: "재학생충원율", align: "right", kind: "pct", tone: "ratePrimary", get: (row) => row.enrolledFillRate },
+      { label: "정원내충원율", align: "right", kind: "pct", get: (row) => row.enrolledFillRateIn },
+      { label: "정원외재학생", align: "right", kind: "int", get: (row) => row.enrolledOutside },
+      { label: "정원외비중", align: "right", kind: "pct", get: (row) => row.enrolledOutShare },
+      { label: "재적", align: "right", kind: "int", get: (row) => row.rosterTotal },
+      { label: "휴학", align: "right", kind: "int", get: (row) => row.leaveCount },
+      { label: "유예", align: "right", kind: "int", get: (row) => row.deferCount },
+      { label: "중도탈락", align: "right", kind: "int", get: (row) => row.dropoutCount },
+      { label: "중도탈락율", align: "right", kind: "pct", tone: "rateSecondary", get: (row) => row.dropoutRate },
+      { label: "신입생탈락", align: "right", kind: "int", get: (row) => row.freshmanDropoutCount },
+      { label: "신입생탈락율", align: "right", kind: "pct", get: (row) => row.freshmanDropoutRate },
+    ],
+    foreign: [
+      { label: "학위외국인", align: "right", kind: "int", get: (row) => row.foreignDegree },
+      { label: "공동운영", align: "right", kind: "int", get: (row) => row.foreignJoint },
+      { label: "연수", align: "right", kind: "int", get: (row) => row.foreignTraining },
+      { label: "외국인계", align: "right", kind: "int", get: (row) => row.foreignTotal },
+      { label: "재적대비비중", align: "right", kind: "pct", tone: "ratePrimary", get: (row) => row.foreignShare },
+      { label: "언어능력충족율", align: "right", kind: "pct", get: (row) => row.langAbilityRate },
+      { label: "외국인탈락", align: "right", kind: "int", get: (row) => row.foreignDropCount },
+      { label: "외국인탈락율", align: "right", kind: "pct", tone: "rateSecondary", get: (row) => row.foreignDropRate },
+      { label: "전체외국인탈락율", align: "right", kind: "pct", get: (row) => row.foreignDropAllRate },
+    ],
+    summary: [
+      { label: "정원내외충원율", align: "right", kind: "pct", tone: "ratePrimary", get: (row) => row.rateAll },
+      { label: "모집증감", align: "right", kind: "signedPct", get: (row) => row.recruitChange },
+      { label: "정원외비중", align: "right", kind: "pct", get: (row) => row.outShare },
+      { label: "휴학비중", align: "right", kind: "pct", get: (row) => row.leaveShare },
+      { label: "유예비중", align: "right", kind: "pct", get: (row) => row.deferShare },
+      { label: "학위외국인", align: "right", kind: "int", get: (row) => row.foreignDegree },
+      { label: "외국인비중", align: "right", kind: "pct", get: (row) => row.foreignShare },
+      { label: "연수인원", align: "right", kind: "int", get: (row) => row.foreignTraining },
+      { label: "언어능력", align: "right", kind: "pct", get: (row) => row.langAbilityRate },
+      { label: "신입생탈락율", align: "right", kind: "pct", get: (row) => row.freshmanDropoutRate },
+      { label: "외국인탈락율", align: "right", kind: "pct", tone: "rateSecondary", get: (row) => row.foreignDropRate },
+      { label: "전체외국인탈락율", align: "right", kind: "pct", get: (row) => row.foreignDropAllRate },
+    ],
+  };
+  return [...meta, ...rest[stage]];
+}
 
 const TABLE_MIN_W: Record<ResultStage, string> = {
   freshman: "min-w-[1480px]",
@@ -126,6 +135,17 @@ const TABLE_MIN_W: Record<ResultStage, string> = {
   foreign: "min-w-[1580px]",
   summary: "min-w-[1780px]",
 };
+
+const TABLE_MIN_W_ALL: Record<ResultStage, string> = {
+  freshman: "min-w-[1568px]",
+  enrolled: "min-w-[1968px]",
+  foreign: "min-w-[1668px]",
+  summary: "min-w-[1868px]",
+};
+
+function tableMinW(stage: ResultStage, includeDivision: boolean): string {
+  return includeDivision ? TABLE_MIN_W_ALL[stage] : TABLE_MIN_W[stage];
+}
 
 function fmtInt(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return "";
@@ -330,7 +350,8 @@ export function StudentFillRunPanel() {
   const searchParams = useSearchParams();
   const yearParam = Number(searchParams.get("year"));
   const yearFromUrl = Number.isInteger(yearParam) && yearParam >= 2000 ? yearParam : null;
-  const [schoolKind, setSchoolKind] = useState<SchoolKindFilter>("university");
+  const [section, setSection] = useState<"data" | "charts">("data");
+  const [schoolKind, setSchoolKind] = useState<SchoolKindTabId>("university");
   const [resultStage, setResultStage] = useState<ResultStage>("freshman");
   const [search, setSearch] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
@@ -365,6 +386,7 @@ export function StudentFillRunPanel() {
 
   const cohortRows = useMemo(() => {
     if (!edition) return [];
+    if (schoolKind === "all") return edition.schools;
     const division = schoolKind === "junior-college" ? "전문대학" : "대학";
     return edition.schools.filter((row) => row.schoolDivision === division);
   }, [edition, schoolKind]);
@@ -382,7 +404,8 @@ export function StudentFillRunPanel() {
   }, [cohortRows, search]);
 
   const year = analysisYear ?? edition?.analysisYear ?? years[0] ?? 2025;
-  const cols = STAGE_COLS[resultStage];
+  const includeDivision = schoolKind === "all";
+  const cols = stageCols(resultStage, includeDivision);
   const kpis = useMemo(
     () => stageKpis(resultStage, cohortRows, year),
     [resultStage, cohortRows, year],
@@ -399,7 +422,8 @@ export function StudentFillRunPanel() {
       cols.map((col) => col.label),
       ...visibleRows.map((row) => cols.map((col) => exportCell(col, row))),
     ];
-    const kindLabel = schoolKind === "junior-college" ? "junior_college" : "university";
+    const kindLabel =
+      schoolKind === "all" ? "all" : schoolKind === "junior-college" ? "junior_college" : "university";
     const filename = `student_fill_${year}_${kindLabel}_${resultStage}.${format}`;
     if (format === "csv") downloadExportCsv(filename, aoa);
     else downloadExportXlsx(filename, aoa, "분석결과");
@@ -445,31 +469,63 @@ export function StudentFillRunPanel() {
             {edition ? "분석결과 있음" : "분석결과 없음"}
           </span>
         </div>
-        <GlassMintTabGroup
-          ariaLabel="분석결과 단계"
-          active={resultStage}
-          onChange={setResultStage}
-          items={[
-            { id: "freshman", label: "신입생충원", icon: GraduationCap },
-            { id: "enrolled", label: "재학생충원", icon: Users },
-            { id: "foreign", label: "외국인", icon: Globe },
-            { id: "summary", label: "종합", icon: Layers3 },
-          ]}
-        />
-        <SchoolKindTabBar
-          active={schoolKind}
-          universityCount={edition?.universityCount ?? 0}
-          juniorCollegeCount={edition?.juniorCollegeCount ?? 0}
+        <FinanceSectionTabRow
+          active={section}
           onChange={(next) => {
-            setSearch("");
-            setSchoolKind(next);
+            setSection(next);
+            if (next === "charts" && resultStage === "summary") {
+              setResultStage("freshman");
+            }
           }}
-          ariaLabel="분석결과 학교종류"
         />
+        {(section === "data" || section === "charts") ? (
+          <>
+            <GlassMintTabGroup
+              ariaLabel="분석결과 단계"
+              active={resultStage}
+              onChange={setResultStage}
+              items={
+                section === "charts"
+                  ? [
+                      { id: "freshman", label: "신입생충원", icon: GraduationCap },
+                      { id: "enrolled", label: "재학생충원", icon: Users },
+                      { id: "foreign", label: "외국인", icon: Globe },
+                    ]
+                  : [
+                      { id: "freshman", label: "신입생충원", icon: GraduationCap },
+                      { id: "enrolled", label: "재학생충원", icon: Users },
+                      { id: "foreign", label: "외국인", icon: Globe },
+                      { id: "summary", label: "종합", icon: Layers3 },
+                    ]
+              }
+            />
+            <SchoolKindTabBar
+              showAll
+              active={schoolKind}
+              universityCount={edition?.universityCount ?? 0}
+              juniorCollegeCount={edition?.juniorCollegeCount ?? 0}
+              allCount={(edition?.universityCount ?? 0) + (edition?.juniorCollegeCount ?? 0)}
+              onChange={(next) => {
+                setSearch("");
+                setSchoolKind(next);
+              }}
+              ariaLabel="분석결과 학교종류"
+            />
+          </>
+        ) : null}
       </div>
 
       {error ? <p className={`${FDB_TYPO.legend} text-danger`}>{error}</p> : null}
 
+      {section === "charts" ? (
+        <StudentFillRunChartsDashboard
+          preferredYear={analysisYear}
+          currentSchools={edition?.schools ?? null}
+          stage={resultStage === "summary" ? "freshman" : resultStage}
+          schoolKind={schoolKind}
+        />
+      ) : (
+        <>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {kpis.map((kpi) => (
           <DashboardKpiCard
@@ -535,7 +591,7 @@ export function StudentFillRunPanel() {
           />
         </div>
         <div className="feam-table-wrap mt-3 overflow-auto rounded-lg border border-border/60">
-          <table className={`w-full ${TABLE_MIN_W[resultStage]} table-fixed border-collapse ${FDB_TYPO.tableBody}`}>
+          <table className={`w-full ${tableMinW(resultStage, includeDivision)} table-fixed border-collapse ${FDB_TYPO.tableBody}`}>
             <thead>
               <tr className="border-b border-border bg-surface-2">
                 {cols.map((col) => (
@@ -576,6 +632,8 @@ export function StudentFillRunPanel() {
           ) : null}
         </div>
       </section>
+        </>
+      )}
     </div>
   );
 }

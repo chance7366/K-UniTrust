@@ -37,8 +37,14 @@ export async function GET(request: Request) {
       editionYears[0] ??
       sourceYears[0] ??
       null;
+    const includeHistory = url.searchParams.get("history") === "1";
     if (year == null) {
-      return NextResponse.json({ years, analysisYear: null, edition: null });
+      return NextResponse.json({
+        years,
+        analysisYear: null,
+        edition: null,
+        ...(includeHistory ? { history: [] } : {}),
+      });
     }
     const stored = await readStudentFillEdition(year);
     const edition = stored
@@ -47,7 +53,26 @@ export async function GET(request: Request) {
           schools: await attachStudentFillAux(stored.schools, year),
         }
       : null;
-    return NextResponse.json({ years, analysisYear: year, edition });
+
+    let history: { year: number; schools: Awaited<ReturnType<typeof attachStudentFillAux>> }[] | undefined;
+    if (includeHistory) {
+      history = [];
+      for (const y of editionYears) {
+        const item = await readStudentFillEdition(y);
+        if (!item) continue;
+        history.push({
+          year: y,
+          schools: await attachStudentFillAux(item.schools, y),
+        });
+      }
+    }
+
+    return NextResponse.json({
+      years,
+      analysisYear: year,
+      edition,
+      ...(history ? { history } : {}),
+    });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "분석결과를 불러오지 못했습니다.";

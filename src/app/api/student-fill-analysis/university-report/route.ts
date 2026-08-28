@@ -5,6 +5,7 @@ import {
   buildStudentFillDiagnosis,
   buildStudentFillReportHtml,
 } from "@/lib/analysis/student-fill-analysis/diagnosis";
+import { STUDENT_FILL_REPORT_GUIDELINES_VERSION } from "@/lib/analysis/student-fill-analysis/generation-guidelines";
 import { attachStudentFillAux } from "@/lib/analysis/student-fill-analysis/load-join";
 import {
   readStudentFillEdition,
@@ -51,6 +52,7 @@ export async function POST(request: Request) {
       schoolCodeStd: code,
       schoolName: school.schoolName,
       generatedAt,
+      guidelinesVersion: STUDENT_FILL_REPORT_GUIDELINES_VERSION,
       diagnosis,
       actions,
       html: buildStudentFillReportHtml({

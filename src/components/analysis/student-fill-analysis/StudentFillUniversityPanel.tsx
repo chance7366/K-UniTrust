@@ -3,24 +3,12 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { GlassActionButton } from "@/components/analysis/GlassHelpButton";
 import { SchoolKindTabBar } from "@/components/analysis/competitiveness-analysis/panels/SchoolKindTabBar";
+import { StudentFillUniversityResultPane } from "@/components/analysis/student-fill-analysis/StudentFillUniversityResultPane";
 import { useAccessRole } from "@/components/auth/AccessRoleProvider";
 import { CHART_TYPO } from "@/lib/analysis/finance-charts-typography";
-import { FDB_TABLE, FDB_TABLE_HEAD } from "@/lib/analysis/finance-db-table-density";
-import { FDB_TABLE_COLOR } from "@/lib/analysis/finance-db-table-colors";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import { zoneForSido } from "@/lib/analysis/korea-analytics-zones";
 import { KOREA_SIDO_REGIONS } from "@/lib/analysis/korea-sido-regions";
@@ -29,7 +17,10 @@ import {
   buildStudentFillDiagnosis,
   type StudentFillUniversityReport,
 } from "@/lib/analysis/student-fill-analysis/diagnosis";
+import { buildStudentFillReportGuidelines } from "@/lib/analysis/student-fill-analysis/build-report-guidelines";
+import { STUDENT_FILL_REPORT_GUIDELINES_VERSION } from "@/lib/analysis/student-fill-analysis/generation-guidelines";
 import { sfaFillStage } from "@/lib/analysis/student-fill-analysis/fill-stage";
+import type { StudentFillPeerPayload } from "@/lib/analysis/student-fill-analysis/peer-aggregates";
 import type { StudentFillSchoolRow } from "@/lib/analysis/student-fill-analysis/types";
 import { schoolScaleFromEnrolled } from "@/lib/competitiveness-analysis/school-scale";
 import type { SchoolKindFilter } from "@/lib/competitiveness-analysis/step1-indicators";
@@ -47,13 +38,6 @@ import "@/app/mockups/competitiveness-analysis/financial-projection/financial-pr
 import "@/app/mockups/competitiveness-analysis/financial-projection/university/fp-university-lookup-mock.css";
 
 type LookupTab = "result" | "diagnosis" | "action";
-type TrendPoint = StudentFillSchoolRow & { year: number };
-type MergedTrendPoint = TrendPoint & {
-  nationalRateAll?: number | null;
-  nationalEnrolledFillRate?: number | null;
-  nationalDropoutRate?: number | null;
-  nationalForeignShare?: number | null;
-};
 
 function fmtCount(n: number | null | undefined): string {
   if (n == null || !Number.isFinite(n)) return "—";
@@ -108,19 +92,6 @@ function filterSchools(
   return [...rows].sort((a, b) => a.schoolName.localeCompare(b.schoolName, "ko"));
 }
 
-function MetricGrid({ items }: { items: [string, string][] }) {
-  return (
-    <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {items.map(([k, v]) => (
-        <div key={k} className="rounded-lg border border-border/70 bg-surface-2 px-3 py-2">
-          <dt className={FDB_TYPO.legend}>{k}</dt>
-          <dd className="mt-0.5 text-lg font-bold text-emerald-800">{v}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
 function printHtml(html: string) {
   const popup = window.open("", "_blank");
   if (!popup) return;
@@ -149,13 +120,14 @@ export function StudentFillUniversityPanel() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCode, setSelectedCode] = useState(codeParam);
   const [lookupTab, setLookupTab] = useState<LookupTab>("result");
-  const [trend, setTrend] = useState<MergedTrendPoint[]>([]);
+  const [peer, setPeer] = useState<StudentFillPeerPayload | null>(null);
   const [report, setReport] = useState<StudentFillUniversityReport | null>(null);
   const [reportOpen, setReportOpen] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [reportError, setReportError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
+  const [guidelinesOpen, setGuidelinesOpen] = useState(false);
 
   useEffect(() => {
     const qs = analysisYear != null ? `?year=${analysisYear}` : "";
@@ -191,7 +163,7 @@ export function StudentFillUniversityPanel() {
 
   useEffect(() => {
     if (!analysisYear || !selectedCode) {
-      setTrend([]);
+      setPeer(null);
       setReport(null);
       return;
     }
@@ -199,29 +171,23 @@ export function StudentFillUniversityPanel() {
     fetch(`/api/student-fill-analysis/university${qs}`)
       .then(async (res) => {
         const body = (await res.json()) as {
-          trend?: TrendPoint[];
-          nationalTrend?: any[];
+          school?: StudentFillSchoolRow | null;
+          peer?: StudentFillPeerPayload | null;
           report?: StudentFillUniversityReport | null;
           error?: string;
         };
         if (!res.ok) throw new Error(body.error ?? "시계열을 불러오지 못했습니다.");
-        
-        const merged: MergedTrendPoint[] = (body.trend ?? []).map((t) => {
-          const nat = body.nationalTrend?.find((n) => n.year === t.year);
-          return {
-            ...t,
-            nationalRateAll: nat?.rateAll ?? null,
-            nationalEnrolledFillRate: nat?.enrolledFillRate ?? null,
-            nationalDropoutRate: nat?.dropoutRate ?? null,
-            nationalForeignShare: nat?.foreignShare ?? null,
-          };
-        });
-        
-        setTrend(merged);
+        setPeer(body.peer ?? null);
         setReport(body.report ?? null);
+        if (body.school) {
+          setSchools((prev) => {
+            const next = prev.filter((row) => row.schoolCodeStd !== body.school!.schoolCodeStd);
+            return [...next, body.school!];
+          });
+        }
       })
       .catch(() => {
-        setTrend([]);
+        setPeer(null);
         setReport(null);
       });
   }, [analysisYear, selectedCode]);
@@ -313,6 +279,10 @@ export function StudentFillUniversityPanel() {
   const diagnosis = selectedUniv ? buildStudentFillDiagnosis(selectedUniv) : [];
   const actions = selectedUniv ? buildStudentFillActions(selectedUniv) : [];
   const listRef = useRef<HTMLDivElement>(null);
+  const guidelinesText = useMemo(
+    () => buildStudentFillReportGuidelines(year),
+    [year],
+  );
 
   return (
     <div className="flex flex-col gap-4 pb-10">
@@ -486,6 +456,15 @@ export function StudentFillUniversityPanel() {
                       ]}
                     />
                     <div className="ml-auto flex flex-wrap items-center gap-1.5">
+                      {canGenerate ? (
+                        <GlassActionButton
+                          tone="blue"
+                          onClick={() => setGuidelinesOpen((open) => !open)}
+                          title={`작성지침 v${STUDENT_FILL_REPORT_GUIDELINES_VERSION}`}
+                        >
+                          {guidelinesOpen ? "지침 닫기" : "작성지침"}
+                        </GlassActionButton>
+                      ) : null}
                       <GlassActionButton
                         tone="green"
                         disabled={!canGenerate || generating}
@@ -520,6 +499,25 @@ export function StudentFillUniversityPanel() {
                 ) : null}
                 {!canGenerate ? (
                   <p className={`mt-2 ${FDB_TYPO.legend}`}>보고서 생성은 관리자만 할 수 있습니다. 저장된 보고서는 화면보기·PDF로 볼 수 있습니다.</p>
+                ) : null}
+                {canGenerate && guidelinesOpen ? (
+                  <div className="mt-3">
+                    <div className="mb-2 flex justify-end">
+                      <GlassActionButton
+                        tone="blue"
+                        onClick={() => {
+                          void navigator.clipboard.writeText(guidelinesText);
+                        }}
+                      >
+                        지침 복사
+                      </GlassActionButton>
+                    </div>
+                    <pre
+                      className={`max-h-[360px] overflow-auto rounded-lg border border-border/60 bg-surface-2 p-3 whitespace-pre-wrap ${FDB_TYPO.legend}`}
+                    >
+                      {guidelinesText}
+                    </pre>
+                  </div>
                 ) : null}
 
                 <div className="mt-4 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-y-contain pr-1">
@@ -560,175 +558,7 @@ export function StudentFillUniversityPanel() {
                   </section>
 
                   {lookupTab === "result" ? (
-                    <>
-                      <div className="sticky top-0 z-10 -mx-1 mb-2 flex flex-wrap gap-2 bg-surface/95 px-1 py-2 backdrop-blur">
-                        <button onClick={() => document.getElementById('sec-roster')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">재적현황</button>
-                        <button onClick={() => document.getElementById('sec-freshman')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">신입생충원</button>
-                        <button onClick={() => document.getElementById('sec-enrolled')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">재학·탈락</button>
-                        <button onClick={() => document.getElementById('sec-foreign')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">외국인</button>
-                        <button onClick={() => document.getElementById('sec-summary')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full border border-border bg-surface-2 px-3 py-1.5 text-xs font-medium hover:bg-surface-3 transition-colors">종합</button>
-                      </div>
-                      <section id="sec-roster" className="scroll-mt-14 rounded-xl border border-border p-4">
-                        <h3 className="text-sm font-semibold">재적현황</h3>
-                      <p className={`mt-1 ${FDB_TYPO.legend}`}>
-                        재학생(A) + 휴학(B) + 학사학위취득유예(C) = 재적(D). 재학생(충원)은 상반기 재학생충원입니다.
-                      </p>
-                      <div className="mt-4">
-                        <MetricGrid
-                          items={[
-                            ["재학생(충원)", fmtCount(selectedUniv.enrolledFill)],
-                            ["정원외 재학생", fmtCount(selectedUniv.enrolledOutside)],
-                            ["정원외 재학생 비중", fmtPct(selectedUniv.enrolledOutShare)],
-                            ["휴학생", fmtCount(selectedUniv.leaveCount)],
-                            ["학사학위취득유예", fmtCount(selectedUniv.deferCount)],
-                            ["재적학생", fmtCount(selectedUniv.rosterTotal)],
-                            ["휴학 비중", fmtPct(selectedUniv.leaveShare)],
-                            ["유예 비중", fmtPct(selectedUniv.deferShare)],
-                          ]}
-                        />
-                      </div>
-                    </section>
-
-                    <section id="sec-freshman" className="scroll-mt-14 rounded-xl border border-border p-4">
-                      <h3 className="text-sm font-semibold">신입생충원</h3>
-                      <div className="mt-3 h-40">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={trend} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                            <YAxis tick={{ fontSize: 11 }} />
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="rateAll" name="정원내외충원율" stroke="#2a7a55" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="nationalRateAll" name="동일집단 충원율" stroke="#2a7a55" strokeDasharray="3 3" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="rateIn" name="정원내충원율" stroke="#3B82F6" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="outShare" name="정원외비중" stroke="#d97706" connectNulls dot={false} />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="mt-4">
-                        <MetricGrid
-                          items={[
-                            ["정원내 모집", fmtCount(selectedUniv.recruitWithin)],
-                            ["정원내 입학", fmtCount(selectedUniv.admitWithin)],
-                            ["정원내 충원율", fmtPct(selectedUniv.rateIn)],
-                            ["정원외 모집", fmtCount(selectedUniv.recruitOutside)],
-                            ["정원외 입학", fmtCount(selectedUniv.admitOutside)],
-                            ["정원외 비중", fmtPct(selectedUniv.outShare)],
-                            ["정원내외 충원율", fmtPct(selectedUniv.rateAll)],
-                            ["모집증감", fmtPct(selectedUniv.recruitChange)],
-                            ["신입생 탈락", fmtCount(selectedUniv.freshmanDropoutCount)],
-                            ["신입생 탈락율", fmtPct(selectedUniv.freshmanDropoutRate)],
-                          ]}
-                        />
-                      </div>
-                    </section>
-
-                    <section id="sec-enrolled" className="scroll-mt-14 rounded-xl border border-border p-4">
-                      <h3 className="text-sm font-semibold">재학·탈락</h3>
-                      <div className="mt-3 h-40">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={trend} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                            <YAxis tick={{ fontSize: 11 }} />
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="enrolledFillRate" name="재학생충원율" stroke="#2a7a55" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="nationalEnrolledFillRate" name="동일집단 재학생충원율" stroke="#2a7a55" strokeDasharray="3 3" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="dropoutRate" name="중도탈락율" stroke="#dc2626" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="nationalDropoutRate" name="동일집단 중도탈락율" stroke="#dc2626" strokeDasharray="3 3" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="freshmanDropoutRate" name="신입생탈락율" stroke="#7c3aed" connectNulls dot={false} />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="mt-4">
-                        <MetricGrid
-                          items={[
-                            ["학생정원", fmtCount(selectedUniv.studentQuota)],
-                            ["재학생(충원)", fmtCount(selectedUniv.enrolledFill)],
-                            ["재학생충원율", fmtPct(selectedUniv.enrolledFillRate)],
-                            ["정원내 충원율", fmtPct(selectedUniv.enrolledFillRateIn)],
-                            ["중도탈락", fmtCount(selectedUniv.dropoutCount)],
-                            ["중도탈락율", fmtPct(selectedUniv.dropoutRate)],
-                            ["신입생 탈락", fmtCount(selectedUniv.freshmanDropoutCount)],
-                            ["신입생 탈락율", fmtPct(selectedUniv.freshmanDropoutRate)],
-                          ]}
-                        />
-                      </div>
-                    </section>
-
-                    <section id="sec-foreign" className="scroll-mt-14 rounded-xl border border-border p-4">
-                      <h3 className="text-sm font-semibold">외국인</h3>
-                      <p className={`mt-1 ${FDB_TYPO.legend}`}>
-                        기본은 학위(A). 공시 행이 없으면 칸을 비웁니다. 정원외 ≠ 외국인.
-                      </p>
-                      <div className="mt-3 h-40">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={trend} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                            <YAxis tick={{ fontSize: 11 }} />
-                            <Tooltip />
-                            <Legend />
-                            <Line type="monotone" dataKey="foreignShare" name="학위 비중" stroke="#2a7a55" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="nationalForeignShare" name="동일집단 학위비중" stroke="#2a7a55" strokeDasharray="3 3" connectNulls dot={false} />
-                            <Line type="monotone" dataKey="foreignDropRate" name="학위 탈락율" stroke="#dc2626" connectNulls dot={false} />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="mt-4">
-                        <MetricGrid
-                          items={[
-                            ["학위(A)", fmtCount(selectedUniv.foreignDegree)],
-                            ["공동운영(B)", fmtCount(selectedUniv.foreignJoint)],
-                            ["연수(C)", fmtCount(selectedUniv.foreignTraining)],
-                            ["외국인 계", fmtCount(selectedUniv.foreignTotal)],
-                            ["재적대비 학위비중", fmtPct(selectedUniv.foreignShare)],
-                            ["언어능력충족율", fmtPct(selectedUniv.langAbilityRate)],
-                            ["학위 탈락율", fmtPct(selectedUniv.foreignDropRate)],
-                            ["전체 탈락율", fmtPct(selectedUniv.foreignDropAllRate)],
-                          ]}
-                        />
-                      </div>
-                    </section>
-
-                    <section id="sec-summary" className="scroll-mt-14 overflow-hidden rounded-xl border border-border">
-                      <div className="border-b border-border/60 px-4 py-3">
-                        <h3 className="text-sm font-semibold">종합</h3>
-                      </div>
-                      <div className="overflow-auto">
-                        <table className={`w-full min-w-[720px] border-collapse ${FDB_TYPO.tableBody}`}>
-                          <thead>
-                            <tr className="border-b border-border bg-surface-2/80">
-                              {["연도", "내외충원율", "재학생충원율", "중도탈락율", "신입탈락율", "외국인비중", "휴학비중"].map(
-                                (h) => (
-                                  <th key={h} className={`${FDB_TABLE.headSingle} ${FDB_TABLE_HEAD.base}`}>
-                                    {h}
-                                  </th>
-                                ),
-                              )}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {trend.map((row) => (
-                              <tr key={row.year} className="border-b border-border/40">
-                                <td className={`${FDB_TABLE.cell} font-semibold`}>{row.year}</td>
-                                <td className={`${FDB_TABLE.cellMetric} font-mono ${FDB_TABLE_COLOR.ratePrimary}`}>
-                                  {fmtPct(row.rateAll)}
-                                </td>
-                                <td className={`${FDB_TABLE.cellMetric} font-mono`}>{fmtPct(row.enrolledFillRate)}</td>
-                                <td className={`${FDB_TABLE.cellMetric} font-mono`}>{fmtPct(row.dropoutRate)}</td>
-                                <td className={`${FDB_TABLE.cellMetric} font-mono`}>{fmtPct(row.freshmanDropoutRate)}</td>
-                                <td className={`${FDB_TABLE.cellMetric} font-mono`}>{fmtPct(row.foreignShare)}</td>
-                                <td className={`${FDB_TABLE.cellMetric} font-mono`}>{fmtPct(row.leaveShare)}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </section>
-                    </>
+                    <StudentFillUniversityResultPane school={selectedUniv} peer={peer} />
                   ) : null}
 
                   {lookupTab === "diagnosis" ? (
@@ -758,6 +588,39 @@ export function StudentFillUniversityPanel() {
                           <p className={FDB_TYPO.legend}>과제 {i + 1}</p>
                           <h3 className="mt-0.5 text-sm font-semibold">{item.title}</h3>
                           <p className={`mt-1 ${FDB_TYPO.bodyText}`}>{item.body}</p>
+                          {item.steps?.length ? (
+                            <ol className={`mt-2 list-decimal space-y-1 pl-5 ${FDB_TYPO.legend}`}>
+                              {item.steps.map((step) => (
+                                <li key={step}>{step}</li>
+                              ))}
+                            </ol>
+                          ) : null}
+                          <dl className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            {item.owner ? (
+                              <div className="rounded-lg bg-surface px-3 py-2">
+                                <dt className={FDB_TYPO.legend}>주관</dt>
+                                <dd className={FDB_TYPO.bodyText}>{item.owner}</dd>
+                              </div>
+                            ) : null}
+                            {item.budget ? (
+                              <div className="rounded-lg bg-surface px-3 py-2">
+                                <dt className={FDB_TYPO.legend}>예산</dt>
+                                <dd className={FDB_TYPO.bodyText}>{item.budget}</dd>
+                              </div>
+                            ) : null}
+                            {item.kpi ? (
+                              <div className="rounded-lg bg-surface px-3 py-2">
+                                <dt className={FDB_TYPO.legend}>성과지표</dt>
+                                <dd className={FDB_TYPO.bodyText}>{item.kpi}</dd>
+                              </div>
+                            ) : null}
+                            {item.effect ? (
+                              <div className="rounded-lg bg-surface px-3 py-2">
+                                <dt className={FDB_TYPO.legend}>기대효과</dt>
+                                <dd className={FDB_TYPO.bodyText}>{item.effect}</dd>
+                              </div>
+                            ) : null}
+                          </dl>
                         </section>
                       ))}
                     </div>
@@ -765,11 +628,15 @@ export function StudentFillUniversityPanel() {
 
                   {reportOpen && report ? (
                     <section className="rounded-xl border border-accent/40 bg-white px-4 py-4">
-                      <p className={FDB_TYPO.legend}>저장된 보고서</p>
+                      <p className={FDB_TYPO.legend}>
+                        저장된 보고서
+                        {report.guidelinesVersion ? ` · 지침 v${report.guidelinesVersion}` : ""}
+                      </p>
                       <h3 className="mt-1 text-base font-bold">
-                        {report.schoolName} 학생충원 진단 보고서 ({report.analysisYear})
+                        {report.schoolName} 학생충원 심층진단 보고서 ({report.analysisYear})
                       </h3>
                       <p className={`mt-1 ${FDB_TYPO.legend}`}>생성 시각 {report.generatedAt}</p>
+                      <h4 className="mt-4 text-sm font-semibold">심층분석·진단</h4>
                       <ol className={`mt-3 list-decimal space-y-2 pl-5 ${FDB_TYPO.bodyText}`}>
                         {report.diagnosis.map((item) => (
                           <li key={item.title}>
@@ -778,10 +645,11 @@ export function StudentFillUniversityPanel() {
                         ))}
                       </ol>
                       <h4 className="mt-4 text-sm font-semibold">대응과제</h4>
-                      <ul className={`mt-2 list-disc space-y-1 pl-5 ${FDB_TYPO.bodyText}`}>
+                      <ul className={`mt-2 list-disc space-y-3 pl-5 ${FDB_TYPO.bodyText}`}>
                         {report.actions.map((item) => (
                           <li key={item.title}>
                             <strong>{item.title}.</strong> {item.body}
+                            {item.budget ? ` (예산: ${item.budget})` : ""}
                           </li>
                         ))}
                       </ul>

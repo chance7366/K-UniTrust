@@ -1,0 +1,245 @@
+.sfa-rpt {
+  max-width: 980px;
+  margin: 0 auto;
+  padding-bottom: 3rem;
+}
+
+.sfa-rpt-paper {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 12px 40px rgb(15 23 42 / 0.06);
+  overflow: hidden;
+}
+
+.sfa-rpt-cover {
+  padding: 1.75rem 2rem 1.5rem;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 10%, var(--surface)) 0%, var(--surface) 100%);
+  border-bottom: 1px solid var(--border);
+}
+
+.sfa-rpt-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--accent-orange);
+}
+
+.sfa-rpt-title {
+  margin: 0.35rem 0 0;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.sfa-rpt-sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
+.sfa-rpt-kpi {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.sfa-rpt-kpi-item {
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.sfa-rpt-kpi-item dt {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.sfa-rpt-kpi-item dd {
+  margin: 0.2rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.sfa-rpt-body {
+  padding: 1.5rem 2rem 2rem;
+}
+
+.sfa-rpt-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 0.5rem 0;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.sfa-rpt-nav button {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sfa-rpt-h2 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+  margin: 1.75rem 0 0.65rem;
+}
+
+.sfa-rpt-h3 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin: 1.1rem 0 0.4rem;
+}
+
+.sfa-rpt-p {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: var(--foreground);
+  margin: 0 0 0.65rem;
+}
+
+.sfa-rpt-note {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.sfa-rpt-insight {
+  border: 1px solid var(--border);
+  border-left: 4px solid #d97706;
+  border-radius: 10px;
+  padding: 0.95rem 1.05rem;
+  margin: 0.7rem 0;
+  background: color-mix(in srgb, #d97706 5%, var(--surface));
+}
+
+.sfa-rpt-insight.warn {
+  border-left-color: #dc2626;
+  background: color-mix(in srgb, #dc2626 5%, var(--surface));
+}
+
+.sfa-rpt-insight.info {
+  border-left-color: #0284c7;
+  background: color-mix(in srgb, #0284c7 5%, var(--surface));
+}
+
+.sfa-rpt-insight h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+}
+
+.sfa-rpt-dx {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sfa-rpt-dx-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+}
+
+.sfa-rpt-dx-card.crisis {
+  border-color: color-mix(in srgb, #dc2626 45%, var(--border));
+  background: color-mix(in srgb, #dc2626 6%, var(--surface));
+}
+
+.sfa-rpt-dx-card.warn {
+  border-color: color-mix(in srgb, #d97706 45%, var(--border));
+  background: color-mix(in srgb, #d97706 6%, var(--surface));
+}
+
+.sfa-rpt-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  margin-bottom: 0.4rem;
+}
+
+.sfa-rpt-badge.crisis {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.sfa-rpt-badge.warn {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.sfa-rpt-action {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem;
+  margin: 0.85rem 0;
+}
+
+.sfa-rpt-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.sfa-rpt-meta div {
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 0.55rem 0.65rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.sfa-rpt-meta strong {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.sfa-rpt-chart {
+  height: 220px;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.sfa-rpt-ol {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.2rem;
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.sfa-rpt-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--border);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+@media (max-width: 800px) {
+  .sfa-rpt-kpi,
+  .sfa-rpt-meta {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sfa-rpt-cover,
+  .sfa-rpt-body {
+    padding-left: 1.1rem;
+    padding-right: 1.1rem;
+  }
+}

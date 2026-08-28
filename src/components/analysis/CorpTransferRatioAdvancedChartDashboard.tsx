@@ -550,6 +550,8 @@ type CorpTransferRatioAdvancedChartDashboardProps = {
   /** default=BoxPlot+위험단계 / density-v2=밀도분포+위험단계·히스토그램 2열(목업) */
   distributionTabLayout?: DistributionTabLayout;
   initialMainTab?: MainTab;
+  /** 위험군대학 탭(시·도 테이블·위험군 목록)을 숨김 */
+  hideRiskTab?: boolean;
   /** 목업 등 — 지표통계 탭을 맨 앞에 추가. 없으면 기존 4탭만 표시 */
   statsTabContent?: (ctx: {
     year: number;
@@ -584,6 +586,7 @@ export function CorpTransferRatioAdvancedChartDashboard({
   geoChartsLayout: _geoChartsLayout = "stacked",
   distributionTabLayout = "default",
   initialMainTab = "risk",
+  hideRiskTab = false,
   statsTabContent,
   statsTabHelp,
   dbViewMode,
@@ -597,7 +600,13 @@ export function CorpTransferRatioAdvancedChartDashboard({
   const [estb, setEstb] = useState(DEFAULT_ESTB);
   const [schoolDivision, setSchoolDivision] = useState("");
   const [schoolKinds, setSchoolKinds] = useState<string[]>([]);
-  const [mainTab, setMainTab] = useState<MainTab>(initialMainTab);
+  const [mainTab, setMainTab] = useState<MainTab>(() =>
+    hideRiskTab && initialMainTab === "risk"
+      ? statsTabContent
+        ? "stats"
+        : "geo"
+      : initialMainTab,
+  );
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [helpOpen, setHelpOpen] = useState(false);
   const enrolledScaleLookup = useEnrolledScaleLookup();
@@ -885,7 +894,9 @@ export function CorpTransferRatioAdvancedChartDashboard({
           },
         ]
       : []),
-    { id: "risk", label: "위험군대학", help: HELP.tab.risk },
+    ...(hideRiskTab
+      ? []
+      : [{ id: "risk" as const, label: "위험군대학", help: HELP.tab.risk }]),
     { id: "geo", label: "지역·규모", help: HELP.tab.geo },
     {
       id: "distribution",
@@ -1024,7 +1035,7 @@ export function CorpTransferRatioAdvancedChartDashboard({
           })
         : null}
 
-      {mainTab === "risk" ? (
+      {mainTab === "risk" && !hideRiskTab ? (
         <>
           <PanelWithHelp
             title="17개 시·도 상세 테이블"

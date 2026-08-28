@@ -45,6 +45,10 @@ export function StudentFillMockShell({
               대학별분석 제안 목업
             </Link>
             {" · "}
+            <Link href="/mockups/student-fill-analysis/university-report" className="underline underline-offset-2">
+              심층보고서 목업
+            </Link>
+            {" · "}
             <Link href="/analysis/student-fill-analysis/settings" className="underline underline-offset-2">
               프로덕션 학생충원분석
             </Link>
