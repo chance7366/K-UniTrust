@@ -41,6 +41,11 @@ export function isAlimiSchoolCodeHeader(value: string): boolean {
   return header === "학교코드_표준" || header === "학교코드";
 }
 
+export function isAlimiUndergradSchoolNameHeader(value: string): boolean {
+  const header = value.trim();
+  return header === "학교" || header === "학교명";
+}
+
 export function validateAlimiHeaderRow0(
   kind: FreshmanEnrollmentDatasetKind,
   row0: string[],
@@ -66,7 +71,9 @@ export function validateAlimiHeaderRow0(
     }
     return;
   }
-  if (h0[6] !== "학교") {
-    throw new Error("대학전문 양식 1행 G열은 '학교'여야 합니다.");
+  if (!isAlimiUndergradSchoolNameHeader(h0[6] ?? "")) {
+    throw new Error(
+      "대학전문 양식 1행 G열은 '학교' 또는 '학교명'이어야 합니다.",
+    );
   }
 }

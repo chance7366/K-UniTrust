@@ -398,7 +398,8 @@ export function FreshmanEnrollmentAlimiDashboard({
               </p>
               <p className="mt-2">
                 <span className="font-medium text-foreground">대학전문</span> :
-                3행 헤더 · 모집인원/지원자/입학자/충원율/경쟁률
+                3행 헤더 · G열은 학교 또는 학교명 ·
+                모집인원/지원자/입학자/충원율/경쟁률
               </p>
               <p className="mt-2">
                 <span className="font-medium text-foreground">대학원</span> :
