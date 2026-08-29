@@ -34,6 +34,8 @@ export type UnivAlimiIndicatorId =
 
 export type UnivAlimiColMap = {
   year: number;
+  /** 재학생충원 대학전문 등 상·하반기 컬럼이 있을 때만 지정 */
+  half?: number;
   schoolCode: number;
   schoolKind: number;
   estb: number;

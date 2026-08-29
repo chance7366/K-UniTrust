@@ -12,11 +12,20 @@ let cachedNames: string[] | null = null;
 
 export async function listUniversityLogoFiles(): Promise<string[]> {
   if (cachedNames) return cachedNames;
-  const entries = await readdir(UNIVERSITY_LOGO_DIR);
-  cachedNames = entries
-    .filter((name) => LOGO_EXT.test(name))
-    .sort((a, b) => a.localeCompare(b, "ko"));
-  return cachedNames;
+  try {
+    const entries = await readdir(UNIVERSITY_LOGO_DIR);
+    cachedNames = entries
+      .filter((name) => LOGO_EXT.test(name))
+      .sort((a, b) => a.localeCompare(b, "ko"));
+    return cachedNames;
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === "ENOENT") {
+      cachedNames = [];
+      return cachedNames;
+    }
+    throw err;
+  }
 }
 
 export async function listUniversityLogoIndices(): Promise<number[]> {

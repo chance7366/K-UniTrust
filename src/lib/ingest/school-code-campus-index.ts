@@ -1,4 +1,10 @@
-import { readCsvFile } from "@/lib/csv/read";
+import {
+  getCsvDataVersion,
+  peekCsvFileVersion,
+  peekLocalCsvVersion,
+  readCsvFile,
+  readCsvFileFromDisk,
+} from "@/lib/csv/read";
 
 const INVALID_CODES = new Set(["#N/A", "N/A", ""]);
 export const MAIN_BRANCH_LABEL = "본교";
@@ -112,9 +118,29 @@ export function buildSchoolCampusIndex(
   return { byCode, byName, codeYears, resolve };
 }
 
-export async function loadSchoolCampusIndex(): Promise<SchoolCampusIndex> {
-  const rows = await readCsvFile("financeAnalysisSchoolCode").catch(() => []);
-  return buildSchoolCampusIndex(rows);
+let campusIndexMemo: { version: number; index: SchoolCampusIndex } | null = null;
+
+export function invalidateSchoolCampusIndexCache() {
+  campusIndexMemo = null;
+}
+
+export async function loadSchoolCampusIndex(options?: {
+  localOnly?: boolean;
+}): Promise<SchoolCampusIndex> {
+  const localOnly = options?.localOnly === true;
+  const version = localOnly
+    ? await peekLocalCsvVersion("financeAnalysisSchoolCode")
+    : await peekCsvFileVersion("financeAnalysisSchoolCode");
+  if (campusIndexMemo && campusIndexMemo.version === version && version !== 0) {
+    return campusIndexMemo.index;
+  }
+  const rows = localOnly
+    ? await readCsvFileFromDisk("financeAnalysisSchoolCode")
+    : await readCsvFile("financeAnalysisSchoolCode").catch(() => []);
+  const versionAfter = getCsvDataVersion("financeAnalysisSchoolCode") ?? version;
+  const index = buildSchoolCampusIndex(rows);
+  campusIndexMemo = { version: versionAfter, index };
+  return index;
 }
 
 export function outputIdentityFromCampus(campus: SchoolCampusEntry): {

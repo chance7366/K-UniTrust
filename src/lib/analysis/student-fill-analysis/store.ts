@@ -1,4 +1,4 @@
-import { readdir } from "fs/promises";
+import { readdir, readFile, stat } from "fs/promises";
 import path from "path";
 
 import {
@@ -36,8 +36,12 @@ export async function listStudentFillEditionYears(): Promise<number[]> {
     const names = await readdir(DIR);
     for (const name of names) {
       const year = Number(name);
-      if (Number.isInteger(year) && year >= 2000 && year <= 2100) {
+      if (!Number.isInteger(year) || year < 2000 || year > 2100) continue;
+      try {
+        await stat(path.join(DIR, name, "run.json"));
         years.add(year);
+      } catch {
+        /* folder without run.json */
       }
     }
   } catch {
@@ -46,16 +50,24 @@ export async function listStudentFillEditionYears(): Promise<number[]> {
 
   const remote = await listPersistentPathnames("json/student-fill-analysis/");
   for (const pathname of remote) {
+    if (!/\/run\.json$/i.test(pathname)) continue;
     const year = parseYearFromBlobPath(pathname);
     if (year) years.add(year);
   }
 
-  const found: number[] = [];
-  for (const year of years) {
-    const edition = await readStudentFillEdition(year);
-    if (edition) found.push(year);
+  return [...years].sort((a, b) => b - a);
+}
+
+export async function readStudentFillEditionLastRunAt(
+  year: number,
+): Promise<string | null> {
+  try {
+    const raw = await readFile(path.join(DIR, String(year), "run.json"), "utf8");
+    const parsed = JSON.parse(raw) as { lastRunAt?: unknown };
+    return typeof parsed.lastRunAt === "string" ? parsed.lastRunAt : null;
+  } catch {
+    return null;
   }
-  return found.sort((a, b) => b - a);
 }
 
 export async function readStudentFillEdition(

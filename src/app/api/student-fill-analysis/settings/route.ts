@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { loadStudentFillFreshmanSchools, listStudentFillSourceYears } from "@/lib/analysis/student-fill-analysis/load-freshman";
-import { readStudentFillEdition } from "@/lib/analysis/student-fill-analysis/store";
+import { loadStudentFillSettingsSnapshot } from "@/lib/analysis/student-fill-analysis/load-freshman";
+import { readStudentFillEditionLastRunAt } from "@/lib/analysis/student-fill-analysis/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -9,21 +9,18 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const years = await listStudentFillSourceYears();
     const requested = Number(url.searchParams.get("year"));
-    const displayYear =
-      Number.isFinite(requested) && years.includes(requested)
-        ? requested
-        : (years[0] ?? null);
-    const schools =
-      displayYear != null ? await loadStudentFillFreshmanSchools(displayYear) : [];
-    const edition =
-      displayYear != null ? await readStudentFillEdition(displayYear) : null;
+    const snapshot = await loadStudentFillSettingsSnapshot(
+      Number.isFinite(requested) ? requested : null,
+    );
+    const { years, displayYear, schools } = snapshot;
+    const lastRunAt =
+      displayYear != null ? await readStudentFillEditionLastRunAt(displayYear) : null;
 
     return NextResponse.json({
       years,
       displayYear,
-      lastRunAt: edition?.lastRunAt ?? null,
+      lastRunAt,
       schoolCount: schools.length,
       universityCount: schools.filter((row) => row.schoolDivision === "대학").length,
       juniorCollegeCount: schools.filter((row) => row.schoolDivision === "전문대학")

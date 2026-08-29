@@ -12,6 +12,7 @@ import { FDB_CHARTS_SCROLL } from "@/lib/analysis/finance-db-table-density";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import { INDICATOR_STATS_TAB_HELP } from "@/lib/analysis/indicator-stats-geo";
 import {
+  filterHistoryByEstb,
   filterHistoryBySchoolKind,
   isMetricForStage,
   sfaRunChartFunnelProfile,
@@ -31,6 +32,7 @@ import {
   type SfaRunChartMetric,
   type SfaSchoolKind,
 } from "@/lib/analysis/student-fill-analysis/run-chart-metrics";
+import type { StudentFillEstbFilter } from "@/lib/analysis/student-fill-analysis/cohort-rules";
 import { studentFillScaleLookup, type StudentFillChartHistoryYear } from "@/lib/analysis/student-fill-analysis/run-chart-rows";
 import { toStudentFillStatGeoRows } from "@/lib/analysis/student-fill-analysis/run-indicator-stats";
 import type { StudentFillSchoolRow } from "@/lib/analysis/student-fill-analysis/types";
@@ -38,16 +40,20 @@ import type { StudentFillSchoolRow } from "@/lib/analysis/student-fill-analysis/
 export function StudentFillRunChartsDashboard({
   preferredYear,
   currentSchools,
+  history: historyProp,
   stage,
   schoolKind,
+  estbFilter,
 }: {
   preferredYear: number | null;
   currentSchools: StudentFillSchoolRow[] | null;
+  history?: StudentFillChartHistoryYear[] | null;
   stage: SfaChartStage;
   schoolKind: SfaSchoolKind;
+  estbFilter: StudentFillEstbFilter;
 }) {
   const [metric, setMetric] = useState<SfaRunChartMetric>(SFA_STAGE_DEFAULT_METRIC[stage]);
-  const [history, setHistory] = useState<StudentFillChartHistoryYear[] | null>(null);
+  const [fetchedHistory, setFetchedHistory] = useState<StudentFillChartHistoryYear[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,6 +63,11 @@ export function StudentFillRunChartsDashboard({
   }, [stage, metric]);
 
   useEffect(() => {
+    if (historyProp) {
+      setFetchedHistory(null);
+      setError(null);
+      return;
+    }
     let cancelled = false;
     fetch("/api/student-fill-analysis/run?history=1")
       .then(async (res) => {
@@ -66,7 +77,7 @@ export function StudentFillRunChartsDashboard({
         };
         if (!res.ok) throw new Error(body.error ?? "통계분석을 불러오지 못했습니다.");
         if (!cancelled) {
-          setHistory(body.history ?? []);
+          setFetchedHistory(body.history ?? []);
           setError(null);
         }
       })
@@ -78,7 +89,9 @@ export function StudentFillRunChartsDashboard({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [historyProp]);
+
+  const history = historyProp ?? fetchedHistory;
 
   const resolvedHistory = useMemo(() => {
     if (history && history.length) return history;
@@ -88,10 +101,13 @@ export function StudentFillRunChartsDashboard({
     return history;
   }, [history, preferredYear, currentSchools]);
 
-  const scopedHistory = useMemo(
-    () => (resolvedHistory ? filterHistoryBySchoolKind(resolvedHistory, schoolKind) : []),
-    [resolvedHistory, schoolKind],
-  );
+  const scopedHistory = useMemo(() => {
+    if (!resolvedHistory) return [];
+    return filterHistoryBySchoolKind(
+      filterHistoryByEstb(resolvedHistory, estbFilter),
+      schoolKind,
+    );
+  }, [resolvedHistory, schoolKind, estbFilter]);
 
   const activeMetric = isMetricForStage(stage, metric)
     ? metric
@@ -154,12 +170,13 @@ export function StudentFillRunChartsDashboard({
     <div className={FDB_CHARTS_SCROLL}>
       <EnrolledScaleLookupProvider value={scaleLookup}>
         <CorpTransferRatioAdvancedChartDashboard
-          key={`${stage}-${activeMetric}-${schoolKind}-${chartYears.join(",")}`}
+          key={`${stage}-${activeMetric}-${schoolKind}-${estbFilter}-${chartYears.join(",")}`}
           rows={chartRows}
           years={chartYears}
           hasData
           hideRiskTab
           initialMainTab="stats"
+          defaultEstb=""
           rateLabel={sfaRunChartLabel(activeMetric)}
           kpiSub={sfaRunChartKpiSub(activeMetric)}
           riskProfile={sfaRunChartRiskProfile(activeMetric)}

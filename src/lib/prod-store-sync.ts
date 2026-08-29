@@ -1,17 +1,18 @@
-import {
-  ACCESS_COOKIE,
-  canUploadExcel,
-  createAccessToken,
-} from "@/lib/auth/access";
+import { mkdir, readFile, writeFile } from "fs/promises";
+import path from "path";
+
+import { ACCESS_COOKIE } from "@/lib/auth/access";
+import { CSV_DIR } from "@/lib/csv/paths";
 
 export const PROD_SYNC_HEADER = "x-kunitrust-store-sync";
 
 const DEFAULT_PROD_URL = "https://k-uni-trust-six.vercel.app";
-const REVISION_TTL_MS = 2000;
+const REVISION_TTL_MS = 30_000;
 
 let loggedSync = false;
 let cachedCookie: { value: string; expMs: number } | null = null;
 let revisionCache: { value: number; expMs: number } | null = null;
+const inflight = new Map<string, Promise<string | null>>();
 
 export function productionAppUrl(): string {
   return (process.env.KUNITRUST_PROD_URL ?? DEFAULT_PROD_URL).replace(
@@ -20,7 +21,7 @@ export function productionAppUrl(): string {
   );
 }
 
-/** Local `next dev` follows the production Blob store over HTTPS. */
+/** Local `next dev` may still *write* uploads to production. Reads use disk. */
 export function shouldSyncProdDataStore(): boolean {
   if (process.env.KUNITRUST_DISABLE_PROD_STORE_SYNC === "1") return false;
   if (process.env.VERCEL) return false;
@@ -44,6 +45,50 @@ export function assertStoreObjectName(
   }
   if (bucket === "data" && !dataPathOk(name)) {
     throw new Error("허용되지 않은 데이터 경로입니다.");
+  }
+}
+
+function stampPath(fileName: string): string {
+  return path.join(CSV_DIR, ".prod-sync", `${fileName}.rev`);
+}
+
+function csvDiskPath(fileName: string): string {
+  return path.join(CSV_DIR, fileName);
+}
+
+async function readStamp(fileName: string): Promise<number> {
+  try {
+    const n = Number((await readFile(stampPath(fileName), "utf8")).trim());
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+async function writeStamp(fileName: string, revision: number): Promise<void> {
+  if (revision <= 0) return;
+  try {
+    await mkdir(path.dirname(stampPath(fileName)), { recursive: true });
+    await writeFile(stampPath(fileName), String(revision), "utf8");
+  } catch {
+    /* ignore */
+  }
+}
+
+async function readCsvDisk(fileName: string): Promise<string | null> {
+  try {
+    return await readFile(csvDiskPath(fileName), "utf8");
+  } catch {
+    return null;
+  }
+}
+
+async function persistCsvDisk(fileName: string, body: string): Promise<void> {
+  try {
+    await mkdir(CSV_DIR, { recursive: true });
+    await writeFile(csvDiskPath(fileName), body, "utf8");
+  } catch {
+    /* ignore */
   }
 }
 
@@ -83,16 +128,6 @@ async function authCookie(): Promise<string> {
   if (cachedCookie && cachedCookie.expMs > now + 60_000) {
     return cachedCookie.value;
   }
-
-  try {
-    const token = await createAccessToken("admin");
-    const cookie = `${ACCESS_COOKIE}=${token}`;
-    cachedCookie = { value: cookie, expMs: now + 6 * 60 * 60 * 1000 };
-    return cookie;
-  } catch {
-    /* fall through to password login */
-  }
-
   const cookie = await loginCookie();
   cachedCookie = { value: cookie, expMs: now + 6 * 60 * 60 * 1000 };
   return cookie;
@@ -140,12 +175,10 @@ function noteSyncOnce() {
   );
 }
 
-export async function getProdStoreText(
+async function fetchProdStoreText(
   bucket: "csv" | "data",
   name: string,
 ): Promise<string | null> {
-  if (!shouldSyncProdDataStore()) return null;
-  assertStoreObjectName(bucket, name);
   noteSyncOnce();
   try {
     const res = await prodFetch(storeUrl(bucket, name), { method: "GET" });
@@ -160,6 +193,73 @@ export async function getProdStoreText(
     console.warn("[data-store] read error", bucket, name, err);
     return null;
   }
+}
+
+export async function getProdCsvRevision(): Promise<number> {
+  if (!shouldSyncProdDataStore()) return 0;
+  const now = Date.now();
+  if (revisionCache && revisionCache.expMs > now) {
+    return revisionCache.value;
+  }
+  const raw = await fetchProdStoreText("csv", "_revision.txt");
+  const n = Number(raw?.trim());
+  const value = Number.isFinite(n) && n > 0 ? n : 0;
+  revisionCache = { value, expMs: now + REVISION_TTL_MS };
+  return value;
+}
+
+async function getProdStoreTextUncached(
+  bucket: "csv" | "data",
+  name: string,
+): Promise<string | null> {
+  if (bucket === "csv" && name !== "_revision.txt") {
+    const revision = await getProdCsvRevision();
+    if (revision > 0 && (await readStamp(name)) === revision) {
+      const disk = await readCsvDisk(name);
+      if (disk != null) return disk;
+    }
+  }
+
+  const remote = await fetchProdStoreText(bucket, name);
+  if (remote != null && bucket === "csv" && name !== "_revision.txt") {
+    await persistCsvDisk(name, remote);
+    await writeStamp(name, await getProdCsvRevision());
+  }
+  if (remote != null) return remote;
+
+  if (bucket === "csv") return readCsvDisk(name);
+  return null;
+}
+
+/** Download a newer prod CSV in the background. Returns true if disk changed. */
+export async function refreshProdCsvIfStale(fileName: string): Promise<boolean> {
+  if (!shouldSyncProdDataStore()) return false;
+  assertStoreObjectName("csv", fileName);
+  const revision = await getProdCsvRevision();
+  if (revision > 0 && (await readStamp(fileName)) === revision) {
+    return false;
+  }
+  const remote = await fetchProdStoreText("csv", fileName);
+  if (remote == null) return false;
+  await persistCsvDisk(fileName, remote);
+  await writeStamp(fileName, revision > 0 ? revision : await getProdCsvRevision());
+  return true;
+}
+
+export async function getProdStoreText(
+  bucket: "csv" | "data",
+  name: string,
+): Promise<string | null> {
+  if (!shouldSyncProdDataStore()) return null;
+  assertStoreObjectName(bucket, name);
+  const key = `${bucket}:${name}`;
+  const pending = inflight.get(key);
+  if (pending) return pending;
+  const next = getProdStoreTextUncached(bucket, name).finally(() => {
+    inflight.delete(key);
+  });
+  inflight.set(key, next);
+  return next;
 }
 
 export async function putProdStoreText(
@@ -182,19 +282,11 @@ export async function putProdStoreText(
       `운영 저장소에 쓰지 못했습니다 (${res.status}): ${detail.slice(0, 240)}`,
     );
   }
-}
-
-export async function getProdCsvRevision(): Promise<number> {
-  if (!shouldSyncProdDataStore()) return 0;
-  const now = Date.now();
-  if (revisionCache && revisionCache.expMs > now) {
-    return revisionCache.value;
+  invalidateProdCsvRevisionCache();
+  if (bucket === "csv") {
+    await persistCsvDisk(name, body);
+    await writeStamp(name, await getProdCsvRevision());
   }
-  const raw = await getProdStoreText("csv", "_revision.txt");
-  const n = Number(raw?.trim());
-  const value = Number.isFinite(n) && n > 0 ? n : 0;
-  revisionCache = { value, expMs: now + REVISION_TTL_MS };
-  return value;
 }
 
 export function invalidateProdCsvRevisionCache() {

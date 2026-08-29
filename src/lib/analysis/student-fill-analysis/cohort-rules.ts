@@ -26,8 +26,32 @@ export type StudentFillEligibility = {
   status: string;
 };
 
+export function isStudentFillPrivateEstb(estb: string): boolean {
+  return estb.trim() === "사립";
+}
+
+export function isStudentFillPublicEstb(estb: string): boolean {
+  const value = estb.trim();
+  return value === "국립" || value === "공립" || value === "국립대법인";
+}
+
+export type StudentFillEstbFilter = "public" | "private" | "all";
+
+export function studentFillRowMatchesEstb(
+  estb: string,
+  filter: StudentFillEstbFilter,
+): boolean {
+  if (filter === "all") return true;
+  if (filter === "private") return isStudentFillPrivateEstb(estb);
+  return isStudentFillPublicEstb(estb);
+}
+
 export function isStudentFillEligibleCampus(row: StudentFillEligibility): boolean {
-  return ESTB.has(row.estb.trim()) && KIND.has(row.schoolKind.trim()) && STATUS.has(row.status.trim());
+  return (
+    ESTB.has(row.estb.trim()) &&
+    KIND.has(row.schoolKind.trim()) &&
+    STATUS.has(row.status.trim())
+  );
 }
 
 export function studentFillDivisionFromKind(

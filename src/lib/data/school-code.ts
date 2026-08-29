@@ -1,8 +1,4 @@
-import { readCsvFile } from "@/lib/csv/read";
-import {
-  getOrCreateYearSliceCache,
-  loadYearSlice,
-} from "@/lib/csv/year-slice-cache";
+import { loadCsvYearMapped } from "@/lib/csv/csv-year-load";
 import type { SchoolCodeRow } from "@/lib/ingest/school-code-config";
 
 export type SchoolCodeQuery = {
@@ -87,28 +83,36 @@ function yearOf(r: Record<string, string>): number | null {
 export async function loadSchoolCodeDashboard(
   query: SchoolCodeQuery = {},
 ): Promise<SchoolCodeDashboardData> {
-  const raw = await readCsvFile("financeAnalysisSchoolCode").catch(() => []);
-  const cache = getOrCreateYearSliceCache<SchoolCodeRow>(
-    "financeAnalysisSchoolCode",
-    "financeAnalysisSchoolCode",
-    raw,
+  const mapped = await loadCsvYearMapped<SchoolCodeRow>({
+    csvKey: "financeAnalysisSchoolCode",
+    cacheKey: "financeAnalysisSchoolCode",
     yearOf,
-    "asc",
-  );
+    mapRow: parseRow,
+    year: query.year ?? "latest",
+    order: "asc",
+  });
 
-  let uploadedAt: string | null = null;
-  for (const r of raw) {
-    const at = r.uploaded_at?.trim();
-    if (at && (!uploadedAt || at > uploadedAt)) {
-      uploadedAt = at;
-    }
-  }
-
-  const years = cache.years;
+  const years = mapped.years;
+  const uploadedAt = mapped.uploadedAt;
   const displayYear =
     query.year != null && years.includes(query.year)
       ? query.year
-      : (years.at(-1) ?? null);
+      : (mapped.displayYear ?? years.at(-1) ?? null);
+  const yearRows =
+    displayYear != null && mapped.displayYear === displayYear
+      ? mapped.rows
+      : displayYear == null
+        ? []
+        : (
+            await loadCsvYearMapped<SchoolCodeRow>({
+              csvKey: "financeAnalysisSchoolCode",
+              cacheKey: "financeAnalysisSchoolCode",
+              yearOf,
+              mapRow: parseRow,
+              year: displayYear,
+              order: "asc",
+            })
+          ).rows;
 
   const estbFilter = query.estb?.trim() ?? "";
   const schoolDivisionFilter = query.schoolDivision?.trim() ?? "";
@@ -116,19 +120,6 @@ export async function loadSchoolCodeDashboard(
   const regionFilter = query.region?.trim() ?? "";
   const statusFilter = query.status?.trim() ?? "";
   const q = query.q?.trim().toLowerCase() ?? "";
-
-  const yearRows =
-    displayYear == null
-      ? []
-      : loadYearSlice(cache, displayYear, () => {
-          const rows: SchoolCodeRow[] = [];
-          for (const r of raw) {
-            if (yearOf(r) !== displayYear) continue;
-            const parsed = parseRow(r);
-            if (parsed) rows.push(parsed);
-          }
-          return rows;
-        });
 
   const estbSet = new Set<string>();
   const schoolDivisionSet = new Set<string>();
@@ -195,7 +186,7 @@ export async function loadSchoolCodeDashboard(
     },
     hasData: years.length > 0,
     uploadedAt,
-    rowCount: raw.length,
+    rowCount: mapped.rowCount,
   };
 }
 

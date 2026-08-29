@@ -39,6 +39,10 @@ import {
   type ExportCell,
 } from "@/lib/competitiveness-analysis/export-run-results";
 import { sfaFillStage } from "@/lib/analysis/student-fill-analysis/fill-stage";
+import {
+  studentFillRowMatchesEstb,
+  type StudentFillEstbFilter,
+} from "@/lib/analysis/student-fill-analysis/cohort-rules";
 
 import "@/components/analysis/glass-help-button.css";
 import "@/components/analysis/freshman-enrollment-alimi-table.css";
@@ -352,6 +356,7 @@ export function StudentFillRunPanel() {
   const yearFromUrl = Number.isInteger(yearParam) && yearParam >= 2000 ? yearParam : null;
   const [section, setSection] = useState<"data" | "charts">("data");
   const [schoolKind, setSchoolKind] = useState<SchoolKindTabId>("university");
+  const [estbFilter, setEstbFilter] = useState<StudentFillEstbFilter>("all");
   const [resultStage, setResultStage] = useState<ResultStage>("freshman");
   const [search, setSearch] = useState("");
   const [helpOpen, setHelpOpen] = useState(false);
@@ -362,9 +367,11 @@ export function StudentFillRunPanel() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const qs = analysisYear != null ? `?year=${analysisYear}` : "";
+    const qs = new URLSearchParams();
+    if (analysisYear != null) qs.set("year", String(analysisYear));
+    let cancelled = false;
     setLoading(true);
-    fetch(`/api/student-fill-analysis/run${qs}`)
+    fetch(`/api/student-fill-analysis/run?${qs.toString()}`)
       .then(async (res) => {
         const body = (await res.json()) as {
           years?: number[];
@@ -373,23 +380,51 @@ export function StudentFillRunPanel() {
           error?: string;
         };
         if (!res.ok) throw new Error(body.error ?? "분석결과를 불러오지 못했습니다.");
+        if (cancelled) return;
         setYears(body.years ?? []);
         setEdition(body.edition ?? null);
         if (body.analysisYear) setAnalysisYear(body.analysisYear);
         setError(null);
       })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : "분석결과를 불러오지 못했습니다.");
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "분석결과를 불러오지 못했습니다.");
+        }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [analysisYear]);
 
-  const cohortRows = useMemo(() => {
+  const estbRows = useMemo(() => {
     if (!edition) return [];
-    if (schoolKind === "all") return edition.schools;
+    return edition.schools.filter((row) =>
+      studentFillRowMatchesEstb(row.estb, estbFilter),
+    );
+  }, [edition, estbFilter]);
+
+  const cohortRows = useMemo(() => {
+    if (schoolKind === "all") return estbRows;
     const division = schoolKind === "junior-college" ? "전문대학" : "대학";
-    return edition.schools.filter((row) => row.schoolDivision === division);
-  }, [edition, schoolKind]);
+    return estbRows.filter((row) => row.schoolDivision === division);
+  }, [estbRows, schoolKind]);
+
+  const schoolKindCounts = useMemo(() => {
+    let universityCount = 0;
+    let juniorCollegeCount = 0;
+    for (const row of estbRows) {
+      if (row.schoolDivision === "전문대학") juniorCollegeCount += 1;
+      else universityCount += 1;
+    }
+    return {
+      universityCount,
+      juniorCollegeCount,
+      allCount: universityCount + juniorCollegeCount,
+    };
+  }, [estbRows]);
 
   const visibleRows = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -424,7 +459,9 @@ export function StudentFillRunPanel() {
     ];
     const kindLabel =
       schoolKind === "all" ? "all" : schoolKind === "junior-college" ? "junior_college" : "university";
-    const filename = `student_fill_${year}_${kindLabel}_${resultStage}.${format}`;
+    const estbLabel =
+      estbFilter === "public" ? "public" : estbFilter === "private" ? "private" : "all_estb";
+    const filename = `student_fill_${year}_${kindLabel}_${estbLabel}_${resultStage}.${format}`;
     if (format === "csv") downloadExportCsv(filename, aoa);
     else downloadExportXlsx(filename, aoa, "분석결과");
   }
@@ -478,6 +515,16 @@ export function StudentFillRunPanel() {
             }
           }}
         />
+        <GlassMintTabGroup
+          ariaLabel="설립구분"
+          active={estbFilter}
+          onChange={setEstbFilter}
+          items={[
+            { id: "public", label: "국공립" },
+            { id: "private", label: "사립" },
+            { id: "all", label: "국공사립" },
+          ]}
+        />
         {(section === "data" || section === "charts") ? (
           <>
             <GlassMintTabGroup
@@ -502,9 +549,9 @@ export function StudentFillRunPanel() {
             <SchoolKindTabBar
               showAll
               active={schoolKind}
-              universityCount={edition?.universityCount ?? 0}
-              juniorCollegeCount={edition?.juniorCollegeCount ?? 0}
-              allCount={(edition?.universityCount ?? 0) + (edition?.juniorCollegeCount ?? 0)}
+              universityCount={schoolKindCounts.universityCount}
+              juniorCollegeCount={schoolKindCounts.juniorCollegeCount}
+              allCount={schoolKindCounts.allCount}
               onChange={(next) => {
                 setSearch("");
                 setSchoolKind(next);
@@ -523,6 +570,7 @@ export function StudentFillRunPanel() {
           currentSchools={edition?.schools ?? null}
           stage={resultStage === "summary" ? "freshman" : resultStage}
           schoolKind={schoolKind}
+          estbFilter={estbFilter}
         />
       ) : (
         <>

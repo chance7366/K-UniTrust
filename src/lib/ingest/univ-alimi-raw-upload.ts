@@ -96,8 +96,67 @@ export type UnivAlimiRawUploadResult = {
   years: number[];
   overwrittenYears: number[];
   newYears: number[];
+  overwrittenPeriods: string[];
+  newPeriods: string[];
   bronzePath: string;
 };
+
+function cellsFromCsv(raw: Record<string, string>): string[] {
+  try {
+    const cells = JSON.parse(raw.cells_json ?? "[]") as unknown;
+    return Array.isArray(cells) ? cells.map((c) => String(c ?? "")) : [];
+  } catch {
+    return [];
+  }
+}
+
+function halfFromCells(cells: string[], halfCol: number | undefined): string {
+  if (halfCol == null) return "";
+  return (cells[halfCol] ?? "").trim();
+}
+
+/** 상하반기 컬럼이 있으면 기준연도+상하반기, 없으면 기준연도만. */
+function alimiReplaceKey(
+  year: number | null,
+  half: string,
+  usesHalf: boolean,
+): string | null {
+  if (year == null) return null;
+  if (!usesHalf) return String(year);
+  const period = half.trim();
+  if (!period) return null;
+  return `${year}:${period}`;
+}
+
+function yearsFromKeys(keys: string[]): number[] {
+  return [
+    ...new Set(
+      keys
+        .map((key) => Number(key.split(":")[0]))
+        .filter((year) => Number.isFinite(year)),
+    ),
+  ].sort((a, b) => a - b);
+}
+
+function sortPeriodKeys(keys: string[]): string[] {
+  return [...keys].sort((a, b) => {
+    const [ay, ah = ""] = a.split(":");
+    const [by, bh = ""] = b.split(":");
+    const yearCmp = Number(ay) - Number(by);
+    if (yearCmp !== 0) return yearCmp;
+    if (ah === bh) return 0;
+    if (ah === "상반기") return -1;
+    if (bh === "상반기") return 1;
+    return ah.localeCompare(bh, "ko");
+  });
+}
+
+function formatPeriodLabels(keys: string[]): string[] {
+  return sortPeriodKeys(keys).map((key) => {
+    const [year, half] = key.split(":");
+    return half ? `${year}년 ${half}` : `${year}년`;
+  });
+}
 
 export async function ingestUnivAlimiRawUpload(
   indicator: UnivAlimiIndicatorId,
@@ -130,9 +189,22 @@ export async function ingestUnivAlimiRawUpload(
   }
 
   const uploadedAt = new Date().toISOString();
-  const uploadYears = new Set(
-    parsed.rows.map((r) => r.year).filter((y): y is number => y != null),
+  const cols = getUnivAlimiCol(indicator, kind);
+  const usesHalf = cols.half != null;
+  const uploadKeys = new Set(
+    parsed.rows
+      .map((r) =>
+        alimiReplaceKey(r.year, halfFromCells(r.cells, cols.half), usesHalf),
+      )
+      .filter((key): key is string => key != null),
   );
+  if (uploadKeys.size === 0) {
+    throw new Error(
+      usesHalf
+        ? "기준연도·상하반기가 있는 유효한 행이 없습니다."
+        : "기준연도가 있는 유효한 행이 없습니다.",
+    );
+  }
 
   const csvKey = UNIV_ALIMI_CSV_KEY[indicator][kind];
   const bronzeId = UNIV_ALIMI_BRONZE_ID[indicator][kind];
@@ -140,17 +212,26 @@ export async function ingestUnivAlimiRawUpload(
     throw new Error("이 지표는 해당 구분을 지원하지 않습니다.");
   }
   const existing = await readCsvFile(csvKey).catch(() => []);
-  const existingYearSet = new Set(
+  const existingKeys = new Set(
     existing
-      .map((r) => parseYearText(r.year_text ?? ""))
-      .filter((y): y is number => y != null),
+      .map((r) =>
+        alimiReplaceKey(
+          parseYearText(r.year_text ?? ""),
+          halfFromCells(cellsFromCsv(r), cols.half),
+          usesHalf,
+        ),
+      )
+      .filter((key): key is string => key != null),
   );
   const kept = existing.filter((r) => {
-    const year = parseYearText(r.year_text ?? "");
-    return year == null || !uploadYears.has(year);
+    const key = alimiReplaceKey(
+      parseYearText(r.year_text ?? ""),
+      halfFromCells(cellsFromCsv(r), cols.half),
+      usesHalf,
+    );
+    return key == null || !uploadKeys.has(key);
   });
 
-  const cols = getUnivAlimiCol(indicator, kind);
   const newRecords = parsed.rows.map((row) =>
     csvRecordFromRow(row, cols, uploadedAt),
   );
@@ -166,12 +247,8 @@ export async function ingestUnivAlimiRawUpload(
     fileName,
   });
 
-  const overwrittenYears = [...uploadYears]
-    .filter((y) => existingYearSet.has(y))
-    .sort((a, b) => a - b);
-  const newYears = [...uploadYears]
-    .filter((y) => !existingYearSet.has(y))
-    .sort((a, b) => a - b);
+  const overwrittenKeys = [...uploadKeys].filter((key) => existingKeys.has(key));
+  const newKeys = [...uploadKeys].filter((key) => !existingKeys.has(key));
 
   const bronzePath = await writeBronzeSnapshot({
     domainId: "univ-map",
@@ -181,9 +258,11 @@ export async function ingestUnivAlimiRawUpload(
 
   return {
     rowCount: parsed.rows.length,
-    years: [...uploadYears].sort((a, b) => a - b),
-    overwrittenYears,
-    newYears,
+    years: yearsFromKeys([...uploadKeys]),
+    overwrittenYears: yearsFromKeys(overwrittenKeys),
+    newYears: yearsFromKeys(newKeys),
+    overwrittenPeriods: formatPeriodLabels(overwrittenKeys),
+    newPeriods: formatPeriodLabels(newKeys),
     bronzePath,
   };
 }

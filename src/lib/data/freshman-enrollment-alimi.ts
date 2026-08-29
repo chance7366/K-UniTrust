@@ -19,12 +19,8 @@ import {
   parseMultiFilterParam,
   rowMatchesTableFilters,
 } from "@/lib/analysis/table-filter-utils";
+import { loadCsvYearMapped } from "@/lib/csv/csv-year-load";
 import type { CsvFileKey } from "@/lib/csv/paths";
-import { readCsvFile } from "@/lib/csv/read";
-import {
-  getOrCreateYearSliceCache,
-  loadYearSlice,
-} from "@/lib/csv/year-slice-cache";
 import { FRESHMAN_ENROLLMENT_ALIMI_CSV_KEY } from "@/lib/ingest/freshman-enrollment-alimi-config";
 import { readFreshmanEnrollmentAlimiMeta } from "@/lib/ingest/freshman-enrollment-alimi-meta";
 import { loadSchoolDivisionLookup } from "@/lib/ingest/school-code-lookup";
@@ -79,53 +75,32 @@ function parseCsvRecord(
   return parsed;
 }
 
-function loadYearRows(
-  csvKey: CsvFileKey,
+async function loadSheet(
   kind: FreshmanEnrollmentDatasetKind,
-  csvRows: Record<string, string>[],
-  year: number,
   lookup: SchoolDivisionLookup | null,
-): RawEnrollmentRow[] {
-  const cache = getOrCreateYearSliceCache<RawEnrollmentRow>(
-    `${csvKey}:${kind}`,
-    csvKey,
-    csvRows,
-    yearOf,
-  );
-  return loadYearSlice(cache, year, () => {
-    const rows: RawEnrollmentRow[] = [];
-    for (const r of csvRows) {
-      if (yearOf(r) !== year) continue;
-      const parsed = parseCsvRecord(r, kind, lookup);
-      if (parsed) rows.push(parsed);
-    }
-    return rows;
-  });
-}
-
-async function loadSheetMeta(
-  kind: FreshmanEnrollmentDatasetKind,
-): Promise<{ sheet: RawEnrollmentSheet; csvKey: CsvFileKey }> {
+  year: number | "latest" | null,
+): Promise<{
+  sheet: RawEnrollmentSheet;
+  csvKey: CsvFileKey;
+  yearRows: RawEnrollmentRow[];
+  displayYear: number | null;
+}> {
   const csvKey = FRESHMAN_ENROLLMENT_ALIMI_CSV_KEY[kind];
-  const [csvRows, meta] = await Promise.all([
-    readCsvFile(csvKey).catch(() => []),
+  const [mapped, meta] = await Promise.all([
+    loadCsvYearMapped<RawEnrollmentRow>({
+      csvKey,
+      cacheKey: `${csvKey}:${kind}`,
+      yearOf,
+      mapRow: (row) => parseCsvRecord(row, kind, lookup),
+      year,
+    }),
     readFreshmanEnrollmentAlimiMeta(kind),
   ]);
-  const cache = getOrCreateYearSliceCache<RawEnrollmentRow>(
-    `${csvKey}:${kind}`,
-    csvKey,
-    csvRows,
-    yearOf,
-  );
-  let latestUploadedAt: string | null = meta?.uploadedAt ?? null;
-  for (const r of csvRows) {
-    if (r.uploaded_at && (!latestUploadedAt || r.uploaded_at > latestUploadedAt)) {
-      latestUploadedAt = r.uploaded_at;
-    }
-  }
 
   return {
     csvKey,
+    yearRows: mapped.rows,
+    displayYear: mapped.displayYear,
     sheet: {
       kind,
       label: FRESHMAN_ENROLLMENT_ALIMI_LABEL[kind],
@@ -134,9 +109,9 @@ async function loadSheetMeta(
       headerMerges: meta?.headerMerges,
       rows: [],
       columnCount: meta?.columnCount ?? 0,
-      years: cache.years,
-      uploadedAt: latestUploadedAt,
-      rowCount: csvRows.length,
+      years: mapped.years,
+      uploadedAt: mapped.uploadedAt ?? meta?.uploadedAt ?? null,
+      rowCount: mapped.rowCount,
     },
   };
 }
@@ -145,41 +120,35 @@ export async function loadFreshmanEnrollmentAlimiDashboard(
   query: FreshmanEnrollmentAlimiQuery,
 ): Promise<FreshmanEnrollmentAlimiDashboardData> {
   const lookup = await loadSchoolDivisionLookup();
-  const [undergradLoaded, gradLoaded] = await Promise.all([
-    loadSheetMeta("undergrad"),
-    loadSheetMeta("grad"),
-  ]);
-
   const dataset =
     query.dataset === "grad" || query.dataset === "undergrad"
       ? query.dataset
       : "undergrad";
+  const yearArg = query.year ?? "latest";
+
+  const [undergradLoaded, gradLoaded] = await Promise.all([
+    loadSheet("undergrad", lookup, dataset === "undergrad" ? yearArg : null),
+    loadSheet("grad", lookup, dataset === "grad" ? yearArg : null),
+  ]);
+
   const activeLoaded =
     dataset === "undergrad" ? undergradLoaded : gradLoaded;
   const activeSheet = activeLoaded.sheet;
 
-  const displayYear =
-    query.year != null
-      ? query.year
-      : (activeSheet.years[0] ?? null);
+  let displayYear =
+    query.year != null ? query.year : (activeLoaded.displayYear ?? activeSheet.years[0] ?? null);
+  let yearRows = activeLoaded.yearRows;
+  if (displayYear != null && activeLoaded.displayYear !== displayYear) {
+    const retry = await loadSheet(dataset, lookup, displayYear);
+    yearRows = retry.yearRows;
+    displayYear = retry.displayYear ?? displayYear;
+  }
 
   const estbFilter = query.estb?.trim() ?? "";
   const schoolDivisionFilter = query.schoolDivision?.trim() ?? "";
   const schoolKindsFilter = parseMultiFilterParam(query.schoolKind);
   const regionsFilter = parseMultiFilterParam(query.region);
   const searchFilter = query.search?.trim() ?? "";
-
-  let yearRows: RawEnrollmentRow[] = [];
-  if (displayYear != null) {
-    const csvRows = await readCsvFile(activeLoaded.csvKey).catch(() => []);
-    yearRows = loadYearRows(
-      activeLoaded.csvKey,
-      dataset,
-      csvRows,
-      displayYear,
-      lookup,
-    );
-  }
 
   const estbs = new Set<string>();
   const schoolDivisions = new Set<string>();

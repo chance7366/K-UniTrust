@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
-  allowedDevOrigins: ["192.168.6.111"],
+  allowedDevOrigins: ["192.168.6.111", "127.0.0.1", "localhost"],
   // Vercel serverless: fs.readFile로 읽는 data/reports·data/json을 번들에 포함
   outputFileTracingIncludes: {
     "/api/competitiveness-analysis/**": [

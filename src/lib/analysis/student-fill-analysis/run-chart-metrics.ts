@@ -24,6 +24,12 @@ import type { AdvancedChartFunnelProfile } from "@/lib/analysis/advanced-chart-f
 
 import type { StudentFillChartHistoryYear } from "./run-chart-rows";
 import type { StudentFillSchoolRow } from "./types";
+import {
+  studentFillRowMatchesEstb,
+  type StudentFillEstbFilter,
+} from "./cohort-rules";
+
+export type { StudentFillEstbFilter };
 
 export type SfaSchoolKind = "university" | "junior-college" | "all";
 
@@ -447,6 +453,19 @@ export function filterHistoryBySchoolKind(
   return history.map((item) => ({
     ...item,
     schools: item.schools.filter((row) => row.schoolDivision === division),
+  }));
+}
+
+export function filterHistoryByEstb(
+  history: StudentFillChartHistoryYear[],
+  estbFilter: StudentFillEstbFilter,
+): StudentFillChartHistoryYear[] {
+  if (estbFilter === "all") return history;
+  return history.map((item) => ({
+    ...item,
+    schools: item.schools.filter((row) =>
+      studentFillRowMatchesEstb(row.estb, estbFilter),
+    ),
   }));
 }
 

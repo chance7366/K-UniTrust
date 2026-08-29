@@ -22,12 +22,8 @@ import type {
   UnivAlimiRawRow,
   UnivAlimiRawSheet,
 } from "@/lib/analysis/univ-alimi-raw/types";
-import { readCsvFile } from "@/lib/csv/read";
+import { loadCsvYearMapped } from "@/lib/csv/csv-year-load";
 import type { CsvFileKey } from "@/lib/csv/paths";
-import {
-  getOrCreateYearSliceCache,
-  loadYearSlice,
-} from "@/lib/csv/year-slice-cache";
 import { UNIV_ALIMI_CSV_KEY } from "@/lib/ingest/univ-alimi-raw-config";
 import { readUnivAlimiRawMeta } from "@/lib/ingest/univ-alimi-raw-meta";
 import { loadSchoolDivisionLookup } from "@/lib/ingest/school-code-lookup";
@@ -81,58 +77,38 @@ function parseCsvRecord(
   return parsed;
 }
 
-function loadYearRows(
-  csvKey: CsvFileKey,
-  kind: UnivAlimiDatasetKind,
-  csvRows: Record<string, string>[],
-  year: number,
-  cols: UnivAlimiColMap,
-  lookup: SchoolDivisionLookup | null,
-): UnivAlimiRawRow[] {
-  const cache = getOrCreateYearSliceCache<UnivAlimiRawRow>(
-    `${csvKey}:${kind}`,
-    csvKey,
-    csvRows,
-    yearOf,
-  );
-  return loadYearSlice(cache, year, () => {
-    const rows: UnivAlimiRawRow[] = [];
-    for (const r of csvRows) {
-      if (yearOf(r) !== year) continue;
-      const parsed = parseCsvRecord(r, cols, lookup);
-      if (parsed) rows.push(parsed);
-    }
-    return rows;
-  });
-}
-
-async function loadSheetMeta(
+async function loadSheet(
   indicator: UnivAlimiIndicatorId,
   kind: UnivAlimiDatasetKind,
-): Promise<{ sheet: UnivAlimiRawSheet; csvKey: CsvFileKey | null }> {
+  lookup: SchoolDivisionLookup | null,
+  year: number | "latest" | null,
+): Promise<{
+  sheet: UnivAlimiRawSheet;
+  csvKey: CsvFileKey | null;
+  yearRows: UnivAlimiRawRow[];
+  displayYear: number | null;
+}> {
   const csvKey = UNIV_ALIMI_CSV_KEY[indicator][kind];
   const cols = UNIV_ALIMI_COL[indicator][kind];
-  if (!csvKey || !cols) return { sheet: emptySheet(kind), csvKey: null };
+  if (!csvKey || !cols) {
+    return { sheet: emptySheet(kind), csvKey: null, yearRows: [], displayYear: null };
+  }
 
-  const [csvRows, meta] = await Promise.all([
-    readCsvFile(csvKey).catch(() => []),
+  const [mapped, meta] = await Promise.all([
+    loadCsvYearMapped<UnivAlimiRawRow>({
+      csvKey,
+      cacheKey: `${csvKey}:${kind}`,
+      yearOf,
+      mapRow: (row) => parseCsvRecord(row, cols, lookup),
+      year,
+    }),
     readUnivAlimiRawMeta(indicator, kind),
   ]);
-  const cache = getOrCreateYearSliceCache<UnivAlimiRawRow>(
-    `${csvKey}:${kind}`,
-    csvKey,
-    csvRows,
-    yearOf,
-  );
-  let latestUploadedAt: string | null = meta?.uploadedAt ?? null;
-  for (const r of csvRows) {
-    if (r.uploaded_at && (!latestUploadedAt || r.uploaded_at > latestUploadedAt)) {
-      latestUploadedAt = r.uploaded_at;
-    }
-  }
 
   return {
     csvKey,
+    yearRows: mapped.rows,
+    displayYear: mapped.displayYear,
     sheet: {
       kind,
       label: UNIV_ALIMI_DATASET_LABEL[kind],
@@ -141,9 +117,9 @@ async function loadSheetMeta(
       headerMerges: meta?.headerMerges,
       rows: [],
       columnCount: meta?.columnCount ?? 0,
-      years: cache.years,
-      uploadedAt: latestUploadedAt,
-      rowCount: csvRows.length,
+      years: mapped.years,
+      uploadedAt: mapped.uploadedAt ?? meta?.uploadedAt ?? null,
+      rowCount: mapped.rowCount,
     },
   };
 }
@@ -154,46 +130,54 @@ export async function loadUnivAlimiRawDashboard(
 ): Promise<UnivAlimiRawDashboardData> {
   const lookup = await loadSchoolDivisionLookup();
   const datasets = getUnivAlimiDatasets(indicator);
-  const [undergradLoaded, gradLoaded] = await Promise.all([
-    loadSheetMeta(indicator, "undergrad"),
-    datasets.includes("grad")
-      ? loadSheetMeta(indicator, "grad")
-      : Promise.resolve({ sheet: emptySheet("grad"), csvKey: null }),
-  ]);
-
   const dataset =
     query.dataset && datasets.includes(query.dataset)
       ? query.dataset
       : (datasets[0] ?? "undergrad");
+  const yearArg = query.year ?? "latest";
+
+  const [undergradLoaded, gradLoaded] = await Promise.all([
+    loadSheet(
+      indicator,
+      "undergrad",
+      lookup,
+      dataset === "undergrad" ? yearArg : null,
+    ),
+    datasets.includes("grad")
+      ? loadSheet(indicator, "grad", lookup, dataset === "grad" ? yearArg : null)
+      : Promise.resolve({
+          sheet: emptySheet("grad"),
+          csvKey: null,
+          yearRows: [] as UnivAlimiRawRow[],
+          displayYear: null,
+        }),
+  ]);
+
   const activeLoaded =
     dataset === "undergrad" ? undergradLoaded : gradLoaded;
   const activeSheet = activeLoaded.sheet;
 
-  const displayYear =
+  let displayYear =
     query.year != null && activeSheet.years.includes(query.year)
       ? query.year
-      : (activeSheet.years[0] ?? null);
+      : (activeLoaded.displayYear ?? activeSheet.years[0] ?? null);
+  let yearRows = activeLoaded.yearRows;
+  if (
+    displayYear != null &&
+    activeLoaded.displayYear !== displayYear &&
+    activeLoaded.csvKey &&
+    UNIV_ALIMI_COL[indicator][dataset]
+  ) {
+    const retry = await loadSheet(indicator, dataset, lookup, displayYear);
+    yearRows = retry.yearRows;
+    displayYear = retry.displayYear ?? displayYear;
+  }
 
   const estbFilter = query.estb?.trim() ?? "";
   const schoolDivisionFilter = query.schoolDivision?.trim() ?? "";
   const schoolKindsFilter = parseMultiFilterParam(query.schoolKind);
   const regionsFilter = parseMultiFilterParam(query.region);
   const searchFilter = query.search?.trim() ?? "";
-
-  const csvKey = activeLoaded.csvKey;
-  const cols = UNIV_ALIMI_COL[indicator][dataset];
-  let yearRows: UnivAlimiRawRow[] = [];
-  if (displayYear != null && csvKey && cols) {
-    const csvRows = await readCsvFile(csvKey).catch(() => []);
-    yearRows = loadYearRows(
-      csvKey,
-      dataset,
-      csvRows,
-      displayYear,
-      cols,
-      lookup,
-    );
-  }
 
   const estbs = new Set<string>();
   const schoolDivisions = new Set<string>();

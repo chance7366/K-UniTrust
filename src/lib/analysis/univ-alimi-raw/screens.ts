@@ -38,6 +38,7 @@ const DROPOUT_GRAD: UnivAlimiColMap = {
 /** 재학생충원 대학전문: 기준연도, 상하반기, 학교코드, …, 학교, 지표 */
 const ENROLLED_UNDERGRAD: UnivAlimiColMap = {
   year: 0,
+  half: 1,
   schoolCode: 2,
   schoolKind: 3,
   estb: 4,
@@ -222,7 +223,7 @@ const ENROLLED_HELP: UnivAlimiHelpCopy = {
     "학부와 대학원 재학생을 학생정원에서 모집정지인원을 뺀 값으로 나누어 재학생충원율을 산출한다.",
   source: "대학알리미",
   management:
-    "8월 공시이며, 매년 연도별 자료로 관리한다. 대학전문은 상·하반기 자료를 포함한다.",
+    "8월 공시이며, 매년 연도별 자료로 관리한다. 대학전문은 상·하반기 자료를 포함하며, 업로드 시 동일 기준연도·상하반기만 덮어쓴다.",
   notes:
     "학부(대학, 전문대학)와 대학원 별도 관리가 필요. 학교코드는 학교코드 메뉴에서 참조한다.",
   undergradForm:

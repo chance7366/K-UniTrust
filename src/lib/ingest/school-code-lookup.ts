@@ -1,4 +1,8 @@
-import { readCsvFile } from "@/lib/csv/read";
+import {
+  getCsvDataVersion,
+  peekLocalCsvVersion,
+  readCsvFileFromDisk,
+} from "@/lib/csv/read";
 
 function num(v: string | undefined): number | null {
   if (v == null || v === "") return null;
@@ -116,14 +120,40 @@ export function buildSchoolKindLookup(
   };
 }
 
+export function invalidateSchoolLookupCaches() {
+  kindLookupMemo = null;
+  divisionLookupMemo = null;
+}
+
+let kindLookupMemo: { version: number; lookup: SchoolKindLookup } | null = null;
+let divisionLookupMemo: { version: number; lookup: SchoolDivisionLookup } | null =
+  null;
+
 export async function loadSchoolKindLookup(): Promise<SchoolKindLookup> {
-  const rows = await readCsvFile("financeAnalysisSchoolCode").catch(() => []);
-  return buildSchoolKindLookup(rows);
+  const version = await peekLocalCsvVersion("financeAnalysisSchoolCode");
+  if (kindLookupMemo && kindLookupMemo.version === version && version !== 0) {
+    return kindLookupMemo.lookup;
+  }
+  const rows = await readCsvFileFromDisk("financeAnalysisSchoolCode");
+  const lookup = buildSchoolKindLookup(rows);
+  kindLookupMemo = { version, lookup };
+  return lookup;
 }
 
 export async function loadSchoolDivisionLookup(): Promise<SchoolDivisionLookup> {
-  const rows = await readCsvFile("financeAnalysisSchoolCode").catch(() => []);
-  return buildSchoolDivisionLookup(rows);
+  const version = await peekLocalCsvVersion("financeAnalysisSchoolCode");
+  if (
+    divisionLookupMemo &&
+    divisionLookupMemo.version === version &&
+    version !== 0
+  ) {
+    return divisionLookupMemo.lookup;
+  }
+  const rows = await readCsvFileFromDisk("financeAnalysisSchoolCode");
+  const versionAfter = getCsvDataVersion("financeAnalysisSchoolCode") ?? version;
+  const lookup = buildSchoolDivisionLookup(rows);
+  divisionLookupMemo = { version: versionAfter, lookup };
+  return lookup;
 }
 
 export function enrichRowsWithSchoolDivision(

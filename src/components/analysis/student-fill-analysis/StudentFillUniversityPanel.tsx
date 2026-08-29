@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { GlassActionButton } from "@/components/analysis/GlassHelpButton";
+import { GlassMintTabGroup } from "@/components/analysis/GlassMintTabGroup";
 import { SchoolKindTabBar } from "@/components/analysis/competitiveness-analysis/panels/SchoolKindTabBar";
 import { StudentFillUniversityResultPane } from "@/components/analysis/student-fill-analysis/StudentFillUniversityResultPane";
 import { useAccessRole } from "@/components/auth/AccessRoleProvider";
@@ -19,6 +20,10 @@ import {
 } from "@/lib/analysis/student-fill-analysis/diagnosis";
 import { buildStudentFillReportGuidelines } from "@/lib/analysis/student-fill-analysis/build-report-guidelines";
 import { STUDENT_FILL_REPORT_GUIDELINES_VERSION } from "@/lib/analysis/student-fill-analysis/generation-guidelines";
+import {
+  studentFillRowMatchesEstb,
+  type StudentFillEstbFilter,
+} from "@/lib/analysis/student-fill-analysis/cohort-rules";
 import { sfaFillStage } from "@/lib/analysis/student-fill-analysis/fill-stage";
 import type { StudentFillPeerPayload } from "@/lib/analysis/student-fill-analysis/peer-aggregates";
 import type { StudentFillSchoolRow } from "@/lib/analysis/student-fill-analysis/types";
@@ -72,11 +77,16 @@ function handleSchoolListWheel(event: React.WheelEvent<HTMLDivElement>) {
 function filterSchools(
   universities: StudentFillSchoolRow[],
   schoolKind: SchoolKindFilter,
+  estbFilter: StudentFillEstbFilter,
   selectedSidoId: string | null,
   searchQuery: string,
 ) {
   const kindLabel = schoolKind === "junior-college" ? "전문대학" : "대학";
-  let rows = universities.filter((row) => row.schoolDivision === kindLabel);
+  let rows = universities.filter(
+    (row) =>
+      row.schoolDivision === kindLabel &&
+      studentFillRowMatchesEstb(row.estb, estbFilter),
+  );
   if (selectedSidoId) {
     const sido = KOREA_SIDO_REGIONS.find((region) => region.id === selectedSidoId);
     if (sido) rows = rows.filter((row) => row.region === sido.shortLabel);
@@ -114,8 +124,8 @@ export function StudentFillUniversityPanel() {
   const [analysisYear, setAnalysisYear] = useState<number | null>(yearFromUrl);
   const [schools, setSchools] = useState<StudentFillSchoolRow[]>([]);
   const [lastRunAt, setLastRunAt] = useState<string | null>(null);
-  const [kindCounts, setKindCounts] = useState({ university: 0, juniorCollege: 0 });
   const [schoolKind, setSchoolKind] = useState<SchoolKindFilter>("university");
+  const [estbFilter, setEstbFilter] = useState<StudentFillEstbFilter>("all");
   const [selectedSidoId, setSelectedSidoId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCode, setSelectedCode] = useState(codeParam);
@@ -147,10 +157,6 @@ export function StudentFillUniversityPanel() {
         setYears(body.years ?? []);
         if (body.analysisYear) setAnalysisYear(body.analysisYear);
         setLastRunAt(body.lastRunAt ?? null);
-        setKindCounts({
-          university: body.universityCount ?? 0,
-          juniorCollege: body.juniorCollegeCount ?? 0,
-        });
         setSchools(body.schools ?? []);
         setLoadError(null);
       })
@@ -192,9 +198,20 @@ export function StudentFillUniversityPanel() {
       });
   }, [analysisYear, selectedCode]);
 
+  const kindCounts = useMemo(() => {
+    let university = 0;
+    let juniorCollege = 0;
+    for (const row of schools) {
+      if (!studentFillRowMatchesEstb(row.estb, estbFilter)) continue;
+      if (row.schoolDivision === "전문대학") juniorCollege += 1;
+      else university += 1;
+    }
+    return { university, juniorCollege };
+  }, [schools, estbFilter]);
+
   const filteredSchools = useMemo(
-    () => filterSchools(schools, schoolKind, selectedSidoId, searchQuery),
-    [schools, schoolKind, selectedSidoId, searchQuery],
+    () => filterSchools(schools, schoolKind, estbFilter, selectedSidoId, searchQuery),
+    [schools, schoolKind, estbFilter, selectedSidoId, searchQuery],
   );
 
   const selectedUniv =
@@ -228,7 +245,7 @@ export function StudentFillUniversityPanel() {
 
   function changeSchoolKind(kind: SchoolKindFilter) {
     setSchoolKind(kind);
-    const rows = filterSchools(schools, kind, selectedSidoId, searchQuery);
+    const rows = filterSchools(schools, kind, estbFilter, selectedSidoId, searchQuery);
     if (rows[0]) {
       setSelectedCode(rows[0].schoolCodeStd);
       if (analysisYear) syncUrl(analysisYear, rows[0].schoolCodeStd);
@@ -330,6 +347,16 @@ export function StudentFillUniversityPanel() {
       ) : null}
 
       <div className="space-y-4">
+        <GlassMintTabGroup
+          ariaLabel="설립구분"
+          active={estbFilter}
+          onChange={setEstbFilter}
+          items={[
+            { id: "public", label: "국공립" },
+            { id: "private", label: "사립" },
+            { id: "all", label: "국공사립" },
+          ]}
+        />
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"

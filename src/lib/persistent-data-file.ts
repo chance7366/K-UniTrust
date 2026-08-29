@@ -12,7 +12,6 @@ import {
   shouldReadRemoteCsvStore,
 } from "@/lib/vercel-blob-env";
 import {
-  getProdStoreText,
   putProdStoreText,
   shouldSyncProdDataStore,
 } from "@/lib/prod-store-sync";
@@ -40,35 +39,14 @@ async function persistOverlayToDisk(relUnderData: string, body: string) {
 export async function readPersistentTextFile(
   relUnderData: string,
 ): Promise<string | null> {
-  if (shouldReadRemoteCsvStore()) {
-    const remote = await getStorePathText(blobPath(relUnderData));
-    if (remote) {
-      await persistOverlayToDisk(relUnderData, remote);
-      return remote;
-    }
-  }
-  if (shouldSyncProdDataStore()) {
-    const remote = await getProdStoreText("data", relUnderData);
-    if (remote) {
-      await persistOverlayToDisk(relUnderData, remote);
-      return remote;
-    }
-  }
   try {
     return await readFile(diskPath(relUnderData), "utf8");
   } catch {
     if (shouldReadRemoteCsvStore()) {
-      const retry = await getStorePathText(blobPath(relUnderData));
-      if (retry) {
-        await persistOverlayToDisk(relUnderData, retry);
-        return retry;
-      }
-    }
-    if (shouldSyncProdDataStore()) {
-      const retry = await getProdStoreText("data", relUnderData);
-      if (retry) {
-        await persistOverlayToDisk(relUnderData, retry);
-        return retry;
+      const remote = await getStorePathText(blobPath(relUnderData));
+      if (remote) {
+        await persistOverlayToDisk(relUnderData, remote);
+        return remote;
       }
     }
     return null;

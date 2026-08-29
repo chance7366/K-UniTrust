@@ -1,7 +1,7 @@
 import { parseAlimiDropoutUndergradRow } from "@/lib/analysis/dropout-rate-rep-rollup";
 import { parseAlimiEnrolledUndergradRow } from "@/lib/analysis/enrolled-enrollment-rep-rollup";
 import { parseYearText } from "@/lib/analysis/freshman-enrollment-rep-rollup";
-import { readCsvFile } from "@/lib/csv/read";
+import { loadCsvYearMapped } from "@/lib/csv/csv-year-load";
 import {
   loadSchoolCampusIndex,
   padSchoolCode,
@@ -58,7 +58,9 @@ type StudentFillAuxMaps = {
   roster: Map<string, RosterRep>;
 };
 
+const AUX_CACHE_MAX = 3;
 const auxCache = new Map<number, Promise<StudentFillAuxMaps>>();
+const auxOrder: number[] = [];
 
 function parseCells(raw: string | undefined): string[] {
   try {
@@ -184,6 +186,47 @@ function addNum<T extends Record<string, number>>(map: Map<string, T>, key: stri
   map.set(key, next);
 }
 
+/** 상반기 우선. 해당 연도에 상반기가 없으면(예: 2025) 하반기를 사용한다. */
+const ENROLLED_HALF_PREF = ["상반기", "하반기"] as const;
+
+function mergePreferredEnrolledHalf(
+  byHalf: Map<string, Map<string, EnrolledFillRep>>,
+): Map<string, EnrolledFillRep> {
+  const merged = new Map<string, EnrolledFillRep>();
+  for (const half of ENROLLED_HALF_PREF) {
+    const slice = byHalf.get(half);
+    if (!slice) continue;
+    for (const [code, value] of slice) {
+      if (!merged.has(code)) merged.set(code, value);
+    }
+  }
+  return merged;
+}
+
+function alimiYearOf(row: Record<string, string>): number | null {
+  return parseYearText(row.year_text ?? "");
+}
+
+type SlimEnrolled = {
+  half: string;
+  schoolCodeStd: string;
+  schoolName: string;
+  studentQuota: number;
+  recruitmentStop: number;
+  enrolledFill: number;
+  enrolledFillWithin: number;
+  enrolledFillOutside: number;
+};
+
+type SlimDropout = {
+  schoolCodeStd: string;
+  schoolName: string;
+  enrolledStudents: number;
+  dropouts: number;
+  freshmanStudents: number;
+  freshmanDropouts: number;
+};
+
 export async function loadStudentFillAuxByRep(analysisYear: number): Promise<StudentFillAuxMaps> {
   const enrolledYear = sourceYearForAnalysisYear(analysisYear, "enrolled");
   const rosterYear = sourceYearForAnalysisYear(analysisYear, "enrolled-students");
@@ -191,49 +234,106 @@ export async function loadStudentFillAuxByRep(analysisYear: number): Promise<Stu
   const foreignYear = sourceYearForAnalysisYear(analysisYear, "foreign");
   const foreignDropoutYear = sourceYearForAnalysisYear(analysisYear, "foreign-dropout");
 
-  const [index, enrolledRaw, dropoutRaw, foreignRaw, foreignDropoutRaw, rosterRaw] =
+  const [index, enrolledMapped, dropoutMapped, foreignMapped, foreignDropoutMapped, rosterMapped] =
     await Promise.all([
       loadSchoolCampusIndex(),
-      readCsvFile("univMapEnrolledEnrollmentUndergrad").catch(() => []),
-      readCsvFile("univMapDropoutRateUndergrad").catch(() => []),
-      readCsvFile("univMapForeignStudentsUndergrad").catch(() => []),
-      readCsvFile("univMapForeignDropoutUndergrad").catch(() => []),
-      readCsvFile("univMapEnrolledStudentsUndergrad").catch(() => []),
+      loadCsvYearMapped<SlimEnrolled>({
+        csvKey: "univMapEnrolledEnrollmentUndergrad",
+        cacheKey: "studentFill:enrolled",
+        yearOf: alimiYearOf,
+        year: enrolledYear,
+        mapRow: (raw) => {
+          if (!eligible(raw)) return null;
+          const parsed = parseAlimiEnrolledUndergradRow(raw);
+          if (!parsed) return null;
+          const half = parsed.half.trim();
+          if (half !== "상반기" && half !== "하반기") return null;
+          return {
+            half,
+            schoolCodeStd: parsed.schoolCodeStd,
+            schoolName: raw.school_name ?? "",
+            studentQuota: parsed.studentQuota,
+            recruitmentStop: parsed.recruitmentStop,
+            enrolledFill: parsed.enrolled.total,
+            enrolledFillWithin: parsed.enrolled.within,
+            enrolledFillOutside: parsed.enrolled.outside,
+          };
+        },
+      }),
+      loadCsvYearMapped<SlimDropout>({
+        csvKey: "univMapDropoutRateUndergrad",
+        cacheKey: "studentFill:dropout",
+        yearOf: alimiYearOf,
+        year: dropoutYear,
+        mapRow: (raw) => {
+          if (!eligible(raw)) return null;
+          const parsed = parseAlimiDropoutUndergradRow(raw);
+          if (!parsed) return null;
+          return {
+            schoolCodeStd: parsed.schoolCodeStd,
+            schoolName: raw.school_name ?? "",
+            enrolledStudents: parsed.enrolled.students,
+            dropouts: parsed.enrolled.dropouts,
+            freshmanStudents: parsed.freshman.students,
+            freshmanDropouts: parsed.freshman.dropouts,
+          };
+        },
+      }),
+      loadCsvYearMapped({
+        csvKey: "univMapForeignStudentsUndergrad",
+        cacheKey: "studentFill:foreign",
+        yearOf: alimiYearOf,
+        year: foreignYear,
+        mapRow: parseForeignStudents,
+      }),
+      loadCsvYearMapped({
+        csvKey: "univMapForeignDropoutUndergrad",
+        cacheKey: "studentFill:foreignDropout",
+        yearOf: alimiYearOf,
+        year: foreignDropoutYear,
+        mapRow: parseForeignDropout,
+      }),
+      loadCsvYearMapped({
+        csvKey: "univMapEnrolledStudentsUndergrad",
+        cacheKey: "studentFill:roster",
+        yearOf: alimiYearOf,
+        year: rosterYear,
+        mapRow: parseRoster,
+      }),
     ]);
 
-  const enrolled = new Map<string, EnrolledFillRep>();
-  for (const raw of enrolledRaw) {
-    if (!eligible(raw)) continue;
-    const parsed = parseAlimiEnrolledUndergradRow(raw);
-    if (!parsed || parsed.year !== enrolledYear || parsed.half !== "상반기") continue;
-    const code = repCode(index, enrolledYear, parsed.schoolCodeStd, raw.school_name ?? "");
-    addNum(enrolled, code, {
+  const enrolledByHalf = new Map<string, Map<string, EnrolledFillRep>>();
+  for (const parsed of enrolledMapped.rows) {
+    const code = repCode(index, enrolledYear, parsed.schoolCodeStd, parsed.schoolName);
+    let slice = enrolledByHalf.get(parsed.half);
+    if (!slice) {
+      slice = new Map();
+      enrolledByHalf.set(parsed.half, slice);
+    }
+    addNum(slice, code, {
       studentQuota: parsed.studentQuota,
       recruitmentStop: parsed.recruitmentStop,
-      enrolledFill: parsed.enrolled.total,
-      enrolledFillWithin: parsed.enrolled.within,
-      enrolledFillOutside: parsed.enrolled.outside,
+      enrolledFill: parsed.enrolledFill,
+      enrolledFillWithin: parsed.enrolledFillWithin,
+      enrolledFillOutside: parsed.enrolledFillOutside,
     });
   }
+  const enrolled = mergePreferredEnrolledHalf(enrolledByHalf);
 
   const dropout = new Map<string, DropoutRep>();
-  for (const raw of dropoutRaw) {
-    if (!eligible(raw)) continue;
-    const parsed = parseAlimiDropoutUndergradRow(raw);
-    if (!parsed || parsed.year !== dropoutYear) continue;
-    const code = repCode(index, dropoutYear, parsed.schoolCodeStd, raw.school_name ?? "");
+  for (const parsed of dropoutMapped.rows) {
+    const code = repCode(index, dropoutYear, parsed.schoolCodeStd, parsed.schoolName);
     addNum(dropout, code, {
-      enrolledStudents: parsed.enrolled.students,
-      dropouts: parsed.enrolled.dropouts,
-      freshmanStudents: parsed.freshman.students,
-      freshmanDropouts: parsed.freshman.dropouts,
+      enrolledStudents: parsed.enrolledStudents,
+      dropouts: parsed.dropouts,
+      freshmanStudents: parsed.freshmanStudents,
+      freshmanDropouts: parsed.freshmanDropouts,
     });
   }
 
   const foreign = new Map<string, ForeignRep>();
-  for (const raw of foreignRaw) {
-    const parsed = parseForeignStudents(raw);
-    if (!parsed || parsed.year !== foreignYear) continue;
+  for (const parsed of foreignMapped.rows) {
+    if (!parsed) continue;
     const code = repCode(index, foreignYear, parsed.schoolCodeStd, parsed.schoolName);
     addNum(foreign, code, {
       degreeA: parsed.degreeA,
@@ -245,9 +345,7 @@ export async function loadStudentFillAuxByRep(analysisYear: number): Promise<Stu
   }
 
   const foreignDropout = new Map<string, ForeignDropoutRep>();
-  for (const raw of foreignDropoutRaw) {
-    const parsed = parseForeignDropout(raw);
-    if (!parsed || parsed.year !== foreignDropoutYear) continue;
+  for (const parsed of foreignDropoutMapped.rows) {
     const code = repCode(index, foreignDropoutYear, parsed.schoolCodeStd, parsed.schoolName);
     addNum(foreignDropout, code, {
       degreeEnrolled: parsed.degreeEnrolled,
@@ -258,9 +356,7 @@ export async function loadStudentFillAuxByRep(analysisYear: number): Promise<Stu
   }
 
   const roster = new Map<string, RosterRep>();
-  for (const raw of rosterRaw) {
-    const parsed = parseRoster(raw);
-    if (!parsed || parsed.year !== rosterYear) continue;
+  for (const parsed of rosterMapped.rows) {
     const code = repCode(index, rosterYear, parsed.schoolCodeStd, parsed.schoolName);
     addNum(roster, code, {
       enrolledA: parsed.enrolledA,
@@ -279,6 +375,17 @@ export function loadStudentFillAuxByRepCached(analysisYear: number): Promise<Stu
   if (!pending) {
     pending = loadStudentFillAuxByRep(analysisYear);
     auxCache.set(analysisYear, pending);
+    auxOrder.push(analysisYear);
+    while (auxOrder.length > AUX_CACHE_MAX) {
+      const evictYear = auxOrder.shift();
+      if (evictYear != null && evictYear !== analysisYear) {
+        auxCache.delete(evictYear);
+      }
+    }
+  } else {
+    const idx = auxOrder.indexOf(analysisYear);
+    if (idx >= 0) auxOrder.splice(idx, 1);
+    auxOrder.push(analysisYear);
   }
   return pending;
 }

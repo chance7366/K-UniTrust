@@ -1,4 +1,13 @@
-import { rowMatchesSchoolDivisionFilter } from "@/lib/analysis/school-division";
+import {
+  normalizeEstbGroup,
+  rowMatchesSchoolDivisionFilter,
+} from "@/lib/analysis/school-division";
+
+export function matchesEstbFilter(value: string, filter: string): boolean {
+  if (!filter) return true;
+  if (value === filter) return true;
+  return filter === "국공립" && normalizeEstbGroup(value) === "국공립";
+}
 
 export function parseMultiFilterParam(value?: string): string[] {
   if (!value?.trim()) return [];
@@ -57,7 +66,7 @@ export function rowMatchesTableFilters(
     search?: string;
   },
 ): boolean {
-  if (!matchesSingleFilter(row.estb ?? "", filters.estb ?? "")) return false;
+  if (!matchesEstbFilter(row.estb ?? "", filters.estb ?? "")) return false;
   if (
     filters.schoolDivision &&
     !rowMatchesSchoolDivisionFilter(row, filters.schoolDivision)

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   Bar,
   BarChart,
@@ -572,6 +572,8 @@ type CorpTransferRatioAdvancedChartDashboardProps = {
     active: boolean;
     onClick: () => void;
   }) => React.ReactNode;
+  /** 숨은 설립 필터 기본값. 학생충원은 페이지에서 이미 걸러지므로 빈 값(전체). */
+  defaultEstb?: string;
 };
 
 export function CorpTransferRatioAdvancedChartDashboard({
@@ -594,10 +596,14 @@ export function CorpTransferRatioAdvancedChartDashboard({
   helpPack = CORP_TRANSFER_DEFAULT_HELP,
   filterToolbarLeading,
   renderHelpButton,
+  defaultEstb = DEFAULT_ESTB,
 }: CorpTransferRatioAdvancedChartDashboardProps) {
   const chartYears = useMemo(() => sortAdvancedChartYears(years), [years]);
   const [year, setYear] = useState(() => latestAdvancedChartYear(years));
-  const [estb, setEstb] = useState(DEFAULT_ESTB);
+  const [estb, setEstb] = useState(defaultEstb);
+  useEffect(() => {
+    setEstb(defaultEstb);
+  }, [defaultEstb]);
   const [schoolDivision, setSchoolDivision] = useState("");
   const [schoolKinds, setSchoolKinds] = useState<string[]>([]);
   const [mainTab, setMainTab] = useState<MainTab>(() =>
@@ -641,12 +647,12 @@ export function CorpTransferRatioAdvancedChartDashboard({
   );
 
   const hasActiveFilter =
-    estb !== DEFAULT_ESTB ||
+    estb !== defaultEstb ||
     schoolDivision !== "" ||
     schoolKinds.length > 0;
 
   function resetFilters() {
-    setEstb(DEFAULT_ESTB);
+    setEstb(defaultEstb);
     setSchoolDivision("");
     setSchoolKinds([]);
   }

@@ -5,6 +5,8 @@ import { bumpCsvStoreRevision, putCsvStoreFile } from "@/lib/csv/blob-store";
 import { CSV_DIR, CSV_FILES, csvPath, type CsvFileKey } from "@/lib/csv/paths";
 import { invalidateCsvCache } from "@/lib/csv/read";
 import { invalidateYearSliceCache } from "@/lib/csv/year-slice-cache";
+import { invalidateSchoolCampusIndexCache } from "@/lib/ingest/school-code-campus-index";
+import { invalidateSchoolLookupCaches } from "@/lib/ingest/school-code-lookup";
 import {
   invalidateProdCsvRevisionCache,
   putProdStoreText,
@@ -52,5 +54,9 @@ export async function writeCsvFile(
   }
   invalidateCsvCache(key);
   invalidateYearSliceCache();
+  if (key === "financeAnalysisSchoolCode") {
+    invalidateSchoolCampusIndexCache();
+    invalidateSchoolLookupCaches();
+  }
   return filePath;
 }

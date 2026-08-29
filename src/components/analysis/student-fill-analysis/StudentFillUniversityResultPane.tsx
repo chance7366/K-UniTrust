@@ -133,6 +133,11 @@ export function StudentFillUniversityResultPane({
         : []),
       { name: "권역", value: rateOf(slices?.zone ?? undefined, primary), fill: "#0284c7" },
       { name: "규모", value: rateOf(slices?.scale ?? undefined, primary), fill: "#d97706" },
+      {
+        name: slices?.estb?.label ?? "설립",
+        value: rateOf(slices?.estb ?? undefined, primary),
+        fill: "#7c3aed",
+      },
       { name: "전국", value: rateOf(slices?.nationwide ?? undefined, primary), fill: "#64748b" },
     ].filter((row): row is { name: string; value: number; fill: string } => row.value != null);
   }, [peer, primary, school, slices]);
@@ -154,6 +159,7 @@ export function StudentFillUniversityResultPane({
         year: row.year,
         school: rateOf(row.school, primary),
         nationwide: rateOf(row.nationwide, primary),
+        estb: rateOf(row.estb, primary),
         zone: rateOf(row.zone, primary),
         scale: rateOf(row.scale, primary),
         sido: rateOf(row.sido, primary),
@@ -168,7 +174,7 @@ export function StudentFillUniversityResultPane({
       <SlimTabs ariaLabel="분석 영역" active={domain} onChange={setDomain} tabs={DOMAIN_TABS} />
       <SlimTabs ariaLabel="비교 렌즈" active={lens} onChange={setLens} tabs={LENS_TABS} />
       <p className={FDB_TYPO.legend}>
-        동종 {school.schoolDivision} 가중 평균(합산 후 율). 주축 {METRIC_LABEL[primary]}.
+        동종 {school.schoolDivision}(국공사립) 가중 평균(합산 후 율). 설립 집단은 국공립·사립을 따로 둡니다. 주축 {METRIC_LABEL[primary]}.
         {domain === "foreign" ? " 정원외 ≠ 외국인 · 학위(A) 기본." : ""}
         {domain === "enrolled" ? " 탈락은 분석연도−1." : ""}
       </p>
@@ -222,7 +228,9 @@ export function StudentFillUniversityResultPane({
           <p className={`mt-1 ${FDB_TYPO.legend}`}>
             시·도 {slices?.sido?.n ?? 0}교
             {slices?.sido && slices.sido.n < 2 ? " · 시·도 비교 표본이 적어 막대는 생략될 수 있습니다." : ""}
-            {" · "}권역 {slices?.zone?.n ?? 0}교 · 규모 {slices?.scale?.n ?? 0}교 · 전국 {slices?.nationwide?.n ?? 0}교
+            {" · "}권역 {slices?.zone?.n ?? 0}교 · 규모 {slices?.scale?.n ?? 0}교
+            {slices?.estb ? ` · ${slices.estb.label} ${slices.estb.n}교` : ""}
+            {" · "}전국 {slices?.nationwide?.n ?? 0}교
           </p>
           <div className="mt-3 h-52">
             <ResponsiveContainer width="100%" height="100%">
@@ -284,6 +292,7 @@ export function StudentFillUniversityResultPane({
                 <Legend />
                 <Line type="monotone" dataKey="school" name="자교" stroke="#2a7a55" strokeWidth={2} connectNulls dot={false} />
                 <Line type="monotone" dataKey="nationwide" name="동종 전국" stroke="#64748b" strokeDasharray="4 3" connectNulls dot={false} />
+                <Line type="monotone" dataKey="estb" name="설립" stroke="#7c3aed" strokeDasharray="4 3" connectNulls dot={false} />
                 <Line type="monotone" dataKey="zone" name="권역" stroke="#0284c7" strokeDasharray="4 3" connectNulls dot={false} />
                 <Line type="monotone" dataKey="scale" name="규모" stroke="#d97706" strokeDasharray="4 3" connectNulls dot={false} />
                 <Line type="monotone" dataKey="sido" name="시·도" stroke="#3B82F6" strokeDasharray="2 3" connectNulls dot={false} />
@@ -294,7 +303,7 @@ export function StudentFillUniversityResultPane({
             <table className={`w-full min-w-[640px] border-collapse ${FDB_TYPO.tableBody}`}>
               <thead>
                 <tr className="border-b border-border bg-surface-2/80">
-                  {["연도", "자교", "전국", "권역", "규모", "시·도"].map((h) => (
+                  {["연도", "자교", "전국", "설립", "권역", "규모", "시·도"].map((h) => (
                     <th key={h} className="px-2 py-1.5 text-left font-semibold">
                       {h}
                     </th>
@@ -307,6 +316,7 @@ export function StudentFillUniversityResultPane({
                     <td className="px-2 py-1.5">{row.year}</td>
                     <td className="px-2 py-1.5">{fmtPct(row.school)}</td>
                     <td className="px-2 py-1.5">{fmtPct(row.nationwide)}</td>
+                    <td className="px-2 py-1.5">{fmtPct(row.estb)}</td>
                     <td className="px-2 py-1.5">{fmtPct(row.zone)}</td>
                     <td className="px-2 py-1.5">{fmtPct(row.scale)}</td>
                     <td className="px-2 py-1.5">{fmtPct(row.sido)}</td>
@@ -376,7 +386,7 @@ function StatsLens({
         <table className={`w-full min-w-[720px] border-collapse ${FDB_TYPO.tableBody}`}>
           <thead>
             <tr className="border-b border-border bg-surface-2/80">
-              {["지표", "자교", "시·도", "권역", "규모", "전국", "전국 대비"].map((h) => (
+              {["지표", "자교", "시·도", "권역", "규모", "설립", "전국", "전국 대비"].map((h) => (
                 <th key={h} className="px-2 py-1.5 text-left font-semibold">
                   {h}
                 </th>
@@ -389,6 +399,7 @@ function StatsLens({
               const sido = peer.slices.sido?.[row.key] ?? null;
               const zone = peer.slices.zone?.[row.key] ?? null;
               const scale = peer.slices.scale?.[row.key] ?? null;
+              const estb = peer.slices.estb?.[row.key] ?? null;
               const nation = peer.slices.nationwide?.[row.key] ?? null;
               return (
                 <tr key={row.key} className="border-b border-border/60">
@@ -405,6 +416,10 @@ function StatsLens({
                   <td className="px-2 py-1.5">
                     {fmtPct(scale)}
                     {peer.slices.scale ? ` (n=${peer.slices.scale.n})` : ""}
+                  </td>
+                  <td className="px-2 py-1.5">
+                    {fmtPct(estb)}
+                    {peer.slices.estb ? ` (n=${peer.slices.estb.n})` : ""}
                   </td>
                   <td className="px-2 py-1.5">
                     {fmtPct(nation)}

@@ -79,6 +79,8 @@ export async function POST(
       years: result.years,
       overwrittenYears: result.overwrittenYears,
       newYears: result.newYears,
+      overwrittenPeriods: result.overwrittenPeriods,
+      newPeriods: result.newPeriods,
       bronzePath: result.bronzePath,
     });
   } catch (err) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Database, School, SlidersHorizontal } from "lucide-react";
 
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
@@ -59,8 +59,14 @@ export function StudentFillSettingsPanel() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [runError, setRunError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
+  const skipYearRefetch = useRef(false);
 
   useEffect(() => {
+    if (skipYearRefetch.current) {
+      skipYearRefetch.current = false;
+      return;
+    }
+    let cancelled = false;
     const qs = year != null ? `?year=${year}` : "";
     fetch(`/api/student-fill-analysis/settings${qs}`)
       .then(async (res) => {
@@ -68,13 +74,22 @@ export function StudentFillSettingsPanel() {
           error?: string;
         };
         if (!res.ok) throw new Error(body.error ?? "대상대학을 불러오지 못했습니다.");
+        if (cancelled) return;
         setPayload(body);
-        setYear((prev) => prev ?? body.displayYear);
+        if (year == null && body.displayYear != null) {
+          skipYearRefetch.current = true;
+          setYear(body.displayYear);
+        }
         setLoadError(null);
       })
       .catch((err: unknown) => {
-        setLoadError(err instanceof Error ? err.message : "대상대학을 불러오지 못했습니다.");
+        if (!cancelled) {
+          setLoadError(err instanceof Error ? err.message : "대상대학을 불러오지 못했습니다.");
+        }
       });
+    return () => {
+      cancelled = true;
+    };
   }, [year]);
 
   const schools = payload?.schools ?? [];
@@ -101,6 +116,7 @@ export function StudentFillSettingsPanel() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ analysisYear: year }),
+        signal: AbortSignal.timeout(120_000),
       });
       const body = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(body.error ?? "분석실행에 실패했습니다.");

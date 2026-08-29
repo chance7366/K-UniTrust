@@ -4,31 +4,36 @@ import { parse } from "csv-parse/sync";
 import { getCsvStoreFile, getCsvStoreRevision } from "@/lib/csv/blob-store";
 import { CSV_DIR, CSV_FILES, csvPath, type CsvFileKey } from "@/lib/csv/paths";
 import {
-  getProdCsvRevision,
-  getProdStoreText,
-  shouldSyncProdDataStore,
-} from "@/lib/prod-store-sync";
+  dropYearSliceCachesForCsv,
+  invalidateYearSliceCache,
+} from "@/lib/csv/year-slice-cache";
 import { shouldReadRemoteCsvStore } from "@/lib/vercel-blob-env";
 
-type CsvCacheEntry = {
-  mtimeMs: number;
-  rows: Record<string, string>[];
-};
-
-const csvMemoryCache = new Map<CsvFileKey, CsvCacheEntry>();
+/** File version only — parsed row arrays are not kept in memory. */
+const csvVersions = new Map<CsvFileKey, number>();
 let blobEpoch = 1;
 
 export function invalidateCsvCache(key?: CsvFileKey) {
   blobEpoch += 1;
   if (key) {
-    csvMemoryCache.delete(key);
+    csvVersions.delete(key);
+    dropYearSliceCachesForCsv(key);
     return;
   }
-  csvMemoryCache.clear();
+  csvVersions.clear();
+  invalidateYearSliceCache();
 }
 
 export function getCachedCsvMtime(key: CsvFileKey): number | null {
-  return csvMemoryCache.get(key)?.mtimeMs ?? null;
+  return csvVersions.get(key) ?? null;
+}
+
+export function getCsvDataVersion(key: CsvFileKey): number | null {
+  return csvVersions.get(key) ?? null;
+}
+
+function noteCsvVersion(key: CsvFileKey, version: number) {
+  csvVersions.set(key, version);
 }
 
 function parseCsvText(raw: string): Record<string, string>[] {
@@ -50,85 +55,79 @@ async function persistOverlayToDisk(filePath: string, body: string) {
   }
 }
 
+/** Stat/revision only — does not parse or retain rows. */
+export async function peekCsvFileVersion(key: CsvFileKey): Promise<number> {
+  if (shouldReadRemoteCsvStore()) {
+    const revision = await getCsvStoreRevision();
+    const version = revision > 0 ? revision : blobEpoch;
+    noteCsvVersion(key, version);
+    return version;
+  }
+  try {
+    const fileStat = await stat(csvPath(key));
+    noteCsvVersion(key, fileStat.mtimeMs);
+    return fileStat.mtimeMs;
+  } catch {
+    return csvVersions.get(key) ?? 0;
+  }
+}
+
+export async function peekLocalCsvVersion(key: CsvFileKey): Promise<number> {
+  return peekCsvFileVersion(key);
+}
+
+export async function readCsvFileFromDisk(
+  key: CsvFileKey,
+): Promise<Record<string, string>[]> {
+  try {
+    const filePath = csvPath(key);
+    const fileStat = await stat(filePath);
+    const raw = await readFile(filePath, "utf8");
+    if (!raw.trim()) return [];
+    const records = parseCsvText(raw);
+    noteCsvVersion(key, fileStat.mtimeMs);
+    return records;
+  } catch {
+    return [];
+  }
+}
+
+const readInflight = new Map<CsvFileKey, Promise<Record<string, string>[]>>();
+
 export async function readCsvFile(
+  key: CsvFileKey,
+): Promise<Record<string, string>[]> {
+  const pending = readInflight.get(key);
+  if (pending) return pending;
+  const next = readCsvFileUncached(key).finally(() => {
+    readInflight.delete(key);
+  });
+  readInflight.set(key, next);
+  return next;
+}
+
+async function readCsvFileUncached(
   key: CsvFileKey,
 ): Promise<Record<string, string>[]> {
   if (shouldReadRemoteCsvStore()) {
     const revision = await getCsvStoreRevision();
-    const cached = csvMemoryCache.get(key);
-    if (cached && cached.mtimeMs === revision && revision > 0) {
-      return cached.rows;
-    }
-
     const remote = await getCsvStoreFile(CSV_FILES[key]);
     if (remote != null) {
       const records = parseCsvText(remote);
-      csvMemoryCache.set(key, {
-        mtimeMs: revision > 0 ? revision : blobEpoch,
-        rows: records,
-      });
+      noteCsvVersion(key, revision > 0 ? revision : blobEpoch);
       await persistOverlayToDisk(csvPath(key), remote);
       return records;
     }
   }
 
-  if (shouldSyncProdDataStore()) {
-    const revision = await getProdCsvRevision();
-    const cached = csvMemoryCache.get(key);
-    if (cached && cached.mtimeMs === revision && revision > 0) {
-      return cached.rows;
-    }
-
-    const remote = await getProdStoreText("csv", CSV_FILES[key]);
-    if (remote != null) {
-      const records = parseCsvText(remote);
-      csvMemoryCache.set(key, {
-        mtimeMs: revision > 0 ? revision : blobEpoch,
-        rows: records,
-      });
-      await persistOverlayToDisk(csvPath(key), remote);
-      return records;
-    }
-  }
-
-  const filePath = csvPath(key);
   try {
+    const filePath = csvPath(key);
     const fileStat = await stat(filePath);
-    const cached = csvMemoryCache.get(key);
-
-    if (cached && cached.mtimeMs === fileStat.mtimeMs) {
-      return cached.rows;
-    }
-
     const raw = await readFile(filePath, "utf8");
-    const records = parseCsvText(raw);
-    csvMemoryCache.set(key, { mtimeMs: fileStat.mtimeMs, rows: records });
+    const records = raw.trim() ? parseCsvText(raw) : [];
+    noteCsvVersion(key, fileStat.mtimeMs);
     return records;
-  } catch (err) {
-    if (shouldReadRemoteCsvStore()) {
-      const retry = await getCsvStoreFile(CSV_FILES[key]);
-      if (retry != null) {
-        const records = parseCsvText(retry);
-        csvMemoryCache.set(key, {
-          mtimeMs: Date.now(),
-          rows: records,
-        });
-        await persistOverlayToDisk(filePath, retry);
-        return records;
-      }
-    }
-    if (shouldSyncProdDataStore()) {
-      const retry = await getProdStoreText("csv", CSV_FILES[key]);
-      if (retry != null) {
-        const records = parseCsvText(retry);
-        csvMemoryCache.set(key, {
-          mtimeMs: Date.now(),
-          rows: records,
-        });
-        await persistOverlayToDisk(filePath, retry);
-        return records;
-      }
-    }
-    throw err;
+  } catch {
+    return [];
   }
 }

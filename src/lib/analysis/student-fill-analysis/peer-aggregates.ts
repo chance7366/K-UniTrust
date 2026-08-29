@@ -2,6 +2,11 @@ import {
   COHORT_HIGH_RISK_TAIL_PCT,
   COHORT_RISK_TAIL_PCT,
 } from "@/lib/analysis/cohort-relative-risk";
+import { normalizeEstbGroup } from "@/lib/analysis/school-division";
+import {
+  isStudentFillPrivateEstb,
+  studentFillRowMatchesEstb,
+} from "./cohort-rules";
 import { pct, type StudentFillSchoolRow } from "./types";
 
 export type StudentFillPeerRates = {
@@ -21,7 +26,12 @@ export type StudentFillPeerRates = {
   deferShare: number | null;
 };
 
-export type StudentFillPeerSliceKey = "nationwide" | "zone" | "sido" | "scale";
+export type StudentFillPeerSliceKey =
+  | "nationwide"
+  | "estb"
+  | "zone"
+  | "sido"
+  | "scale";
 
 export type StudentFillPeerSlice = StudentFillPeerRates & {
   key: StudentFillPeerSliceKey;
@@ -58,6 +68,7 @@ export type StudentFillPeerTrendRow = {
   year: number;
   school: StudentFillPeerRates;
   nationwide: StudentFillPeerRates | null;
+  estb: StudentFillPeerRates | null;
   zone: StudentFillPeerRates | null;
   sido: StudentFillPeerRates | null;
   scale: StudentFillPeerRates | null;
@@ -101,6 +112,18 @@ export function sameKindPeers(
   school: StudentFillSchoolRow,
 ): StudentFillSchoolRow[] {
   return rows.filter((row) => row.schoolDivision === school.schoolDivision);
+}
+
+export function sameEstbGroupPeers(
+  rows: StudentFillSchoolRow[],
+  school: StudentFillSchoolRow,
+): StudentFillSchoolRow[] {
+  const filter = isStudentFillPrivateEstb(school.estb) ? "private" : "public";
+  return rows.filter((row) => studentFillRowMatchesEstb(row.estb, filter));
+}
+
+export function studentFillEstbGroupLabel(estb: string): string {
+  return normalizeEstbGroup(estb) === "사립" ? "사립" : "국공립";
 }
 
 export function weightedPeerRates(rows: StudentFillSchoolRow[]): StudentFillPeerRates {
@@ -324,12 +347,26 @@ export function buildPeerSnapshot(
   school: StudentFillSchoolRow,
 ): Omit<StudentFillPeerPayload, "trend"> {
   const nationwide = weightedPeerRates(peers);
+  const estbPeers = sameEstbGroupPeers(peers, school);
   const zonePeers = school.zone ? peers.filter((row) => row.zone === school.zone) : [];
   const sidoPeers = peers.filter((row) => row.region === school.region);
   const scalePeers = school.scale ? peers.filter((row) => row.scale === school.scale) : [];
+  const estbLabel = studentFillEstbGroupLabel(school.estb);
 
   const slices: Record<StudentFillPeerSliceKey, StudentFillPeerSlice | null> = {
-    nationwide: { key: "nationwide", label: `동종 전국 (${school.schoolDivision})`, ...nationwide },
+    nationwide: {
+      key: "nationwide",
+      label: `동종 전국 (${school.schoolDivision} · 국공사립)`,
+      ...nationwide,
+    },
+    estb:
+      estbPeers.length > 0
+        ? {
+            key: "estb",
+            label: `동종 ${estbLabel}`,
+            ...weightedPeerRates(estbPeers),
+          }
+        : null,
     zone:
       zonePeers.length > 0
         ? { key: "zone", label: school.zone ?? "권역", ...weightedPeerRates(zonePeers) }
@@ -360,6 +397,7 @@ export function buildPeerTrendRow(
   peers: StudentFillSchoolRow[],
   focus: StudentFillSchoolRow,
 ): StudentFillPeerTrendRow {
+  const estbPeers = sameEstbGroupPeers(peers, focus);
   const zonePeers = focus.zone ? peers.filter((row) => row.zone === focus.zone) : [];
   const sidoPeers = peers.filter((row) => row.region === focus.region);
   const scalePeers = focus.scale ? peers.filter((row) => row.scale === focus.scale) : [];
@@ -369,6 +407,7 @@ export function buildPeerTrendRow(
       ? ratesFromSchool(schoolRow)
       : { n: 0, rateAll: null, rateIn: null, outShare: null, enrolledFillRate: null, enrolledFillRateIn: null, dropoutRate: null, freshmanDropoutRate: null, foreignShare: null, langAbilityRate: null, foreignDropRate: null, leaveShare: null, enrolledOutShare: null, deferShare: null },
     nationwide: peers.length ? weightedPeerRates(peers) : null,
+    estb: estbPeers.length ? weightedPeerRates(estbPeers) : null,
     zone: zonePeers.length ? weightedPeerRates(zonePeers) : null,
     sido: sidoPeers.length >= 2 ? weightedPeerRates(sidoPeers) : null,
     scale: scalePeers.length ? weightedPeerRates(scalePeers) : null,

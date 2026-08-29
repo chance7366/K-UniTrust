@@ -159,16 +159,22 @@ function UploadRow({
             rowCount?: number;
             overwrittenYears?: number[];
             newYears?: number[];
+            overwrittenPeriods?: string[];
+            newPeriods?: string[];
             error?: string;
           };
           if (!res.ok) {
             throw new Error(body.error ?? "업로드에 실패했습니다.");
           }
           const parts: string[] = [];
-          if (body.overwrittenYears?.length) {
+          if (body.overwrittenPeriods?.length) {
+            parts.push(`덮어쓰기 ${body.overwrittenPeriods.join(", ")}`);
+          } else if (body.overwrittenYears?.length) {
             parts.push(`덮어쓰기 ${body.overwrittenYears.join(", ")}년`);
           }
-          if (body.newYears?.length) {
+          if (body.newPeriods?.length) {
+            parts.push(`신규 ${body.newPeriods.join(", ")}`);
+          } else if (body.newYears?.length) {
             parts.push(`신규 ${body.newYears.join(", ")}년`);
           }
           setMessage(
@@ -375,7 +381,9 @@ export function UnivAlimiRawDashboard({
               <h4 className={`mt-0.5 text-sm font-semibold`}>{screen.title}</h4>
               <p className={`mt-1 ${FDB_TYPO.legend} text-muted`}>
                 {hasGrad
-                  ? "대학전문·대학원 각각 업로드 · 동일 기준연도 덮어쓰기"
+                  ? data.indicator === "enrolled-enrollment"
+                    ? "대학전문·대학원 각각 업로드 · 대학전문은 동일 기준연도·상하반기만 덮어쓰기"
+                    : "대학전문·대학원 각각 업로드 · 동일 기준연도 덮어쓰기"
                   : "업로드 · 동일 연도 덮어쓰기"}
               </p>
             </div>
