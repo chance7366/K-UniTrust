@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-import { GraduationCap, Globe, Layers3, Users } from "lucide-react";
+import { FileText, GraduationCap, Globe, Layers3, Users } from "lucide-react";
 
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { DashboardKpiCard, type DashboardKpiAccent } from "@/components/analysis/DashboardKpiCard";
@@ -14,6 +14,7 @@ import {
 } from "@/components/analysis/GlassHelpButton";
 import { HelpGuidePanel } from "@/components/analysis/FundSecureRateAdvancedHelp";
 import { SchoolNameSearchInput } from "@/components/analysis/SchoolNameSearchInput";
+import { StudentFillComprehensiveReportPanel } from "@/components/analysis/student-fill-analysis/StudentFillComprehensiveReportPanel";
 import { StudentFillRunChartsDashboard } from "@/components/analysis/student-fill-analysis/StudentFillRunChartsDashboard";
 import {
   SchoolKindTabBar,
@@ -365,6 +366,7 @@ export function StudentFillRunPanel() {
   const [analysisYear, setAnalysisYear] = useState<number | null>(yearFromUrl);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     const qs = new URLSearchParams();
@@ -509,6 +511,7 @@ export function StudentFillRunPanel() {
         <FinanceSectionTabRow
           active={section}
           onChange={(next) => {
+            setReportOpen(false);
             setSection(next);
           }}
         />
@@ -549,11 +552,31 @@ export function StudentFillRunPanel() {
             />
           </>
         ) : null}
+        <div className="ml-auto">
+          <div className="glass-mint-seg" role="group" aria-label="종합보고서">
+            <button
+              type="button"
+              className={`glass-mint-seg-item${reportOpen ? " is-on" : ""}`}
+              aria-pressed={reportOpen}
+              onClick={() => setReportOpen((open) => !open)}
+            >
+              <FileText size={12} strokeWidth={2.6} aria-hidden />
+              종합보고서
+            </button>
+          </div>
+        </div>
       </div>
 
       {error ? <p className={`${FDB_TYPO.legend} text-danger`}>{error}</p> : null}
 
-      {section === "charts" ? (
+      {reportOpen ? (
+        <StudentFillComprehensiveReportPanel
+          year={year}
+          estb={estbFilter}
+          schoolKind={schoolKind === "junior-college" ? "junior-college" : schoolKind === "all" ? "all" : "university"}
+          explorerRows={cohortRows}
+        />
+      ) : section === "charts" ? (
         <StudentFillRunChartsDashboard
           preferredYear={analysisYear}
           currentSchools={edition?.schools ?? null}

@@ -7,6 +7,7 @@ import {
   writePersistentTextFile,
 } from "@/lib/persistent-data-file";
 
+import type { StudentFillComprehensiveReport } from "./comprehensive-report-types";
 import type { StudentFillUniversityReport } from "./diagnosis";
 import type { StudentFillEdition } from "./types";
 
@@ -18,6 +19,10 @@ function runRel(year: number) {
 
 function reportRel(year: number, schoolCodeStd: string) {
   return `json/student-fill-analysis/${year}/reports/${schoolCodeStd}.json`;
+}
+
+function comprehensiveRel(year: number, filterKey: string) {
+  return `json/student-fill-analysis/${year}/comprehensive/${filterKey}.json`;
 }
 
 function parseYearFromBlobPath(pathname: string): number | null {
@@ -115,6 +120,32 @@ export async function writeStudentFillUniversityReport(
 ) {
   await writePersistentTextFile(
     reportRel(report.analysisYear, report.schoolCodeStd),
+    JSON.stringify(report),
+  );
+}
+
+export async function readStudentFillComprehensiveReport(
+  year: number,
+  filterKey: string,
+): Promise<StudentFillComprehensiveReport | null> {
+  try {
+    const raw = await readPersistentTextFile(comprehensiveRel(year, filterKey));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StudentFillComprehensiveReport;
+    if (parsed?.analysisYear !== year || parsed.filterKey !== filterKey) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export async function writeStudentFillComprehensiveReport(
+  report: StudentFillComprehensiveReport,
+) {
+  await writePersistentTextFile(
+    comprehensiveRel(report.analysisYear, report.filterKey),
     JSON.stringify(report),
   );
 }

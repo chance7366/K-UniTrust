@@ -98,6 +98,9 @@ export function getStudentFillAnalysisActiveTabId(pathname: string) {
 }
 
 export function getStudentFillAnalysisMockActiveTabId(pathname: string) {
+  if (pathname.includes("/comprehensive-report") || pathname.endsWith("/run")) {
+    return "run";
+  }
   if (pathname.includes("/university")) return "university";
   return getStudentFillAnalysisActiveTabId(pathname);
 }

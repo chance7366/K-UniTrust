@@ -10,7 +10,10 @@ async function getBrowser(): Promise<Browser> {
 }
 
 /** A4 HTML 보고서 → PDF Buffer (로컬 CLI 전용, Playwright Chromium) */
-export async function htmlToPdfBuffer(html: string): Promise<Buffer> {
+export async function htmlToPdfBuffer(
+  html: string,
+  options?: { landscape?: boolean },
+): Promise<Buffer> {
   const browser = await getBrowser();
   const page = await browser.newPage();
   try {
@@ -18,6 +21,7 @@ export async function htmlToPdfBuffer(html: string): Promise<Buffer> {
     await page.emulateMedia({ media: "print" });
     const pdf = await page.pdf({
       format: "A4",
+      landscape: options?.landscape === true,
       printBackground: true,
       preferCSSPageSize: true,
       margin: { top: "0", right: "0", bottom: "0", left: "0" },
