@@ -1,4 +1,4 @@
-﻿year,cohort,school_rep_code,school_rep_name,region,estb,school_division,edu_carryover,edu_endowment,industry_carryover,industry_endowment,total_funds,tuition_revenue,fund_secure_rate,campus_count,has_alimi,updated_at
+year,cohort,school_rep_code,school_rep_name,region,estb,school_division,edu_carryover,edu_endowment,industry_carryover,industry_endowment,total_funds,tuition_revenue,fund_secure_rate,campus_count,has_alimi,updated_at
 2020,university,0000513,가톨릭관동대학교,강원,사립,대학,2089887.5199999996,8438995.021,1696460.2109999997,0,12225342.751999998,58587742.01,20.9,1,Y,2026-08-15T06:00:43.635Z
 2020,university,0000041,경동대학교,강원,사립,대학,15632538.700000003,13911400.47,375213.595,0,29919152.765,58162860.1,51.4,4,Y,2026-08-15T06:00:43.635Z
 2020,university,0000086,상지대학교,강원,사립,대학,-4968291.359999999,5350031.054,2570725.615,0,2952465.3090000004,55415339.59,5.3,1,Y,2026-08-15T06:00:43.635Z

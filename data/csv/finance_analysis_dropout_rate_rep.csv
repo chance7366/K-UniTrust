@@ -1,4 +1,4 @@
-﻿year,cohort,school_rep_code,school_rep_name,region,estb,school_division,enrolled_students,enrolled_dropouts,enrolled_dropout_rate,freshman_students,freshman_dropouts,freshman_dropout_rate,campus_count,grad_program_count,has_alimi,updated_at
+year,cohort,school_rep_code,school_rep_name,region,estb,school_division,enrolled_students,enrolled_dropouts,enrolled_dropout_rate,freshman_students,freshman_dropouts,freshman_dropout_rate,campus_count,grad_program_count,has_alimi,updated_at
 2019,university,0000513,가톨릭관동대학교,강원,사립,대학,12897,979,7.6,0,0,,1,0,Y,2026-08-15T04:17:46.259Z
 2019,university,0000041,경동대학교,강원,사립,대학,9978,592,5.9,0,0,,4,0,Y,2026-08-15T04:17:46.259Z
 2019,university,0000086,상지대학교,강원,사립,대학,9301,875,9.4,0,0,,1,0,Y,2026-08-15T04:17:46.259Z

@@ -1,4 +1,4 @@
-﻿year,cohort,school_rep_code,school_rep_name,region,estb,school_division,tuition_revenue,edu_operating_revenue,industry_operating_revenue,total_operating_revenue,tuition_dependency_rate,campus_count,has_alimi,updated_at
+year,cohort,school_rep_code,school_rep_name,region,estb,school_division,tuition_revenue,edu_operating_revenue,industry_operating_revenue,total_operating_revenue,tuition_dependency_rate,campus_count,has_alimi,updated_at
 2020,university,0000513,가톨릭관동대학교,강원,사립,대학,58587742.01,92456854.49,16878255.85,109335110.34,53.6,1,Y,2026-08-15T06:33:03.497Z
 2020,university,0000041,경동대학교,강원,사립,대학,58162860.1,81360792.39,6379487.776,87740280.166,66.3,4,Y,2026-08-15T06:33:03.497Z
 2020,university,0000086,상지대학교,강원,사립,대학,55415339.59,76116130.94,10384411.44,86500542.38,64.1,1,Y,2026-08-15T06:33:03.497Z

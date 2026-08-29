@@ -1,4 +1,4 @@
-﻿year,cohort,school_rep_code,school_rep_name,region,estb,school_division,appraised_gross,collateral_deduction,appraised_net,income_total,tuition_revenue,secure_rate,revenue_rate,campus_count,has_alimi,updated_at
+year,cohort,school_rep_code,school_rep_name,region,estb,school_division,appraised_gross,collateral_deduction,appraised_net,income_total,tuition_revenue,secure_rate,revenue_rate,campus_count,has_alimi,updated_at
 2021,university,0000513,가톨릭관동대학교,강원,사립,대학,101912994,26544519,75368475,1293617,58587742.01,128.6,1.3,1,Y,2026-08-15T07:41:06.072Z
 2021,university,0000041,경동대학교,강원,사립,대학,97869755,3902800,93966955,3144189,58162860.1,161.6,3.2,4,Y,2026-08-15T07:41:06.072Z
 2021,university,0000086,상지대학교,강원,사립,대학,16599020,1530000,15069020,281342,55415339.59,27.2,1.7,1,Y,2026-08-15T07:41:06.072Z

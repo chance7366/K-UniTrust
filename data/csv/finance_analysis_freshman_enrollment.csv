@@ -1,4 +1,4 @@
-﻿year,school_kind,estb,school_division,region,status,school_code_std,school_name,admission_quota,recruit_total,recruit_within,recruit_outside,enrolled_total,enrolled_within,enrolled_outside,fill_rate_within,fill_rate_within_outside,uploaded_at
+year,school_kind,estb,school_division,region,status,school_code_std,school_name,admission_quota,recruit_total,recruit_within,recruit_outside,enrolled_total,enrolled_within,enrolled_outside,fill_rate_within,fill_rate_within_outside,uploaded_at
 2025,대학교,사립,,경남,기존,0002748,가야대학교(김해),405,432,409,23,414,389,25,95.11,95.83,2026-08-07T07:48:15.697Z
 2025,대학교,사립,,경기,기존,0000063,가천대학교,4071,5541,4071,1470,5498,4071,1427,100,99.22,2026-08-07T07:48:15.697Z
 2025,대학교,사립,,강원,기존,0000072,가톨릭관동대학교,1815,1869,1696,173,1532,1403,129,82.72,81.97,2026-08-07T07:48:15.697Z

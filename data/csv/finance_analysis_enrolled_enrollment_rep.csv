@@ -1,4 +1,4 @@
-﻿year,cohort,school_rep_code,school_rep_name,region,estb,school_division,student_quota,recruitment_stop,enrolled_total,enrolled_within,enrolled_outside,fill_rate_within,fill_rate_within_outside,campus_count,grad_program_count,has_alimi,updated_at
+year,cohort,school_rep_code,school_rep_name,region,estb,school_division,student_quota,recruitment_stop,enrolled_total,enrolled_within,enrolled_outside,fill_rate_within,fill_rate_within_outside,campus_count,grad_program_count,has_alimi,updated_at
 2020,university,0000513,가톨릭관동대학교,강원,사립,대학,8498,0,8107,7474,633,88,95.4,1,0,Y,2026-08-15T09:17:42.571Z
 2020,university,0000041,경동대학교,강원,사립,대학,7140,0,7814,6633,1181,92.9,109.4,4,0,Y,2026-08-15T09:17:42.571Z
 2020,university,0000086,상지대학교,강원,사립,대학,7496,0,6873,6505,368,86.8,91.7,1,0,Y,2026-08-15T09:17:42.571Z
