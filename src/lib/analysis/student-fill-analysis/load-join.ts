@@ -1,7 +1,12 @@
 import { parseAlimiDropoutUndergradRow } from "@/lib/analysis/dropout-rate-rep-rollup";
 import { parseAlimiEnrolledUndergradRow } from "@/lib/analysis/enrolled-enrollment-rep-rollup";
 import { parseYearText } from "@/lib/analysis/freshman-enrollment-rep-rollup";
-import { loadCsvYearMapped } from "@/lib/csv/csv-year-load";
+import {
+  loadCsvYearMapped,
+  type CsvYearLoadResult,
+} from "@/lib/csv/csv-year-load";
+import type { CsvFileKey } from "@/lib/csv/paths";
+import { peekCsvFileVersion } from "@/lib/csv/read";
 import {
   loadSchoolCampusIndex,
   padSchoolCode,
@@ -59,8 +64,67 @@ type StudentFillAuxMaps = {
 };
 
 const AUX_CACHE_MAX = 3;
+const AUX_SOURCE_KEYS: CsvFileKey[] = [
+  "univMapEnrolledEnrollmentUndergrad",
+  "univMapDropoutRateUndergrad",
+  "univMapForeignStudentsUndergrad",
+  "univMapForeignDropoutUndergrad",
+  "univMapEnrolledStudentsUndergrad",
+];
 const auxCache = new Map<number, Promise<StudentFillAuxMaps>>();
 const auxOrder: number[] = [];
+let auxSourceFingerprint = "";
+
+export function invalidateStudentFillAuxCache() {
+  auxCache.clear();
+  auxOrder.length = 0;
+  auxSourceFingerprint = "";
+}
+
+async function refreshAuxCacheIfSourcesChanged() {
+  const parts = await Promise.all(AUX_SOURCE_KEYS.map((key) => peekCsvFileVersion(key)));
+  const next = parts.join(":");
+  if (next === auxSourceFingerprint) return;
+  auxCache.clear();
+  auxOrder.length = 0;
+  auxSourceFingerprint = next;
+}
+
+async function loadMappedYearWithFallback<T>(options: {
+  csvKey: CsvFileKey;
+  cacheKey: string;
+  yearOf: (row: Record<string, string>) => number | null;
+  mapRow: (row: Record<string, string>) => T | null;
+  preferredYear: number;
+  fallbackYears: number[];
+}): Promise<{ year: number; result: CsvYearLoadResult<T> }> {
+  const first = await loadCsvYearMapped<T>({
+    csvKey: options.csvKey,
+    cacheKey: options.cacheKey,
+    yearOf: options.yearOf,
+    mapRow: options.mapRow,
+    year: options.preferredYear,
+  });
+  if (first.displayYear != null) {
+    return { year: first.displayYear, result: first };
+  }
+  for (const fallback of options.fallbackYears) {
+    if (fallback === options.preferredYear || !first.years.includes(fallback)) {
+      continue;
+    }
+    const next = await loadCsvYearMapped<T>({
+      csvKey: options.csvKey,
+      cacheKey: options.cacheKey,
+      yearOf: options.yearOf,
+      mapRow: options.mapRow,
+      year: fallback,
+    });
+    if (next.displayYear != null) {
+      return { year: next.displayYear, result: next };
+    }
+  }
+  return { year: options.preferredYear, result: first };
+}
 
 function parseCells(raw: string | undefined): string[] {
   try {
@@ -228,20 +292,21 @@ type SlimDropout = {
 };
 
 export async function loadStudentFillAuxByRep(analysisYear: number): Promise<StudentFillAuxMaps> {
-  const enrolledYear = sourceYearForAnalysisYear(analysisYear, "enrolled");
-  const rosterYear = sourceYearForAnalysisYear(analysisYear, "enrolled-students");
-  const dropoutYear = sourceYearForAnalysisYear(analysisYear, "dropout");
-  const foreignYear = sourceYearForAnalysisYear(analysisYear, "foreign");
-  const foreignDropoutYear = sourceYearForAnalysisYear(analysisYear, "foreign-dropout");
+  const enrolledYearPref = sourceYearForAnalysisYear(analysisYear, "enrolled");
+  const rosterYearPref = sourceYearForAnalysisYear(analysisYear, "enrolled-students");
+  const dropoutYearPref = sourceYearForAnalysisYear(analysisYear, "dropout");
+  const foreignYearPref = sourceYearForAnalysisYear(analysisYear, "foreign");
+  const foreignDropoutYearPref = sourceYearForAnalysisYear(analysisYear, "foreign-dropout");
 
-  const [index, enrolledMapped, dropoutMapped, foreignMapped, foreignDropoutMapped, rosterMapped] =
+  const [index, enrolledHit, dropoutHit, foreignHit, foreignDropoutHit, rosterHit] =
     await Promise.all([
       loadSchoolCampusIndex(),
-      loadCsvYearMapped<SlimEnrolled>({
+      loadMappedYearWithFallback<SlimEnrolled>({
         csvKey: "univMapEnrolledEnrollmentUndergrad",
         cacheKey: "studentFill:enrolled",
         yearOf: alimiYearOf,
-        year: enrolledYear,
+        preferredYear: enrolledYearPref,
+        fallbackYears: [analysisYear - 1],
         mapRow: (raw) => {
           if (!eligible(raw)) return null;
           const parsed = parseAlimiEnrolledUndergradRow(raw);
@@ -260,11 +325,12 @@ export async function loadStudentFillAuxByRep(analysisYear: number): Promise<Stu
           };
         },
       }),
-      loadCsvYearMapped<SlimDropout>({
+      loadMappedYearWithFallback<SlimDropout>({
         csvKey: "univMapDropoutRateUndergrad",
         cacheKey: "studentFill:dropout",
         yearOf: alimiYearOf,
-        year: dropoutYear,
+        preferredYear: dropoutYearPref,
+        fallbackYears: [analysisYear],
         mapRow: (raw) => {
           if (!eligible(raw)) return null;
           const parsed = parseAlimiDropoutUndergradRow(raw);
@@ -279,28 +345,42 @@ export async function loadStudentFillAuxByRep(analysisYear: number): Promise<Stu
           };
         },
       }),
-      loadCsvYearMapped({
+      loadMappedYearWithFallback({
         csvKey: "univMapForeignStudentsUndergrad",
         cacheKey: "studentFill:foreign",
         yearOf: alimiYearOf,
-        year: foreignYear,
+        preferredYear: foreignYearPref,
+        fallbackYears: [analysisYear - 1],
         mapRow: parseForeignStudents,
       }),
-      loadCsvYearMapped({
+      loadMappedYearWithFallback({
         csvKey: "univMapForeignDropoutUndergrad",
         cacheKey: "studentFill:foreignDropout",
         yearOf: alimiYearOf,
-        year: foreignDropoutYear,
+        preferredYear: foreignDropoutYearPref,
+        fallbackYears: [analysisYear],
         mapRow: parseForeignDropout,
       }),
-      loadCsvYearMapped({
+      loadMappedYearWithFallback({
         csvKey: "univMapEnrolledStudentsUndergrad",
         cacheKey: "studentFill:roster",
         yearOf: alimiYearOf,
-        year: rosterYear,
+        preferredYear: rosterYearPref,
+        fallbackYears: [analysisYear - 1],
         mapRow: parseRoster,
       }),
     ]);
+
+  const enrolledYear = enrolledHit.year;
+  const dropoutYear = dropoutHit.year;
+  const foreignYear = foreignHit.year;
+  const foreignDropoutYear = foreignDropoutHit.year;
+  const rosterYear = rosterHit.year;
+  const enrolledMapped = enrolledHit.result;
+  const dropoutMapped = dropoutHit.result;
+  const foreignMapped = foreignHit.result;
+  const foreignDropoutMapped = foreignDropoutHit.result;
+  const rosterMapped = rosterHit.result;
 
   const enrolledByHalf = new Map<string, Map<string, EnrolledFillRep>>();
   for (const parsed of enrolledMapped.rows) {
@@ -370,7 +450,10 @@ export async function loadStudentFillAuxByRep(analysisYear: number): Promise<Stu
   return { enrolled, dropout, foreign, foreignDropout, roster };
 }
 
-export function loadStudentFillAuxByRepCached(analysisYear: number): Promise<StudentFillAuxMaps> {
+export async function loadStudentFillAuxByRepCached(
+  analysisYear: number,
+): Promise<StudentFillAuxMaps> {
+  await refreshAuxCacheIfSourcesChanged();
   let pending = auxCache.get(analysisYear);
   if (!pending) {
     pending = loadStudentFillAuxByRep(analysisYear);

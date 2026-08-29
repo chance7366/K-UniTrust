@@ -23,12 +23,14 @@ import {
   SFA_ENROLLED_METRIC_LABELS,
   SFA_FOREIGN_METRIC_LABELS,
   SFA_FRESHMAN_METRIC_LABELS,
+  SFA_SUMMARY_METRIC_LABELS,
   SFA_STAGE_DEFAULT_METRIC,
   toSfaRunChartRows,
   type SfaChartStage,
   type SfaEnrolledMetric,
   type SfaForeignMetric,
   type SfaFreshmanMetric,
+  type SfaSummaryMetric,
   type SfaRunChartMetric,
   type SfaSchoolKind,
 } from "@/lib/analysis/student-fill-analysis/run-chart-metrics";
@@ -136,6 +138,12 @@ export function StudentFillRunChartsDashboard({
         onChange={setMetric}
         labels={SFA_ENROLLED_METRIC_LABELS}
       />
+    ) : stage === "summary" ? (
+      <ChartMetricToggle
+        value={activeMetric as SfaSummaryMetric}
+        onChange={setMetric}
+        labels={SFA_SUMMARY_METRIC_LABELS}
+      />
     ) : (
       <ChartMetricToggle
         value={activeMetric as SfaForeignMetric}
@@ -177,11 +185,11 @@ export function StudentFillRunChartsDashboard({
           hideRiskTab
           initialMainTab="stats"
           defaultEstb=""
-          rateLabel={sfaRunChartLabel(activeMetric)}
+          rateLabel={sfaRunChartLabel(activeMetric, stage)}
           kpiSub={sfaRunChartKpiSub(activeMetric)}
           riskProfile={sfaRunChartRiskProfile(activeMetric)}
           funnelProfile={sfaRunChartFunnelProfile(activeMetric)}
-          helpPack={sfaRunChartHelp(activeMetric)}
+          helpPack={sfaRunChartHelp(activeMetric, stage)}
           geoChartsLayout="split"
           distributionTabLayout="density-v2"
           statsTabHelp={INDICATOR_STATS_TAB_HELP}
@@ -190,6 +198,7 @@ export function StudentFillRunChartsDashboard({
               rows={statRows}
               stage={stage}
               showDivision={schoolKind === "all"}
+              showEstb={estbFilter === "all"}
               filters={{ year, estb, schoolDivision, schoolKinds }}
             />
           )}

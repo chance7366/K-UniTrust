@@ -1,6 +1,10 @@
 import { matchesAdvancedChartRowFilters } from "@/lib/analysis/advanced-chart-filters";
 import { studentFillSchoolKind } from "@/lib/analysis/all-universities-cohort";
 import {
+  isStudentFillPrivateEstb,
+  isStudentFillPublicEstb,
+} from "@/lib/analysis/student-fill-analysis/cohort-rules";
+import {
   ANALYTICS_ZONES,
   sidoShortLabel,
   zoneForSido,
@@ -34,8 +38,16 @@ export type IndicatorStatsChartFilters = {
 
 export const INDICATOR_STATS_TAB_HELP = {
   title: "지표통계 탭",
-  body: "학교구분별(전체대학일 때)·규모별·권역별·지역별로 지표 원자료를 합산합니다. 율은 합산 뒤 기존 분모 규칙으로 다시 계산합니다. 규모는 재학생수 기준(대학 1만/5천, 전문대학 4천/2천)이며 규모를 못 정한 학교는 전체에만 포함됩니다.",
+  body: "학교구분별(전체대학일 때)·국공사립별(국공사립 탭)·규모별·권역별·지역별로 지표 원자료를 합산합니다. 율은 합산 뒤 기존 분모 규칙으로 다시 계산합니다. 국공사립별은 전체·국공립(국립·공립·국립대법인)·사립입니다. 규모는 재학생수 기준(대학 1만/5천, 전문대학 4천/2천)이며 규모를 못 정한 학교는 전체에만 포함됩니다.",
 };
+
+export const ESTB_GROUP_ORDER = ["국공립", "사립"] as const;
+
+export function indicatorEstbGroupLabel(estb: string): "국공립" | "사립" | null {
+  if (isStudentFillPrivateEstb(estb)) return "사립";
+  if (isStudentFillPublicEstb(estb)) return "국공립";
+  return null;
+}
 
 export function filterIndicatorGeoRows<T extends IndicatorGeoSource>(
   rows: T[],
@@ -61,11 +73,28 @@ export function partitionIndicatorStats<T extends IndicatorGeoSource>(
   lookup: EnrolledScaleLookupJson,
 ): {
   total: IndicatorStatsGroup<T>;
+  estb: IndicatorStatsGroup<T>[];
   region: IndicatorStatsGroup<T>[];
   zone: IndicatorStatsGroup<T>[];
   scale: IndicatorStatsGroup<T>[];
 } {
   const total: IndicatorStatsGroup<T> = { label: "전체", rows: viewRows };
+
+  const byEstb = new Map<string, T[]>();
+  for (const row of viewRows) {
+    const group = indicatorEstbGroupLabel(row.estb);
+    if (!group) continue;
+    const list = byEstb.get(group);
+    if (list) list.push(row);
+    else byEstb.set(group, [row]);
+  }
+  const estb: IndicatorStatsGroup<T>[] = [
+    total,
+    ...ESTB_GROUP_ORDER.map((label) => ({
+      label,
+      rows: byEstb.get(label) ?? [],
+    })),
+  ];
 
   const bySido = new Map<string, T[]>();
   for (const row of viewRows) {
@@ -119,5 +148,5 @@ export function partitionIndicatorStats<T extends IndicatorGeoSource>(
     })),
   ];
 
-  return { total, region, zone, scale };
+  return { total, estb, region, zone, scale };
 }

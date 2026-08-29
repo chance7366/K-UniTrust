@@ -33,7 +33,7 @@ export type { StudentFillEstbFilter };
 
 export type SfaSchoolKind = "university" | "junior-college" | "all";
 
-export type SfaChartStage = "freshman" | "enrolled" | "foreign";
+export type SfaChartStage = "freshman" | "enrolled" | "foreign" | "summary";
 
 export type SfaFreshmanMetric = "rateIn" | "rateAll" | "outShare" | "freshmanDropoutRate";
 export type SfaEnrolledMetric =
@@ -46,7 +46,22 @@ export type SfaForeignMetric =
   | "langAbilityRate"
   | "foreignDropRate"
   | "foreignDropAllRate";
-export type SfaRunChartMetric = SfaFreshmanMetric | SfaEnrolledMetric | SfaForeignMetric;
+export type SfaSummaryMetric =
+  | "rateAll"
+  | "recruitChange"
+  | "outShare"
+  | "leaveShare"
+  | "deferShare"
+  | "foreignShare"
+  | "langAbilityRate"
+  | "freshmanDropoutRate"
+  | "foreignDropRate"
+  | "foreignDropAllRate";
+export type SfaRunChartMetric =
+  | SfaFreshmanMetric
+  | SfaEnrolledMetric
+  | SfaForeignMetric
+  | SfaSummaryMetric;
 
 export const SFA_FRESHMAN_METRIC_LABELS: Record<SfaFreshmanMetric, string> = {
   rateIn: "정원내충원율",
@@ -69,10 +84,24 @@ export const SFA_FOREIGN_METRIC_LABELS: Record<SfaForeignMetric, string> = {
   foreignDropAllRate: "전체외국인탈락율",
 };
 
+export const SFA_SUMMARY_METRIC_LABELS: Record<SfaSummaryMetric, string> = {
+  rateAll: "정원내외충원율",
+  recruitChange: "모집증감",
+  outShare: "정원외비중",
+  leaveShare: "휴학비중",
+  deferShare: "유예비중",
+  foreignShare: "외국인비중",
+  langAbilityRate: "언어능력",
+  freshmanDropoutRate: "신입생탈락율",
+  foreignDropRate: "외국인탈락율",
+  foreignDropAllRate: "전체외국인탈락율",
+};
+
 export const SFA_STAGE_DEFAULT_METRIC: Record<SfaChartStage, SfaRunChartMetric> = {
   freshman: "rateIn",
   enrolled: "enrolledFillRate",
   foreign: "foreignShare",
+  summary: "rateAll",
 };
 
 function n(v: number | null | undefined): number {
@@ -136,6 +165,16 @@ function pickParts(
         den: n(row.foreignDropAllEnrolled),
         rate: row.foreignDropAllRate,
       };
+    case "recruitChange":
+      return {
+        num: n(row.recruitChange),
+        den: row.recruitChange == null ? 0 : 1,
+        rate: row.recruitChange,
+      };
+    case "leaveShare":
+      return { num: n(row.leaveCount), den: n(row.rosterTotal), rate: row.leaveShare };
+    case "deferShare":
+      return { num: n(row.deferCount), den: n(row.rosterTotal), rate: row.deferShare };
   }
 }
 
@@ -152,6 +191,9 @@ const KPI_SUB: Record<SfaRunChartMetric, string> = {
   langAbilityRate: "Σ언어능력충족 ÷ Σ학위외국인",
   foreignDropRate: "Σ학위외국인탈락 ÷ Σ학위외국인재적 · 낮을수록 좋음",
   foreignDropAllRate: "Σ전체외국인탈락 ÷ Σ전체외국인재적 · 낮을수록 좋음",
+  recruitChange: "전년 대비 모집인원(정원내외) 증감률",
+  leaveShare: "Σ휴학 ÷ Σ재적",
+  deferShare: "Σ유예 ÷ Σ재적",
 };
 
 const SHARE_HIGH_RISK: AdvancedChartRiskProfile = {
@@ -215,14 +257,23 @@ function withList(
   };
 }
 
-export function sfaRunChartLabel(metric: SfaRunChartMetric): string {
+export function sfaRunChartLabel(
+  metric: SfaRunChartMetric,
+  stage?: SfaChartStage,
+): string {
+  if (stage === "summary" && metric in SFA_SUMMARY_METRIC_LABELS) {
+    return SFA_SUMMARY_METRIC_LABELS[metric as SfaSummaryMetric];
+  }
   if (metric in SFA_FRESHMAN_METRIC_LABELS) {
     return SFA_FRESHMAN_METRIC_LABELS[metric as SfaFreshmanMetric];
   }
   if (metric in SFA_ENROLLED_METRIC_LABELS) {
     return SFA_ENROLLED_METRIC_LABELS[metric as SfaEnrolledMetric];
   }
-  return SFA_FOREIGN_METRIC_LABELS[metric as SfaForeignMetric];
+  if (metric in SFA_FOREIGN_METRIC_LABELS) {
+    return SFA_FOREIGN_METRIC_LABELS[metric as SfaForeignMetric];
+  }
+  return SFA_SUMMARY_METRIC_LABELS[metric as SfaSummaryMetric] ?? metric;
 }
 
 export function sfaRunChartKpiSub(metric: SfaRunChartMetric): string {
@@ -232,6 +283,7 @@ export function sfaRunChartKpiSub(metric: SfaRunChartMetric): string {
 export function sfaRunChartMetricLabels(stage: SfaChartStage): Record<string, string> {
   if (stage === "freshman") return SFA_FRESHMAN_METRIC_LABELS;
   if (stage === "enrolled") return SFA_ENROLLED_METRIC_LABELS;
+  if (stage === "summary") return SFA_SUMMARY_METRIC_LABELS;
   return SFA_FOREIGN_METRIC_LABELS;
 }
 
@@ -326,6 +378,41 @@ export function sfaRunChartRiskProfile(metric: SfaRunChartMetric): AdvancedChart
         "전체외국인재적",
         `단위: 명 · ${label} = 전체외국인탈락 ÷ 전체외국인재적 × 100`,
       );
+    case "recruitChange":
+      return withList(
+        {
+          ...SHARE_HIGH_RISK,
+          riskThreshold: 0,
+          highRiskThreshold: -5,
+          riskThresholdLabel: "<0%",
+          highRiskThresholdLabel: "≤−5%",
+          riskTierDefs: [
+            { tier: "high", label: "고위험 (≤−5%)", match: (r) => r <= -5 },
+            { tier: "risk", label: "위험 (−5~0%)", match: (r) => r < 0 && r > -5 },
+            { tier: "ok", label: "보합 (0~3%)", match: (r) => r >= 0 && r < 3 },
+            { tier: "good", label: "확대 (≥3%)", match: (r) => r >= 3 },
+          ],
+          histogramBinDefs: histogramBinDefsFromCuts([-15, -10, -5, -2, 0, 2, 5, 8, 12]),
+          densityScale: { displayXMin: -20, displayXMax: 20, binWidth: 1 },
+        },
+        "모집증감",
+        "전년 모집",
+        `단위: % · ${label} = 전년 대비 모집인원(정원내외) 증감률`,
+      );
+    case "leaveShare":
+      return withList(
+        SHARE_HIGH_RISK,
+        "휴학",
+        "재적",
+        `단위: 명 · ${label} = 휴학 ÷ 재적 × 100`,
+      );
+    case "deferShare":
+      return withList(
+        SHARE_HIGH_RISK,
+        "유예",
+        "재적",
+        `단위: 명 · ${label} = 유예 ÷ 재적 × 100`,
+      );
   }
 }
 
@@ -350,8 +437,11 @@ export function sfaRunChartFunnelProfile(metric: SfaRunChartMetric): AdvancedCha
   }
 }
 
-export function sfaRunChartHelp(metric: SfaRunChartMetric): AdvancedChartHelpPack {
-  const rateLabel = sfaRunChartLabel(metric);
+export function sfaRunChartHelp(
+  metric: SfaRunChartMetric,
+  stage?: SfaChartStage,
+): AdvancedChartHelpPack {
+  const rateLabel = sfaRunChartLabel(metric, stage);
   const formula = KPI_SUB[metric];
   const worseHigh =
     metric === "outShare" ||
@@ -359,7 +449,9 @@ export function sfaRunChartHelp(metric: SfaRunChartMetric): AdvancedChartHelpPac
     metric === "enrolledOutShare" ||
     metric === "dropoutRate" ||
     metric === "foreignDropRate" ||
-    metric === "foreignDropAllRate";
+    metric === "foreignDropAllRate" ||
+    metric === "leaveShare" ||
+    metric === "deferShare";
   return {
     overview: {
       title: "통계분석 대시보드 개요",

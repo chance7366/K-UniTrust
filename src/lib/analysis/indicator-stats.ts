@@ -41,6 +41,7 @@ export type IndicatorStatsNumericRow = {
 
 export type IndicatorStatsBundle = {
   division: IndicatorStatsNumericRow[] | null;
+  estb?: IndicatorStatsNumericRow[] | null;
   scale: IndicatorStatsNumericRow[];
   zone: IndicatorStatsNumericRow[];
   region: IndicatorStatsNumericRow[];
@@ -221,6 +222,7 @@ function bundleFrom<T extends IndicatorGeoSource>(
   const parts = partitionIndicatorStats(viewRows, lookup);
   return {
     division,
+    estb: mapGroups(parts.estb, agg),
     scale: mapGroups(parts.scale, agg),
     zone: mapGroups(parts.zone, agg),
     region: mapGroups(parts.region, agg),

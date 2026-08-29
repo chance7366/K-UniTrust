@@ -510,9 +510,6 @@ export function StudentFillRunPanel() {
           active={section}
           onChange={(next) => {
             setSection(next);
-            if (next === "charts" && resultStage === "summary") {
-              setResultStage("freshman");
-            }
           }}
         />
         <GlassMintTabGroup
@@ -531,20 +528,12 @@ export function StudentFillRunPanel() {
               ariaLabel="분석결과 단계"
               active={resultStage}
               onChange={setResultStage}
-              items={
-                section === "charts"
-                  ? [
-                      { id: "freshman", label: "신입생충원", icon: GraduationCap },
-                      { id: "enrolled", label: "재학생충원", icon: Users },
-                      { id: "foreign", label: "외국인", icon: Globe },
-                    ]
-                  : [
-                      { id: "freshman", label: "신입생충원", icon: GraduationCap },
-                      { id: "enrolled", label: "재학생충원", icon: Users },
-                      { id: "foreign", label: "외국인", icon: Globe },
-                      { id: "summary", label: "종합", icon: Layers3 },
-                    ]
-              }
+              items={[
+                { id: "freshman", label: "신입생충원", icon: GraduationCap },
+                { id: "enrolled", label: "재학생충원", icon: Users },
+                { id: "foreign", label: "외국인", icon: Globe },
+                { id: "summary", label: "종합", icon: Layers3 },
+              ]}
             />
             <SchoolKindTabBar
               showAll
@@ -568,7 +557,7 @@ export function StudentFillRunPanel() {
         <StudentFillRunChartsDashboard
           preferredYear={analysisYear}
           currentSchools={edition?.schools ?? null}
-          stage={resultStage === "summary" ? "freshman" : resultStage}
+          stage={resultStage}
           schoolKind={schoolKind}
           estbFilter={estbFilter}
         />

@@ -164,20 +164,24 @@ function StatsTable({
 
 export function IndicatorStatsTables({
   division,
+  estb,
   scale,
   zone,
   region,
   columns,
   note,
   showDivision,
+  showEstb,
 }: {
   division: IndicatorStatsNumericRow[] | null;
+  estb?: IndicatorStatsNumericRow[] | null;
   scale: IndicatorStatsNumericRow[];
   zone: IndicatorStatsNumericRow[];
   region: IndicatorStatsNumericRow[];
   columns: IndicatorStatsColumn[];
   note?: string;
   showDivision: boolean;
+  showEstb?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-4">
@@ -192,6 +196,18 @@ export function IndicatorStatsTables({
           }}
         >
           <StatsTable groupLabel="학교구분" rows={division} columns={columns} />
+        </PanelWithHelp>
+      ) : null}
+      {showEstb && estb?.length ? (
+        <PanelWithHelp
+          title="국공사립별"
+          subtitle="전체 · 국공립 · 사립"
+          help={{
+            title: "국공사립별",
+            body: "전체는 현재 보기입니다. 국공립은 국립·공립·국립대법인, 사립은 사립입니다. 율은 합산 뒤 기존 분모로 다시 계산합니다.",
+          }}
+        >
+          <StatsTable groupLabel="설립" rows={estb} columns={columns} />
         </PanelWithHelp>
       ) : null}
       <PanelWithHelp

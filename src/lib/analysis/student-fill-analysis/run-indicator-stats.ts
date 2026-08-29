@@ -43,6 +43,19 @@ export const SFA_ENROLLED_STATS_COLUMNS: IndicatorStatsColumn[] = [
   { id: "dropoutRate", label: "중도탈락율", format: "rate", rateTone: "secondary" },
 ];
 
+export const SFA_SUMMARY_STATS_COLUMNS: IndicatorStatsColumn[] = [
+  { id: "rateAll", label: "정원내외충원율", format: "rate", rateTone: "primary" },
+  { id: "recruitChange", label: "모집증감", format: "rate" },
+  { id: "outShare", label: "정원외비중", format: "rate" },
+  { id: "leaveShare", label: "휴학비중", format: "rate" },
+  { id: "deferShare", label: "유예비중", format: "rate" },
+  { id: "foreignShare", label: "외국인비중", format: "rate" },
+  { id: "langAbilityRate", label: "언어능력", format: "rate" },
+  { id: "freshmanDropoutRate", label: "신입생탈락율", format: "rate" },
+  { id: "foreignDropRate", label: "외국인탈락율", format: "rate", rateTone: "secondary" },
+  { id: "foreignDropAllRate", label: "전체외국인탈락율", format: "rate" },
+];
+
 export const SFA_FOREIGN_STATS_COLUMNS: IndicatorStatsColumn[] = [
   { id: "foreignDegree", label: "학위외국인", format: "int" },
   { id: "enrolledTotal", label: "재학생수", format: "int" },
@@ -57,6 +70,7 @@ export const SFA_FOREIGN_STATS_COLUMNS: IndicatorStatsColumn[] = [
 export function sfaStageStatsColumns(stage: SfaChartStage): IndicatorStatsColumn[] {
   if (stage === "freshman") return SFA_FRESHMAN_STATS_COLUMNS;
   if (stage === "enrolled") return SFA_ENROLLED_STATS_COLUMNS;
+  if (stage === "summary") return SFA_SUMMARY_STATS_COLUMNS;
   return SFA_FOREIGN_STATS_COLUMNS;
 }
 
@@ -84,6 +98,15 @@ function sum(rows: StudentFillSchoolRow[], pick: (row: StudentFillSchoolRow) => 
 
 function stageAgg(label: string, rows: StudentFillSchoolRow[]): IndicatorStatsNumericRow {
   const rates = weightedPeerRates(rows);
+  let recruitChangeW = 0;
+  let recruitChangeDen = 0;
+  for (const row of rows) {
+    if (row.recruitChange == null || !Number.isFinite(row.recruitChange) || row.recruitTotal <= 0) {
+      continue;
+    }
+    recruitChangeW += row.recruitChange * row.recruitTotal;
+    recruitChangeDen += row.recruitTotal;
+  }
   return {
     label,
     schoolCount: rows.length,
@@ -106,6 +129,12 @@ function stageAgg(label: string, rows: StudentFillSchoolRow[]): IndicatorStatsNu
       rateIn: rates.rateIn,
       rateAll: rates.rateAll,
       outShare: rates.outShare,
+      recruitChange:
+        recruitChangeDen > 0
+          ? Math.round((recruitChangeW / recruitChangeDen) * 10) / 10
+          : null,
+      leaveShare: rates.leaveShare,
+      deferShare: rates.deferShare,
       freshmanDropoutRate: rates.freshmanDropoutRate,
       enrolledFillRate: rates.enrolledFillRate,
       enrolledFillRateIn: rates.enrolledFillRateIn,
@@ -143,6 +172,7 @@ export function buildStudentFillRunIndicatorStats(args: {
   }
   return {
     division,
+    estb: map(parts.estb),
     scale: map(parts.scale),
     zone: map(parts.zone),
     region: map(parts.region),
