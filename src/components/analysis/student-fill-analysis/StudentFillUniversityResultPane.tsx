@@ -3,22 +3,26 @@
 import { useMemo, useState } from "react";
 import {
   Bar,
-  BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   Legend,
   Line,
   LineChart,
-  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
 
-import { SlimTabs } from "@/app/mockups/competitiveness-analysis/financial-projection/fpm-shared";
+import { ChartMetricToggle } from "@/components/analysis/ChartMetricToggle";
+import { GlassMintTabGroup } from "@/components/analysis/GlassMintTabGroup";
+import { CHART_TYPO } from "@/lib/analysis/finance-charts-typography";
+import { FDB_TABLE, FDB_TABLE_HEAD } from "@/lib/analysis/finance-db-table-density";
+import { FDB_TABLE_COLOR } from "@/lib/analysis/finance-db-table-colors";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
-import { sfaFillStage } from "@/lib/analysis/student-fill-analysis/fill-stage";
+import { CHART_THEME } from "@/lib/theme/teal-glow";
+import { studentFillEstbGroupLabel } from "@/lib/analysis/student-fill-analysis/peer-aggregates";
 import type {
   StudentFillPeerMetricKey,
   StudentFillPeerPayload,
@@ -26,89 +30,130 @@ import type {
 } from "@/lib/analysis/student-fill-analysis/peer-aggregates";
 import type { StudentFillSchoolRow } from "@/lib/analysis/student-fill-analysis/types";
 
-type ResultDomain = "roster" | "freshman" | "enrolled" | "foreign";
-type ResultLens = "stats" | "risk" | "geo" | "dist" | "trend";
+import "@/components/analysis/freshman-enrollment-alimi-table.css";
 
-const DOMAIN_TABS: { id: ResultDomain; label: string }[] = [
-  { id: "roster", label: "재적현황" },
-  { id: "freshman", label: "신입생충원" },
-  { id: "enrolled", label: "재학·탈락" },
-  { id: "foreign", label: "외국인" },
-];
+type Stage = "freshman" | "enrolled" | "foreign";
+type FreshmanMetric = "rateIn" | "outShare" | "rateAll" | "freshmanDropoutRate";
+type EnrolledMetric =
+  | "enrolledFillRate"
+  | "enrolledFillRateIn"
+  | "enrolledOutShare"
+  | "leaveShare"
+  | "deferShare"
+  | "dropoutRate";
+type ForeignMetric =
+  | "foreignShare"
+  | "langAbilityRate"
+  | "foreignDropRate"
+  | "foreignDropAllRate";
+type StageMetric = FreshmanMetric | EnrolledMetric | ForeignMetric;
 
-const LENS_TABS: { id: ResultLens; label: string }[] = [
-  { id: "stats", label: "지표통계" },
-  { id: "risk", label: "위치·위험" },
-  { id: "geo", label: "지역·규모" },
-  { id: "dist", label: "분포" },
-  { id: "trend", label: "시계열" },
-];
+const FRESHMAN_LABELS: Record<FreshmanMetric, string> = {
+  rateIn: "정원내충원율",
+  outShare: "정원외비중",
+  rateAll: "정원내외충원율",
+  freshmanDropoutRate: "신입생탈락율",
+};
+const ENROLLED_LABELS: Record<EnrolledMetric, string> = {
+  enrolledFillRate: "재학생충원율",
+  enrolledFillRateIn: "정원내충원율",
+  enrolledOutShare: "정원외비중",
+  leaveShare: "휴학비중",
+  deferShare: "유예비중",
+  dropoutRate: "중도탈락율",
+};
+const FOREIGN_LABELS: Record<ForeignMetric, string> = {
+  foreignShare: "재적대비비중",
+  langAbilityRate: "언어능력충족율",
+  foreignDropRate: "외국인탈락율",
+  foreignDropAllRate: "전체외국인탈락율",
+};
 
-const PRIMARY: Record<ResultDomain, StudentFillPeerMetricKey> = {
-  roster: "leaveShare",
-  freshman: "rateAll",
+const DEFAULT_METRIC: Record<Stage, StageMetric> = {
+  freshman: "rateIn",
   enrolled: "enrolledFillRate",
   foreign: "foreignShare",
 };
 
-const AUX: Record<ResultDomain, { key: StudentFillPeerMetricKey; label: string }[]> = {
-  roster: [
-    { key: "leaveShare", label: "휴학 비중" },
-    { key: "enrolledOutShare", label: "정원외 재학생 비중" },
-    { key: "deferShare", label: "유예 비중" },
-  ],
-  freshman: [
-    { key: "rateAll", label: "정원내외 충원율" },
-    { key: "rateIn", label: "정원내 충원율" },
-    { key: "outShare", label: "정원외 입학 비중" },
-  ],
-  enrolled: [
-    { key: "enrolledFillRate", label: "재학생충원율" },
-    { key: "enrolledFillRateIn", label: "정원내 재학생충원율" },
-    { key: "dropoutRate", label: "중도탈락율" },
-    { key: "freshmanDropoutRate", label: "신입 탈락율" },
-  ],
-  foreign: [
-    { key: "foreignShare", label: "학위(A) 비중" },
-    { key: "langAbilityRate", label: "언어능력충족율" },
-    { key: "foreignDropRate", label: "학위 탈락율" },
-  ],
-};
-
-const METRIC_LABEL: Record<StudentFillPeerMetricKey, string> = {
-  rateAll: "정원내외 충원율",
-  rateIn: "정원내 충원율",
-  outShare: "정원외 입학 비중",
-  enrolledFillRate: "재학생충원율",
-  enrolledFillRateIn: "정원내 재학생충원율",
-  dropoutRate: "중도탈락율",
-  freshmanDropoutRate: "신입 탈락율",
-  foreignShare: "학위(A) 비중",
-  langAbilityRate: "언어능력충족율",
-  foreignDropRate: "학위 탈락율",
-  leaveShare: "휴학 비중",
-  enrolledOutShare: "정원외 재학생 비중",
-  deferShare: "유예 비중",
-};
+function labelsFor(stage: Stage): Record<string, string> {
+  if (stage === "freshman") return FRESHMAN_LABELS;
+  if (stage === "enrolled") return ENROLLED_LABELS;
+  return FOREIGN_LABELS;
+}
 
 function fmtPct(n: number | null | undefined): string {
   if (n == null || !Number.isFinite(n)) return "—";
   return `${n.toFixed(1)}%`;
 }
 
-function fmtCount(n: number | null | undefined): string {
-  if (n == null || !Number.isFinite(n)) return "—";
-  return `${Math.trunc(n).toLocaleString("ko-KR")}명`;
+function rateOf(
+  rates: StudentFillPeerRates | null | undefined,
+  key: StudentFillPeerMetricKey,
+): number | null {
+  if (!rates) return null;
+  const value = rates[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-function gap(school: number | null | undefined, peer: number | null | undefined): string {
-  if (school == null || peer == null) return "—";
-  const d = school - peer;
-  return `${d > 0 ? "+" : ""}${d.toFixed(1)}%p`;
-}
-
-function rateOf(rates: StudentFillPeerRates | null | undefined, key: StudentFillPeerMetricKey): number | null {
-  return rates ? rates[key] : null;
+function SchoolVsGroupChart({
+  data,
+  schoolName,
+  metricLabel,
+  highlight,
+  xAngle,
+}: {
+  data: { name: string; group: number | null; school: number | null }[];
+  schoolName: string;
+  metricLabel: string;
+  highlight?: string | null;
+  xAngle?: number;
+}) {
+  return (
+    <div className="h-[280px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <ComposedChart data={data} barCategoryGap="18%" margin={{ top: 8, right: 12, bottom: 8, left: 4 }}>
+          <CartesianGrid stroke={CHART_THEME.grid} strokeDasharray="4 4" />
+          <XAxis
+            dataKey="name"
+            tick={{ fontSize: CHART_TYPO.tickPx, fill: CHART_THEME.axisLabel }}
+            interval={0}
+            angle={xAngle}
+            textAnchor={xAngle != null ? "end" : "middle"}
+            height={xAngle != null ? 56 : 28}
+          />
+          <YAxis
+            tick={{ fontSize: CHART_TYPO.tickPx, fill: CHART_THEME.axisLabel }}
+            tickFormatter={(v) => `${v}%`}
+            width={40}
+          />
+          <Tooltip
+            formatter={(value, name) => [
+              typeof value === "number" ? fmtPct(value) : String(value ?? "—"),
+              String(name),
+            ]}
+          />
+          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Bar dataKey="group" name={`${metricLabel} 집단평균`} radius={[4, 4, 0, 0]} maxBarSize={36}>
+            {data.map((row) => (
+              <Cell
+                key={row.name}
+                fill={row.name === highlight ? "#0d9488" : CHART_THEME.amber}
+              />
+            ))}
+          </Bar>
+          <Line
+            type="monotone"
+            dataKey="school"
+            name={schoolName}
+            stroke="#2563eb"
+            strokeWidth={2.4}
+            connectNulls
+            dot={{ r: 4, fill: "#2563eb", stroke: "#fff", strokeWidth: 1.4 }}
+          />
+        </ComposedChart>
+      </ResponsiveContainer>
+    </div>
+  );
 }
 
 export function StudentFillUniversityResultPane({
@@ -118,320 +163,285 @@ export function StudentFillUniversityResultPane({
   school: StudentFillSchoolRow;
   peer: StudentFillPeerPayload | null;
 }) {
-  const [domain, setDomain] = useState<ResultDomain>("freshman");
-  const [lens, setLens] = useState<ResultLens>("stats");
-  const primary = PRIMARY[domain];
-  const position = peer?.positions[primary];
-  const slices = peer?.slices;
+  const [stage, setStage] = useState<Stage>("freshman");
+  const [metric, setMetric] = useState<StageMetric>("rateIn");
+  const stageLabels = labelsFor(stage);
+  const activeMetric = (
+    Object.prototype.hasOwnProperty.call(stageLabels, metric) ? metric : DEFAULT_METRIC[stage]
+  ) as StudentFillPeerMetricKey;
+  const metricLabel = stageLabels[activeMetric] ?? activeMetric;
+  const zoneLabel = school.zone ?? peer?.slices.zone?.label ?? "권역";
+  const scaleLabel = school.scale ?? peer?.slices.scale?.label ?? "규모";
+  const estbLabel = studentFillEstbGroupLabel(school.estb);
+  const years = useMemo(() => (peer?.trend ?? []).map((row) => row.year), [peer]);
 
-  const geoBars = useMemo(() => {
-    if (!peer) return [];
-    return [
-      { name: "자교", value: school[primary] ?? null, fill: "#2a7a55" },
-      ...(slices?.sido && slices.sido.n >= 2
-        ? [{ name: "시·도", value: rateOf(slices.sido, primary), fill: "#3B82F6" }]
-        : []),
-      { name: "권역", value: rateOf(slices?.zone ?? undefined, primary), fill: "#0284c7" },
-      { name: "규모", value: rateOf(slices?.scale ?? undefined, primary), fill: "#d97706" },
-      {
-        name: slices?.estb?.label ?? "설립",
-        value: rateOf(slices?.estb ?? undefined, primary),
-        fill: "#7c3aed",
-      },
-      { name: "전국", value: rateOf(slices?.nationwide ?? undefined, primary), fill: "#64748b" },
-    ].filter((row): row is { name: string; value: number; fill: string } => row.value != null);
-  }, [peer, primary, school, slices]);
+  const tableRows = useMemo(() => {
+    const keys = Object.keys(stageLabels) as StudentFillPeerMetricKey[];
+    return keys.map((key) => ({
+      key,
+      label: stageLabels[key]!,
+      years: (peer?.trend ?? []).map((row) => rateOf(row.school, key)),
+      zone: rateOf(peer?.slices.zone ?? undefined, key),
+      scale: rateOf(peer?.slices.scale ?? undefined, key),
+      estb: rateOf(peer?.slices.estb ?? undefined, key),
+      nation: rateOf(peer?.slices.nationwide ?? undefined, key),
+    }));
+  }, [peer, stageLabels]);
 
-  const histData = useMemo(
-    () =>
-      (position?.histogram ?? []).map((bin) => ({
-        name: `${bin.from}`,
-        count: bin.count,
-        from: bin.from,
-        to: bin.to,
-      })),
-    [position],
-  );
-
-  const trendData = useMemo(
+  const trend = useMemo(
     () =>
       (peer?.trend ?? []).map((row) => ({
         year: row.year,
-        school: rateOf(row.school, primary),
-        nationwide: rateOf(row.nationwide, primary),
-        estb: rateOf(row.estb, primary),
-        zone: rateOf(row.zone, primary),
-        scale: rateOf(row.scale, primary),
-        sido: rateOf(row.sido, primary),
+        school: rateOf(row.school, activeMetric),
+        scale: rateOf(row.scale, activeMetric),
+        zone: rateOf(row.zone, activeMetric),
+        estb: rateOf(row.estb, activeMetric),
+        nation: rateOf(row.nationwide, activeMetric),
       })),
-    [peer, primary],
+    [peer, activeMetric],
   );
 
-  const leakPrimary = domain === "roster" || domain === "enrolled" || domain === "foreign";
+  const latestSchool = rateOf(
+    peer?.trend?.[peer.trend.length - 1]?.school,
+    activeMetric,
+  ) ?? school[activeMetric];
+
+  const zoneData = useMemo(
+    () =>
+      (peer?.compare.zones ?? []).map((row) => ({
+        name: row.label,
+        group: rateOf(row.rates, activeMetric),
+        school: latestSchool,
+      })),
+    [peer, activeMetric, latestSchool],
+  );
+  const scaleData = useMemo(
+    () =>
+      (peer?.compare.scales ?? []).map((row) => ({
+        name: row.label,
+        group: rateOf(row.rates, activeMetric),
+        school: latestSchool,
+      })),
+    [peer, activeMetric, latestSchool],
+  );
+  const sidoData = useMemo(
+    () =>
+      [...(peer?.compare.sidos ?? [])]
+        .map((row) => ({
+          name: row.label,
+          group: rateOf(row.rates, activeMetric),
+          school: latestSchool,
+        }))
+        .sort((a, b) => (b.group ?? -1) - (a.group ?? -1)),
+    [peer, activeMetric, latestSchool],
+  );
+
+  if (!peer) {
+    return <p className={FDB_TYPO.bodyText}>비교 집단을 불러오는 중이거나 자료가 없습니다.</p>;
+  }
 
   return (
-    <div className="flex flex-col gap-3">
-      <SlimTabs ariaLabel="분석 영역" active={domain} onChange={setDomain} tabs={DOMAIN_TABS} />
-      <SlimTabs ariaLabel="비교 렌즈" active={lens} onChange={setLens} tabs={LENS_TABS} />
-      <p className={FDB_TYPO.legend}>
-        동종 {school.schoolDivision}(국공사립) 가중 평균(합산 후 율). 설립 집단은 국공립·사립을 따로 둡니다. 주축 {METRIC_LABEL[primary]}.
-        {domain === "foreign" ? " 정원외 ≠ 외국인 · 학위(A) 기본." : ""}
-        {domain === "enrolled" ? " 탈락은 분석연도−1." : ""}
-      </p>
+    <div className="flex flex-col gap-4">
+      <GlassMintTabGroup
+        ariaLabel="분석결과 단계"
+        active={stage}
+        onChange={(next) => {
+          setStage(next);
+          setMetric(DEFAULT_METRIC[next]);
+        }}
+        items={[
+          { id: "freshman", label: "신입생충원" },
+          { id: "enrolled", label: "재학생충원" },
+          { id: "foreign", label: "외국인" },
+        ]}
+      />
 
-      {!peer ? (
-        <p className={FDB_TYPO.bodyText}>비교 집단을 불러오는 중이거나 자료가 없습니다.</p>
-      ) : lens === "stats" ? (
-        <StatsLens school={school} domain={domain} peer={peer} />
-      ) : lens === "risk" ? (
-        <section className="rounded-xl border border-border p-4">
-          <h3 className="text-sm font-semibold">위치·위험 · {METRIC_LABEL[primary]}</h3>
-          <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Stat label="자교" value={fmtPct(position?.schoolValue)} />
-            <Stat
-              label="동종 순위"
-              value={position?.rank != null ? `${position.rank} / ${position.n}` : "—"}
-            />
-            <Stat label="상위 백분위" value={position?.percentile != null ? `${position.percentile}%` : "—"} />
-            <Stat
-              label="동종 하위 15%"
-              value={position?.inHighRisk ? "고위험" : position?.inRisk ? "위험" : "해당 없음"}
-            />
-          </dl>
-          {domain === "freshman" && school.rateAll != null ? (
-            <p className={`mt-2 ${FDB_TYPO.legend}`}>
-              충원단계 {sfaFillStage(school.rateAll).label} (정원내외 기준). 하위 15%/7%는 동종 분포 컷입니다.
-            </p>
-          ) : null}
-          <h4 className={`mt-4 ${FDB_TYPO.legend}`}>가까운 대학 5곳 (같은 시·도·규모, 부족하면 같은 규모)</h4>
-          <ul className="mt-2 space-y-1">
-            {(peer.neighbors[primary] ?? []).map((row) => (
-              <li key={row.schoolCodeStd} className={`flex justify-between gap-3 ${FDB_TYPO.bodyText}`}>
-                <span>
-                  {row.schoolName}
-                  <span className={`ml-2 ${FDB_TYPO.legend}`}>
-                    {row.region}
-                    {row.scale ? ` · ${row.scale}` : ""}
-                  </span>
-                </span>
-                <span>{fmtPct(row.value)}</span>
-              </li>
-            ))}
-            {(peer.neighbors[primary] ?? []).length === 0 ? (
-              <li className={FDB_TYPO.legend}>비교할 근접 대학이 없습니다.</li>
-            ) : null}
-          </ul>
-        </section>
-      ) : lens === "geo" ? (
-        <section className="rounded-xl border border-border p-4">
-          <h3 className="text-sm font-semibold">지역·규모 · {METRIC_LABEL[primary]}</h3>
-          <p className={`mt-1 ${FDB_TYPO.legend}`}>
-            시·도 {slices?.sido?.n ?? 0}교
-            {slices?.sido && slices.sido.n < 2 ? " · 시·도 비교 표본이 적어 막대는 생략될 수 있습니다." : ""}
-            {" · "}권역 {slices?.zone?.n ?? 0}교 · 규모 {slices?.scale?.n ?? 0}교
-            {slices?.estb ? ` · ${slices.estb.label} ${slices.estb.n}교` : ""}
-            {" · "}전국 {slices?.nationwide?.n ?? 0}교
-          </p>
-          <div className="mt-3 h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={geoBars} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip
-                  formatter={(value) =>
-                    typeof value === "number"
-                      ? `${value.toFixed(1)}%`
-                      : String(value ?? "")
-                  }
-                />
-                <Bar dataKey="value" name={METRIC_LABEL[primary]} radius={4}>
-                  {geoBars.map((row) => (
-                    <Cell key={row.name} fill={row.fill} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-      ) : lens === "dist" ? (
-        <section className="rounded-xl border border-border p-4">
-          <h3 className="text-sm font-semibold">분포 · {METRIC_LABEL[primary]}</h3>
-          <p className={`mt-1 ${FDB_TYPO.legend}`}>
-            동종 {position?.n ?? 0}교 히스토그램(10%p 구간). 중앙값 {fmtPct(position?.median)} · 가중평균{" "}
-            {fmtPct(position?.weighted)}. 초록 점선은 자교.
-          </p>
-          <div className="mt-3 h-52">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={histData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                {position?.schoolValue != null ? (
-                  <ReferenceLine x={`${Math.min(90, Math.floor(position.schoolValue / 10) * 10)}`} stroke="#2a7a55" />
-                ) : null}
-                <Bar dataKey="count" name="학교 수" fill="#94a3b8" radius={3} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
+      {stage === "freshman" ? (
+        <ChartMetricToggle
+          value={activeMetric as FreshmanMetric}
+          onChange={setMetric}
+          labels={FRESHMAN_LABELS}
+        />
+      ) : stage === "enrolled" ? (
+        <ChartMetricToggle
+          value={activeMetric as EnrolledMetric}
+          onChange={setMetric}
+          labels={ENROLLED_LABELS}
+        />
       ) : (
-        <section className="rounded-xl border border-border p-4">
-          <h3 className="text-sm font-semibold">시계열 · {METRIC_LABEL[primary]} (5개년)</h3>
-          <p className={`mt-1 ${FDB_TYPO.legend}`}>
-            자교 실선, 동종 전국·권역·규모 점선. 시·도는 2교 이상일 때만 계산합니다.
-          </p>
-          <div className="mt-3 h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="year" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} domain={leakPrimary ? [0, "auto"] : [70, 105]} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="school" name="자교" stroke="#2a7a55" strokeWidth={2} connectNulls dot={false} />
-                <Line type="monotone" dataKey="nationwide" name="동종 전국" stroke="#64748b" strokeDasharray="4 3" connectNulls dot={false} />
-                <Line type="monotone" dataKey="estb" name="설립" stroke="#7c3aed" strokeDasharray="4 3" connectNulls dot={false} />
-                <Line type="monotone" dataKey="zone" name="권역" stroke="#0284c7" strokeDasharray="4 3" connectNulls dot={false} />
-                <Line type="monotone" dataKey="scale" name="규모" stroke="#d97706" strokeDasharray="4 3" connectNulls dot={false} />
-                <Line type="monotone" dataKey="sido" name="시·도" stroke="#3B82F6" strokeDasharray="2 3" connectNulls dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 overflow-auto">
-            <table className={`w-full min-w-[640px] border-collapse ${FDB_TYPO.tableBody}`}>
-              <thead>
-                <tr className="border-b border-border bg-surface-2/80">
-                  {["연도", "자교", "전국", "설립", "권역", "규모", "시·도"].map((h) => (
-                    <th key={h} className="px-2 py-1.5 text-left font-semibold">
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {trendData.map((row) => (
-                  <tr key={row.year} className="border-b border-border/60">
-                    <td className="px-2 py-1.5">{row.year}</td>
-                    <td className="px-2 py-1.5">{fmtPct(row.school)}</td>
-                    <td className="px-2 py-1.5">{fmtPct(row.nationwide)}</td>
-                    <td className="px-2 py-1.5">{fmtPct(row.estb)}</td>
-                    <td className="px-2 py-1.5">{fmtPct(row.zone)}</td>
-                    <td className="px-2 py-1.5">{fmtPct(row.scale)}</td>
-                    <td className="px-2 py-1.5">{fmtPct(row.sido)}</td>
-                  </tr>
+        <ChartMetricToggle
+          value={activeMetric as ForeignMetric}
+          onChange={setMetric}
+          labels={FOREIGN_LABELS}
+        />
+      )}
+
+      <div>
+        <h3 className={`${CHART_TYPO.panelTitle} mb-1`}>5개년 지표 · {school.schoolName}</h3>
+        <p className={`${FDB_TYPO.legend} mb-2`}>
+          행은 분석결과 해당 단계의 지표입니다. 선택 지표는 강조합니다. {zoneLabel}·{scaleLabel}·{estbLabel}·전국은
+          최근 연도 동종 가중평균입니다.
+        </p>
+        <div className="feam-table-wrap mt-3 overflow-auto rounded-lg border border-border/60">
+          <table className={`w-full min-w-[820px] table-fixed border-collapse ${FDB_TYPO.tableBody}`}>
+            <thead>
+              <tr className="border-b border-border bg-surface-2">
+                {["지표", ...years.map((y) => `${y}년`), zoneLabel, scaleLabel, estbLabel, "전국"].map((h) => (
+                  <th
+                    key={h}
+                    className={`${FDB_TABLE_HEAD.base} sticky top-0 z-[2] bg-surface-2 whitespace-nowrap border-r border-border/50 ${FDB_TABLE.headSingle} ${
+                      h === "지표" ? "text-left" : "pr-[5ch] text-right"
+                    } last:border-r-0`}
+                  >
+                    {h}
+                  </th>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg border border-border/70 bg-surface-2 px-3 py-2">
-      <dt className={FDB_TYPO.legend}>{label}</dt>
-      <dd className="mt-0.5 text-lg font-bold text-emerald-800">{value}</dd>
-    </div>
-  );
-}
-
-function StatsLens({
-  school,
-  domain,
-  peer,
-}: {
-  school: StudentFillSchoolRow;
-  domain: ResultDomain;
-  peer: StudentFillPeerPayload;
-}) {
-  const rows = AUX[domain];
-  return (
-    <section className="rounded-xl border border-border p-4">
-      <h3 className="text-sm font-semibold">지표통계</h3>
-      {domain === "roster" ? (
-        <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <Stat label="재학생(충원)" value={fmtCount(school.enrolledFill)} />
-          <Stat label="재적학생" value={fmtCount(school.rosterTotal)} />
-          <Stat label="휴학생" value={fmtCount(school.leaveCount)} />
-          <Stat label="정원외 재학생" value={fmtCount(school.enrolledOutside)} />
-        </dl>
-      ) : domain === "freshman" ? (
-        <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <Stat label="정원내 모집" value={fmtCount(school.recruitWithin)} />
-          <Stat label="정원내 입학" value={fmtCount(school.admitWithin)} />
-          <Stat label="정원외 입학" value={fmtCount(school.admitOutside)} />
-          <Stat label="모집증감" value={fmtPct(school.recruitChange)} />
-        </dl>
-      ) : domain === "enrolled" ? (
-        <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <Stat label="학생정원" value={fmtCount(school.studentQuota)} />
-          <Stat label="재학생(충원)" value={fmtCount(school.enrolledFill)} />
-          <Stat label="중도탈락" value={fmtCount(school.dropoutCount)} />
-          <Stat label="신입 탈락" value={fmtCount(school.freshmanDropoutCount)} />
-        </dl>
-      ) : (
-        <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <Stat label="학위(A)" value={fmtCount(school.foreignDegree)} />
-          <Stat label="공동(B)" value={fmtCount(school.foreignJoint)} />
-          <Stat label="연수(C)" value={fmtCount(school.foreignTraining)} />
-          <Stat label="외국인 계" value={fmtCount(school.foreignTotal)} />
-        </dl>
-      )}
-      <div className="mt-4 overflow-auto">
-        <table className={`w-full min-w-[720px] border-collapse ${FDB_TYPO.tableBody}`}>
-          <thead>
-            <tr className="border-b border-border bg-surface-2/80">
-              {["지표", "자교", "시·도", "권역", "규모", "설립", "전국", "전국 대비"].map((h) => (
-                <th key={h} className="px-2 py-1.5 text-left font-semibold">
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row) => {
-              const self = school[row.key];
-              const sido = peer.slices.sido?.[row.key] ?? null;
-              const zone = peer.slices.zone?.[row.key] ?? null;
-              const scale = peer.slices.scale?.[row.key] ?? null;
-              const estb = peer.slices.estb?.[row.key] ?? null;
-              const nation = peer.slices.nationwide?.[row.key] ?? null;
-              return (
-                <tr key={row.key} className="border-b border-border/60">
-                  <td className="px-2 py-1.5">{row.label}</td>
-                  <td className="px-2 py-1.5 font-semibold">{fmtPct(self)}</td>
-                  <td className="px-2 py-1.5">
-                    {fmtPct(sido)}
-                    {peer.slices.sido ? ` (n=${peer.slices.sido.n})` : ""}
-                  </td>
-                  <td className="px-2 py-1.5">
-                    {fmtPct(zone)}
-                    {peer.slices.zone ? ` (n=${peer.slices.zone.n})` : ""}
-                  </td>
-                  <td className="px-2 py-1.5">
-                    {fmtPct(scale)}
-                    {peer.slices.scale ? ` (n=${peer.slices.scale.n})` : ""}
-                  </td>
-                  <td className="px-2 py-1.5">
-                    {fmtPct(estb)}
-                    {peer.slices.estb ? ` (n=${peer.slices.estb.n})` : ""}
-                  </td>
-                  <td className="px-2 py-1.5">
-                    {fmtPct(nation)}
-                    {peer.slices.nationwide ? ` (n=${peer.slices.nationwide.n})` : ""}
-                  </td>
-                  <td className="px-2 py-1.5">{gap(self, nation)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              </tr>
+            </thead>
+            <tbody>
+              {tableRows.map((row, i) => {
+                const on = row.key === activeMetric;
+                const even = i % 2 === 0;
+                const cell = `whitespace-nowrap border-r border-border/40 ${FDB_TABLE.cell} last:border-r-0`;
+                const num = `${cell} pr-[5ch] text-right font-mono tabular-nums`;
+                return (
+                  <tr
+                    key={row.key}
+                    className={`border-b border-border/40 ${
+                      on ? "bg-accent/10" : even ? "bg-surface" : "bg-surface-2/30"
+                    }`}
+                  >
+                    <td className={`${cell} ${FDB_TABLE_COLOR.schoolName}`}>{row.label}</td>
+                    {row.years.map((v, yi) => (
+                      <td key={`${row.key}-${years[yi]}`} className={`${num} ${FDB_TABLE_COLOR.ratePrimary}`}>
+                        {fmtPct(v)}
+                      </td>
+                    ))}
+                    <td className={num}>{fmtPct(row.zone)}</td>
+                    <td className={num}>{fmtPct(row.scale)}</td>
+                    <td className={num}>{fmtPct(row.estb)}</td>
+                    <td className={num}>{fmtPct(row.nation)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </section>
+
+      <div>
+        <h3 className={`${CHART_TYPO.panelTitle} mb-1`}>시계열 · {metricLabel}</h3>
+        <p className={`${FDB_TYPO.legend} mb-2`}>
+          선택 대학과 {scaleLabel}·{zoneLabel}·{estbLabel}·전국 평균입니다.
+        </p>
+        <div className="h-[280px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={trend} margin={{ top: 8, right: 16, bottom: 4, left: 4 }}>
+              <CartesianGrid stroke={CHART_THEME.grid} strokeDasharray="4 4" />
+              <XAxis dataKey="year" tick={{ fontSize: CHART_TYPO.tickPx, fill: CHART_THEME.axisLabel }} />
+              <YAxis
+                tick={{ fontSize: CHART_TYPO.tickPx, fill: CHART_THEME.axisLabel }}
+                tickFormatter={(v) => `${v}%`}
+                width={40}
+              />
+              <Tooltip
+                formatter={(value, name) => [
+                  typeof value === "number" ? fmtPct(value) : String(value ?? "—"),
+                  String(name),
+                ]}
+              />
+              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Line
+                type="monotone"
+                dataKey="school"
+                name={school.schoolName}
+                stroke="#2563eb"
+                strokeWidth={2.6}
+                connectNulls
+                dot={{ r: 4, fill: "#2563eb", stroke: "#fff", strokeWidth: 1.4 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="scale"
+                name={`${scaleLabel} 평균`}
+                stroke="#d97706"
+                strokeWidth={1.8}
+                connectNulls
+                dot={{ r: 3.5, fill: "#d97706", stroke: "#fff", strokeWidth: 1.2 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="zone"
+                name={`${zoneLabel} 평균`}
+                stroke="#0d9488"
+                strokeWidth={1.8}
+                connectNulls
+                dot={{ r: 3.5, fill: "#0d9488", stroke: "#fff", strokeWidth: 1.2 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="estb"
+                name={`${estbLabel} 평균`}
+                stroke="#7c3aed"
+                strokeWidth={1.8}
+                connectNulls
+                dot={{ r: 3.5, fill: "#7c3aed", stroke: "#fff", strokeWidth: 1.2 }}
+              />
+              <Line
+                type="monotone"
+                dataKey="nation"
+                name="전국 평균"
+                stroke="#64748b"
+                strokeWidth={1.6}
+                strokeDasharray="5 4"
+                connectNulls
+                dot={{ r: 3.5, fill: "#64748b", stroke: "#fff", strokeWidth: 1.2 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div className="rounded-lg border border-border p-3">
+          <h3 className={`${CHART_TYPO.panelTitle} mb-1`}>5극 3특 권역</h3>
+          <p className={`${FDB_TYPO.legend} mb-2`}>
+            막대 권역 평균 · 선 {school.schoolName}({zoneLabel}). {metricLabel}
+          </p>
+          <SchoolVsGroupChart
+            data={zoneData}
+            schoolName={school.schoolName}
+            metricLabel={metricLabel}
+            highlight={school.zone}
+          />
+        </div>
+        <div className="rounded-lg border border-border p-3">
+          <h3 className={`${CHART_TYPO.panelTitle} mb-1`}>학생규모 비교</h3>
+          <p className={`${FDB_TYPO.legend} mb-2`}>
+            막대 규모 평균 · 선 {school.schoolName}({scaleLabel}). {metricLabel}
+          </p>
+          <SchoolVsGroupChart
+            data={scaleData}
+            schoolName={school.schoolName}
+            metricLabel={metricLabel}
+            highlight={school.scale}
+          />
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-border p-3">
+        <h3 className={`${CHART_TYPO.panelTitle} mb-1`}>시도순위</h3>
+        <p className={`${FDB_TYPO.legend} mb-2`}>
+          막대 시·도 평균 · 선 {school.schoolName}({school.region}). {metricLabel}
+        </p>
+        <SchoolVsGroupChart
+          data={sidoData}
+          schoolName={school.schoolName}
+          metricLabel={metricLabel}
+          highlight={school.region}
+          xAngle={-28}
+        />
+      </div>
+    </div>
   );
 }

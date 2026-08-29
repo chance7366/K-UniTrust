@@ -2,6 +2,7 @@ import {
   COHORT_HIGH_RISK_TAIL_PCT,
   COHORT_RISK_TAIL_PCT,
 } from "@/lib/analysis/cohort-relative-risk";
+import { ANALYTICS_ZONES } from "@/lib/analysis/korea-analytics-zones";
 import { normalizeEstbGroup } from "@/lib/analysis/school-division";
 import {
   isStudentFillPrivateEstb,
@@ -21,6 +22,7 @@ export type StudentFillPeerRates = {
   foreignShare: number | null;
   langAbilityRate: number | null;
   foreignDropRate: number | null;
+  foreignDropAllRate: number | null;
   leaveShare: number | null;
   enrolledOutShare: number | null;
   deferShare: number | null;
@@ -74,12 +76,42 @@ export type StudentFillPeerTrendRow = {
   scale: StudentFillPeerRates | null;
 };
 
+export type StudentFillPeerCompareRow = {
+  label: string;
+  rates: StudentFillPeerRates;
+};
+
 export type StudentFillPeerPayload = {
   slices: Record<StudentFillPeerSliceKey, StudentFillPeerSlice | null>;
   positions: Record<StudentFillPeerMetricKey, StudentFillPeerPosition>;
   neighbors: Record<StudentFillPeerMetricKey, StudentFillPeerNeighbor[]>;
   trend: StudentFillPeerTrendRow[];
+  compare: {
+    zones: StudentFillPeerCompareRow[];
+    scales: StudentFillPeerCompareRow[];
+    sidos: StudentFillPeerCompareRow[];
+  };
 };
+
+export function emptyPeerRates(): StudentFillPeerRates {
+  return {
+    n: 0,
+    rateAll: null,
+    rateIn: null,
+    outShare: null,
+    enrolledFillRate: null,
+    enrolledFillRateIn: null,
+    dropoutRate: null,
+    freshmanDropoutRate: null,
+    foreignShare: null,
+    langAbilityRate: null,
+    foreignDropRate: null,
+    foreignDropAllRate: null,
+    leaveShare: null,
+    enrolledOutShare: null,
+    deferShare: null,
+  };
+}
 
 const METRIC_KEYS: StudentFillPeerMetricKey[] = [
   "rateAll",
@@ -92,6 +124,7 @@ const METRIC_KEYS: StudentFillPeerMetricKey[] = [
   "foreignShare",
   "langAbilityRate",
   "foreignDropRate",
+  "foreignDropAllRate",
   "leaveShare",
   "enrolledOutShare",
   "deferShare",
@@ -143,6 +176,8 @@ export function weightedPeerRates(rows: StudentFillSchoolRow[]): StudentFillPeer
   let enrolledTotal = 0;
   let foreignDropCount = 0;
   let foreignDropEnrolled = 0;
+  let foreignDropAllCount = 0;
+  let foreignDropAllEnrolled = 0;
   let leaveCount = 0;
   let deferCount = 0;
   let rosterTotal = 0;
@@ -172,6 +207,8 @@ export function weightedPeerRates(rows: StudentFillSchoolRow[]): StudentFillPeer
     if (row.enrolledTotal != null) enrolledTotal += row.enrolledTotal;
     if (row.foreignDropCount != null) foreignDropCount += row.foreignDropCount;
     if (row.foreignDropEnrolled != null) foreignDropEnrolled += row.foreignDropEnrolled;
+    if (row.foreignDropAllCount != null) foreignDropAllCount += row.foreignDropAllCount;
+    if (row.foreignDropAllEnrolled != null) foreignDropAllEnrolled += row.foreignDropAllEnrolled;
     if (row.rosterTotal != null && row.rosterTotal > 0) {
       rosterTotal += row.rosterTotal;
       if (row.leaveCount != null) leaveCount += row.leaveCount;
@@ -203,6 +240,7 @@ export function weightedPeerRates(rows: StudentFillSchoolRow[]): StudentFillPeer
     foreignShare: pct(foreignDegree, enrolledTotal),
     langAbilityRate: pct(langNum, langDen),
     foreignDropRate: pct(foreignDropCount, foreignDropEnrolled),
+    foreignDropAllRate: pct(foreignDropAllCount, foreignDropAllEnrolled),
     leaveShare: pct(leaveCount, rosterTotal),
     enrolledOutShare: pct(enrolledOutside, enrolledA),
     deferShare: pct(deferCount, rosterTotal),
@@ -336,6 +374,7 @@ function ratesFromSchool(row: StudentFillSchoolRow): StudentFillPeerRates {
     foreignShare: row.foreignShare,
     langAbilityRate: row.langAbilityRate,
     foreignDropRate: row.foreignDropRate,
+    foreignDropAllRate: row.foreignDropAllRate,
     leaveShare: row.leaveShare,
     enrolledOutShare: row.enrolledOutShare,
     deferShare: row.deferShare,
@@ -388,7 +427,51 @@ export function buildPeerSnapshot(
     neighborMap[metric] = neighborsForMetric(peers, school, metric);
   }
 
-  return { slices, positions, neighbors: neighborMap };
+  return {
+    slices,
+    positions,
+    neighbors: neighborMap,
+    compare: buildPeerCompareGroups(peers),
+  };
+}
+
+const SCALE_ORDER = ["대규모", "중규모", "소규모"] as const;
+
+export function buildPeerCompareGroups(peers: StudentFillSchoolRow[]): {
+  zones: StudentFillPeerCompareRow[];
+  scales: StudentFillPeerCompareRow[];
+  sidos: StudentFillPeerCompareRow[];
+} {
+  const byZone = new Map<string, StudentFillSchoolRow[]>();
+  const byScale = new Map<string, StudentFillSchoolRow[]>();
+  const bySido = new Map<string, StudentFillSchoolRow[]>();
+  for (const row of peers) {
+    if (row.zone) {
+      const list = byZone.get(row.zone) ?? [];
+      list.push(row);
+      byZone.set(row.zone, list);
+    }
+    if (row.scale) {
+      const list = byScale.get(row.scale) ?? [];
+      list.push(row);
+      byScale.set(row.scale, list);
+    }
+    const list = bySido.get(row.region) ?? [];
+    list.push(row);
+    bySido.set(row.region, list);
+  }
+  const zones = ANALYTICS_ZONES.filter((label) => byZone.has(label)).map((label) => ({
+    label,
+    rates: weightedPeerRates(byZone.get(label)!),
+  }));
+  const scales = SCALE_ORDER.filter((label) => byScale.has(label)).map((label) => ({
+    label,
+    rates: weightedPeerRates(byScale.get(label)!),
+  }));
+  const sidos = [...bySido.entries()]
+    .map(([label, rows]) => ({ label, rates: weightedPeerRates(rows) }))
+    .sort((a, b) => a.label.localeCompare(b.label, "ko"));
+  return { zones, scales, sidos };
 }
 
 export function buildPeerTrendRow(
@@ -405,7 +488,7 @@ export function buildPeerTrendRow(
     year,
     school: schoolRow
       ? ratesFromSchool(schoolRow)
-      : { n: 0, rateAll: null, rateIn: null, outShare: null, enrolledFillRate: null, enrolledFillRateIn: null, dropoutRate: null, freshmanDropoutRate: null, foreignShare: null, langAbilityRate: null, foreignDropRate: null, leaveShare: null, enrolledOutShare: null, deferShare: null },
+      : emptyPeerRates(),
     nationwide: peers.length ? weightedPeerRates(peers) : null,
     estb: estbPeers.length ? weightedPeerRates(estbPeers) : null,
     zone: zonePeers.length ? weightedPeerRates(zonePeers) : null,

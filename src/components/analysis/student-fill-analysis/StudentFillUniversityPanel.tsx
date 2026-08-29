@@ -325,9 +325,16 @@ export function StudentFillUniversityPanel() {
         onAddYear={() => undefined}
         onChange={changeYear}
         afterStatus={
-          <span className={FDB_TYPO.legend}>
-            충원·재적·외국인 {year}년 · 탈락 {year - 1}년
-          </span>
+          <GlassMintTabGroup
+            ariaLabel="설립구분"
+            active={estbFilter}
+            onChange={setEstbFilter}
+            items={[
+              { id: "public", label: "국공립" },
+              { id: "private", label: "사립" },
+              { id: "all", label: "국공사립" },
+            ]}
+          />
         }
       />
 
@@ -347,16 +354,6 @@ export function StudentFillUniversityPanel() {
       ) : null}
 
       <div className="space-y-4">
-        <GlassMintTabGroup
-          ariaLabel="설립구분"
-          active={estbFilter}
-          onChange={setEstbFilter}
-          items={[
-            { id: "public", label: "국공립" },
-            { id: "private", label: "사립" },
-            { id: "all", label: "국공사립" },
-          ]}
-        />
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
