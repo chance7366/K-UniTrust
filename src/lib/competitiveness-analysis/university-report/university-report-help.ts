@@ -6,7 +6,7 @@ import {
   UNIVERSITY_REPORT_ROLE_POLICY,
 } from "@/lib/competitiveness-analysis/university-report/generation-guidelines";
 
-export const UNIVERSITY_REPORT_HELP_TITLE = "개별대학 보고서 생성 지침";
+export const UNIVERSITY_REPORT_HELP_TITLE = "보고서생성지침";
 export const UNIVERSITY_REPORT_HELP_SUB =
   "대학별경쟁력 화면 내용을 기반으로 연도별·대학별 보고서를 동일 형식으로 생성하기 위한 표준 지침입니다.";
 
@@ -52,7 +52,7 @@ export function universityReportHelp(opts: {
     },
     {
       title: "전문 지침",
-      body: "아래 「지침 전문 보기」에서 분석연도·기본설정(가중치·적용지표)이 반영된 생성 지침 전체를 확인·복사할 수 있습니다. Gemini 프롬프트·품질 검수 기준으로 사용합니다.",
+      body: "아래 「보고서생성지침」에서 분석연도·기본설정(가중치·적용지표)이 반영된 생성 지침 전체를 확인·복사할 수 있습니다. Gemini 프롬프트·품질 검수 기준으로 사용합니다.",
     },
   ];
 }

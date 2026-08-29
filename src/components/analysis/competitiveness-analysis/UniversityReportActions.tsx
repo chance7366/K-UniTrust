@@ -168,15 +168,6 @@ export function UniversityReportActions({
           <p className="text-sm font-semibold text-accent-cyan">
             개별대학 보고서
           </p>
-          <p className={`mt-0.5 ${FDB_TYPO.legend} text-muted`}>
-            {schoolName} · {analysisYear}년
-            {loadingMeta ? " · 상태 확인 중…" : null}
-            {!loadingMeta && meta
-              ? ` · 생성됨 (${new Date(meta.generatedAt).toLocaleString("ko-KR")})`
-              : !loadingMeta
-                ? " · 미생성"
-                : null}
-          </p>
           {!hasRunResults && meta ? (
             <p className={`mt-1 ${FDB_TYPO.legend} text-muted`}>
               분석 차트 없이도 저장된 보고서를 열람할 수 있습니다.

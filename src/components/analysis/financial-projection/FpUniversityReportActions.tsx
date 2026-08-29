@@ -1,12 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { GlassActionButton } from "@/components/analysis/GlassHelpButton";
 import { useAccessRole } from "@/components/auth/AccessRoleProvider";
 import { FDB_TYPO } from "@/lib/analysis/finance-db-typography";
 import { readApiJson } from "@/lib/api/read-api-json";
-import { buildFpReportGuidelines } from "@/lib/competitiveness-analysis/financial-projection/report/generation-guidelines";
 import type { FpReportMeta } from "@/lib/competitiveness-analysis/financial-projection/report/fp-report-store";
 import { reportMetaHasPdf } from "@/lib/reports/report-pdf-messages";
 
@@ -24,16 +23,10 @@ export function FpUniversityReportActions({
   const accessRole = useAccessRole();
   const isAdmin = accessRole === "admin";
   const [meta, setMeta] = useState<FpReportMeta | null>(null);
-  const [loadingMeta, setLoadingMeta] = useState(false);
+  const [, setLoadingMeta] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
-  const [guidelinesOpen, setGuidelinesOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const guidelines = useMemo(
-    () => (isAdmin ? buildFpReportGuidelines(analysisYear) : ""),
-    [isAdmin, analysisYear],
-  );
 
   const fetchMeta = useCallback(async () => {
     if (!schoolCodeStd) {
@@ -166,15 +159,6 @@ export function FpUniversityReportActions({
           <p className="text-sm font-semibold text-accent-cyan">
             개별대학 재정추계 보고서
           </p>
-          <p className={`mt-0.5 ${FDB_TYPO.legend} text-muted`}>
-            {schoolName} · {analysisYear}년
-            {loadingMeta ? " · 상태 확인 중…" : null}
-            {!loadingMeta && meta
-              ? ` · 생성됨 (${new Date(meta.generatedAt).toLocaleString("ko-KR")})`
-              : !loadingMeta
-                ? " · 미생성"
-                : null}
-          </p>
           {!hasRunResults && meta ? (
             <p className={`mt-1 ${FDB_TYPO.legend} text-muted`}>
               추계 차트 없이도 저장된 보고서를 열람할 수 있습니다.
@@ -212,22 +196,13 @@ export function FpUniversityReportActions({
             </>
           ) : null}
           {canGenerate ? (
-            <>
-              <GlassActionButton
-                tone="green"
-                onClick={() => void handleGenerate()}
-                disabled={generating}
-              >
-                {generating ? "생성 중…" : meta ? "보고서 재생성" : "보고서 생성"}
-              </GlassActionButton>
-              <GlassActionButton
-                tone="blue"
-                onClick={() => setGuidelinesOpen((open) => !open)}
-                title="분석연도가 반영된 생성 지침 전문 (관리자 전용)"
-              >
-                {guidelinesOpen ? "지침 닫기" : "생성 지침"}
-              </GlassActionButton>
-            </>
+            <GlassActionButton
+              tone="green"
+              onClick={() => void handleGenerate()}
+              disabled={generating}
+            >
+              {generating ? "생성 중…" : meta ? "보고서 재생성" : "보고서 생성"}
+            </GlassActionButton>
           ) : null}
         </div>
       </div>
@@ -242,13 +217,6 @@ export function FpUniversityReportActions({
           Gemini AI가 4개 시나리오 추계·한계진단·대응전략 보고서를 작성 중입니다.
           1~3분 정도 소요될 수 있습니다.
         </p>
-      ) : null}
-      {isAdmin && guidelinesOpen ? (
-        <pre
-          className={`mt-3 max-h-[480px] overflow-auto rounded-lg border border-border/60 bg-surface p-3 whitespace-pre-wrap ${FDB_TYPO.legend}`}
-        >
-          {guidelines}
-        </pre>
       ) : null}
     </div>
   );

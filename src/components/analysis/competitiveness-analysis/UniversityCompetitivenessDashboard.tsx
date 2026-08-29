@@ -517,6 +517,13 @@ function SchoolDetailPanel({
         </div>
       </section>
 
+      <UniversityReportActions
+        analysisYear={analysisYear}
+        schoolCodeStd={school.schoolCodeStd}
+        schoolName={school.schoolName}
+        hasRunResults
+      />
+
       <UniversityV2InsightsPanel
         analysisYear={analysisYear}
         schoolName={school.schoolName}
@@ -859,7 +866,6 @@ export function UniversityCompetitivenessDashboard() {
         <UniversityReportGuidelinesPanel
           analysisYear={analysisYear}
           settings={settings}
-          hasRunResults={hasResults}
         />
 
         <div className="flex flex-wrap items-center gap-2">
@@ -933,15 +939,6 @@ export function UniversityCompetitivenessDashboard() {
             {analysisYear}년 분석 차트는 아직 없지만, 생성된 개별대학 보고서는
             아래에서 열람할 수 있습니다.
           </p>
-        ) : null}
-
-        {!loading && selectedSchool ? (
-          <UniversityReportActions
-            analysisYear={analysisYear}
-            schoolCodeStd={selectedSchool.schoolCodeStd}
-            schoolName={selectedSchool.schoolName}
-            hasRunResults={hasResults}
-          />
         ) : null}
 
         {!loading && canBrowseSchools ? (
@@ -1073,10 +1070,25 @@ export function UniversityCompetitivenessDashboard() {
                   enrolledByCode={enrolledByCode}
                 />
               ) : selectedSchool ? (
-                <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-                  <p className={FDB_TYPO.bodyText}>
-                    {selectedSchool.schoolName}의 분석 차트는 분석실행 완료 후
-                    표시됩니다. 생성된 보고서는 상단에서 열람할 수 있습니다.
+                <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-y-contain pr-1">
+                  <section className="rounded-xl border border-accent/40 bg-[var(--glow-panel-kpi)] p-5 shadow-[var(--glow-inset)]">
+                    <h2 className="text-xl font-bold">{selectedSchool.schoolName}</h2>
+                    <p className="mt-1 text-sm text-muted">
+                      {selectedSchool.region} ·{" "}
+                      {fmtEnrolledCount(
+                        enrolledByCode.get(selectedSchool.schoolCodeStd),
+                      )}
+                    </p>
+                  </section>
+                  <UniversityReportActions
+                    analysisYear={analysisYear}
+                    schoolCodeStd={selectedSchool.schoolCodeStd}
+                    schoolName={selectedSchool.schoolName}
+                    hasRunResults={false}
+                  />
+                  <p className={`${FDB_TYPO.bodyText} text-muted`}>
+                    분석 차트는 {analysisYear}년 분석실행을 완료한 뒤 표시됩니다.
+                    생성된 보고서는 위에서 열람할 수 있습니다.
                   </p>
                 </div>
               ) : (

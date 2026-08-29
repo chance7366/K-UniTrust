@@ -164,6 +164,7 @@ import {
   ROW_KIND_LABEL,
 } from "./fpm-shared";
 import { FpUniversityLookupPanel } from "./FpUniversityLookupPanel";
+import { FpReportGuidelinesPanel } from "@/components/analysis/financial-projection/FpReportGuidelinesPanel";
 import "./financial-projection-ui-mock.css";
 
 type MenuId = FinancialProjectionMenuId;
@@ -1247,6 +1248,10 @@ export function FinancialProjectionUiMock({
               ) : undefined
             }
           />
+
+          {menu === "university" ? (
+            <FpReportGuidelinesPanel analysisYear={analysisYear} />
+          ) : null}
 
         {production ? null : (
           <nav className="fpm-step-nav" aria-label="재정추계분석 하위 메뉴">
