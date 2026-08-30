@@ -92,7 +92,7 @@ export async function GET(request: Request) {
           join(process.cwd(), "public/reports/sfa-gemini-comprehensive.html"),
           "utf8",
         );
-        const pdf = await htmlToPdfBuffer(liveHtml, { landscape: true });
+          const pdf = await htmlToPdfBuffer(liveHtml, { landscape: false });
         const filename = `${key}_student-fill-comprehensive.pdf`;
         return new NextResponse(new Uint8Array(pdf), {
           headers: {

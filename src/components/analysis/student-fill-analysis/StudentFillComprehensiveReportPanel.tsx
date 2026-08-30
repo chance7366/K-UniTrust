@@ -70,10 +70,10 @@ export function StudentFillComprehensiveReportPanel({
         return;
       }
       window.open(liveSrc, "sfa-comprehensive-print", "noopener,noreferrer");
-      setMessage("열람 창에서 Ctrl+P → 용지 가로 → PDF로 저장하세요.");
+      setMessage("열람 창에서 Ctrl+P → 용지 세로 → PDF로 저장하세요.");
     } catch {
       window.open(liveSrc, "sfa-comprehensive-print", "noopener,noreferrer");
-      setMessage("열람 창에서 Ctrl+P → 용지 가로 → PDF로 저장하세요.");
+      setMessage("열람 창에서 Ctrl+P → 용지 세로 → PDF로 저장하세요.");
     } finally {
       setBusy(null);
     }

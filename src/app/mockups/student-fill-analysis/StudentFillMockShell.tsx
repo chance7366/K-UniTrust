@@ -67,6 +67,13 @@ export function StudentFillMockShell({
               종합보고서 확장 목업
             </Link>
             {" · "}
+            <Link
+              href="/mockups/student-fill-analysis/comprehensive-report-v2"
+              className="underline underline-offset-2"
+            >
+              종합보고서 심층 시안 v2
+            </Link>
+            {" · "}
             <Link href="/analysis/student-fill-analysis/settings" className="underline underline-offset-2">
               프로덕션 학생충원분석
             </Link>

@@ -45,8 +45,8 @@ export function buildStudentFillComprehensiveGuidelines(analysisYear: number): s
     "",
     "■ 4. 반드시 넣을 지표",
     "",
-    "  첨부 보고서와 동일: 정원내충원율, 정원외·모집증감, 신입생탈락율, 재학생충원율, 중도탈락율, 외국인 비중·언어충족율·이탈률.",
-    "  제1~3장 뒤에 국공립·사립, 수도권·비수도권, 대학·전문대학, 선제 정원감축 권역 비교를 이어 적는다.",
+    "  8장 본문: 정원내충원율, 정원외·모집증감, 신입생탈락율, 재학생충원율, 중도탈락율, 외국인 비중·언어충족율·이탈률.",
+    "  표·차트 숫자는 분석실행 run.json(본교 합산)과 일치해야 한다.",
     "  [참고 지표]",
     ...STUDENT_FILL_REPORT_RESULT_METRICS.freshman.map((item) => `    · ${item.label}`),
     ...STUDENT_FILL_REPORT_RESULT_METRICS.enrolled.map((item) => `    · ${item.label}`),
@@ -58,8 +58,8 @@ export function buildStudentFillComprehensiveGuidelines(analysisYear: number): s
     "",
     `■ 6. A4 서식 (${analysisYear}년)`,
     "",
-    "· 용지: A4 가로. 첨부 종합보고서 서식을 유지한다.",
-    "· 열람: HTML. 인쇄 / PDF 저장(Ctrl+P, 가로).",
+    "· 용지: A4 세로. 분석실행 본교 합산 결과로 표·차트를 채운다.",
+    "· 열람: HTML. 인쇄 / PDF 저장(Ctrl+P, 세로).",
     "",
   ].join("\n");
 }
