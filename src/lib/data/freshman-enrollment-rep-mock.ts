@@ -50,14 +50,11 @@ export async function loadFreshmanRepMockDashboard(
     .map(parseConsolidatedCompareRow)
     .filter((row): row is NonNullable<typeof row> => row != null);
 
-  const alimiYears = [...new Set(undergrad.map((r) => r.year))].sort(
-    (a, b) => b - a,
-  );
-  const consYears = [...new Set(consolidated.map((r) => r.year))];
-  const commonYears = alimiYears.filter((y) => consYears.includes(y));
-  const years = commonYears.length ? commonYears : alimiYears;
+  const years = [
+    ...new Set([...undergrad.map((r) => r.year), ...grad.map((r) => r.year)]),
+  ].sort((a, b) => b - a);
   const displayYear =
-    query.year != null && alimiYears.includes(query.year)
+    query.year != null && years.includes(query.year)
       ? query.year
       : (years[0] ?? null);
 

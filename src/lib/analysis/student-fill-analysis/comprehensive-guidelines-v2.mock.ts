@@ -1,9 +1,9 @@
 /**
- * 목업 전용. 프로덕션 comprehensive-guidelines.ts 는 변경하지 않는다.
+ * 목업 대조용. 운영 지침은 comprehensive-guidelines.ts (v2.1.0)가 정본이다.
  * 첨부 심층분석 보고서(8장) + 분석연도 기준 5개년 · 본교.
  */
 
-export const SFA_COMPREHENSIVE_GUIDELINES_V2_VERSION = "2.0.0-mock";
+export const SFA_COMPREHENSIVE_GUIDELINES_V2_VERSION = "2.1.0-mock";
 
 export const SFA_COMPREHENSIVE_V2_SCOPE = [
   { id: "years", label: "시계열", rule: "분석연도 Y 기준 과거 5개년(Y-4~Y)을 반드시 넣는다. 2개년 비교로 끝내지 않는다." },
@@ -63,6 +63,8 @@ export const SFA_COMPREHENSIVE_V2_RULES = [
   "신입생탈락율은 같은 기간 중도탈락율과 반드시 비교한다.",
   "외국인 양(비중·인원)과 질(언어충족·탈락)을 한 쌍으로 적는다.",
   "마지막에 진단 총평, 유형별 대응전략, 교육부 단기·중기·장기 제언을 둔다.",
+  "생성 전에 항상 검증한다. 이상치(누락·데이터 오류)는 화면에 안내하고, 오류면 생성을 막는다.",
+  "인쇄·PDF: 표지 색 유지, 제1장부터 「- n -」 하단 중앙, 목차는 장·부록만, 이어지는 쪽 위 여백 +30%, 표/그림 제목과 본문은 같은 쪽, 표·그림 사이 한 줄.",
 ] as const;
 
 export function buildStudentFillComprehensiveGuidelinesV2Mock(analysisYear: number): string {
@@ -79,6 +81,7 @@ export function buildStudentFillComprehensiveGuidelinesV2Mock(analysisYear: numb
     "· 분교·캠퍼스 인원을 본교에 합산한 뒤 율·비중을 재계산한다. 캠퍼스를 빼거나 캠퍼스 율을 평균하지 않는다.",
     `· 시계열은 ${from}~${analysisYear}년(5개년)이다. 최근 2개년만으로 끝내지 않는다.`,
     "· 첨부 심층분석 보고서와 같은 8장 목차·표·차트·문장 밀도를 유지한다.",
+    "· 매년 같은 검증·품질 규칙으로 생성한다. 생성 전에 이상치(누락·데이터 오류)를 점검하고 화면에 안내한다.",
     "",
     "■ 1. 범위",
     "",

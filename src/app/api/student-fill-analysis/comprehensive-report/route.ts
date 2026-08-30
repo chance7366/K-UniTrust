@@ -10,6 +10,7 @@ import {
   type SfaComprehensiveFilter,
 } from "@/lib/analysis/student-fill-analysis/comprehensive-filter";
 import { generateStudentFillComprehensiveReport } from "@/lib/analysis/student-fill-analysis/generate-comprehensive-report";
+import { validateStudentFillComprehensivePreflight } from "@/lib/analysis/student-fill-analysis/validate-comprehensive-preflight";
 import {
   readStudentFillComprehensiveReport,
   writeStudentFillComprehensiveReport,
@@ -152,6 +153,16 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
+    const validation = await validateStudentFillComprehensivePreflight(filter);
+    if (!validation.ok) {
+      return NextResponse.json(
+        {
+          error: validation.summary,
+          validation,
+        },
+        { status: 422 },
+      );
+    }
     const report = await generateStudentFillComprehensiveReport(filter);
     if (!report) {
       return NextResponse.json(
@@ -162,6 +173,7 @@ export async function POST(request: Request) {
     await writeStudentFillComprehensiveReport(report);
     return NextResponse.json({
       ok: true,
+      validation,
       report: {
         analysisYear: report.analysisYear,
         filterKey: report.filterKey,

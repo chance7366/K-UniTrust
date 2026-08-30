@@ -14,14 +14,21 @@ import {
 } from "./comprehensive-filter";
 import { SFA_COMPREHENSIVE_GUIDELINES_VERSION } from "./comprehensive-guidelines";
 import type { StudentFillComprehensiveReport } from "./comprehensive-report-types";
+import { attachStudentFillAux } from "./load-join";
 import {
   listStudentFillEditionYears,
   readStudentFillEdition,
 } from "./store";
+import { validateStudentFillComprehensivePreflight } from "./validate-comprehensive-preflight";
 
 export async function generateStudentFillComprehensiveReport(
   filter: SfaComprehensiveFilter,
 ): Promise<StudentFillComprehensiveReport | null> {
+  const preflight = await validateStudentFillComprehensivePreflight(filter);
+  if (!preflight.ok) {
+    throw new Error(preflight.summary);
+  }
+
   const years = (await listStudentFillEditionYears())
     .filter((year) => year <= filter.analysisYear)
     .sort((a, b) => a - b)
@@ -31,7 +38,8 @@ export async function generateStudentFillComprehensiveReport(
   for (const year of years) {
     const edition = await readStudentFillEdition(year);
     if (!edition) continue;
-    const rows = filterStudentFillSchools(edition.schools, filter);
+    const withAux = await attachStudentFillAux(edition.schools, year);
+    const rows = filterStudentFillSchools(withAux, filter);
     trend.push(aggregateStudentFillCohort(rows, year));
   }
 

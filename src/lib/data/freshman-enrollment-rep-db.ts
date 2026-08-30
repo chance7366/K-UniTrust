@@ -79,12 +79,21 @@ export async function persistFreshmanRepDb(args: {
   grad: AlimiGradMetric[];
   years: number[];
 }): Promise<void> {
+  const destRows = await readCsvFile("financeAnalysisFreshmanEnrollmentRep").catch(
+    () => [],
+  );
+  const destYears = new Set(
+    destRows
+      .map((row) => Number(row.year))
+      .filter((year) => Number.isInteger(year)),
+  );
+  const missingYear = args.years.some((year) => !destYears.has(year));
   const stale = await isRepDbStale("financeAnalysisFreshmanEnrollmentRep", [
     "univMapAnalysisTarget",
     "financeAnalysisFreshmanEnrollmentUndergrad",
     "financeAnalysisFreshmanEnrollmentGrad",
   ]);
-  if (!stale) return;
+  if (!stale && !missingYear) return;
 
   const updatedAt = new Date().toISOString();
   const rows: Record<string, unknown>[] = [];

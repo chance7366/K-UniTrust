@@ -107,7 +107,7 @@ export default function StudentFillComprehensiveReportV2MockPage() {
         </details>
         <details className="rounded-lg border border-border bg-card p-4">
           <summary className={`${FDB_TYPO.panelTitle} cursor-pointer`}>
-            목업 지침 v2.0.0 전문 (프로덕션 미반영)
+            목업 지침 (운영 정본은 v2.1.0 · 생성 전 검증 필수)
           </summary>
           <pre className="mt-3 overflow-auto whitespace-pre-wrap text-[12px] leading-relaxed text-muted-foreground">
             {guidelines}

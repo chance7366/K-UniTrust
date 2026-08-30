@@ -1,5 +1,5 @@
 /**
- * Usage: npx tsx scripts/generate-sfa-comprehensive-report.ts --year=2026 --metro=all --estb=all --kind=university
+ * Usage: npx tsx scripts/generate-sfa-comprehensive-report.ts --year=2026 --metro=all --estb=all --kind=all
  */
 import { generateStudentFillComprehensiveReport } from "../src/lib/analysis/student-fill-analysis/generate-comprehensive-report.ts";
 import { writeStudentFillComprehensiveReport } from "../src/lib/analysis/student-fill-analysis/store.ts";
@@ -19,7 +19,7 @@ async function main() {
     analysisYear: Number(arg("year", "2026")),
     metro: parseSfaMetroFilter(arg("metro", "all")),
     estb: parseSfaEstbFilter(arg("estb", "all")),
-    schoolKind: parseSfaSchoolKindFilter(arg("kind", "university")),
+    schoolKind: parseSfaSchoolKindFilter(arg("kind", "all")),
   };
   const report = await generateStudentFillComprehensiveReport(filter);
   if (!report) {

@@ -5,8 +5,10 @@
 import { copyFile, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { buildStudentFillComprehensiveGuidelines } from "../src/lib/analysis/student-fill-analysis/build-comprehensive-guidelines";
 import { isStudentFillPublicEstb } from "../src/lib/analysis/student-fill-analysis/cohort-rules";
 import type { StudentFillEdition, StudentFillSchoolRow } from "../src/lib/analysis/student-fill-analysis/types";
+import { validateStudentFillComprehensivePreflight } from "../src/lib/analysis/student-fill-analysis/validate-comprehensive-preflight";
 
 const YEARS = [2022, 2023, 2024, 2025, 2026] as const;
 const ZONES = ["수도권", "충청권", "서남권", "동남권", "대경권", "강원권", "전북권", "제주권"] as const;
@@ -37,6 +39,23 @@ function median(rows: StudentFillSchoolRow[], pick: (r: StudentFillSchoolRow) =>
   const mid = Math.floor(vals.length / 2);
   return r1(vals.length % 2 ? vals[mid] : (vals[mid - 1] + vals[mid]) / 2);
 }
+function injectGuideAppendix(html: string, title: string, meta: string, text: string) {
+  const sectionStart = html.indexOf('<section class="page" id="guide">');
+  const sectionEnd = html.indexOf("</section>", sectionStart);
+  if (sectionStart < 0 || sectionEnd < 0) throw new Error("guide section missing");
+  let section = html.slice(sectionStart, sectionEnd);
+  section = section.replace(/<h2>부록\. 보고서 작성 지침[^<]*<\/h2>/, `<h2>${title}</h2>`);
+  section = section.replace(/<p class="meta">[^<]*<\/p>/, `<p class="meta">${meta}</p>`);
+  html = html.slice(0, sectionStart) + section + html.slice(sectionEnd);
+
+  const marker = 'document.getElementById("guide-text").textContent = `';
+  const start = html.indexOf(marker);
+  const end = html.indexOf("`;", start);
+  if (start < 0 || end < 0) throw new Error("guide-text marker missing");
+  const escaped = text.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$\{/g, "\\${");
+  return html.slice(0, start) + marker + escaped + html.slice(end);
+}
+
 function sum(rows: StudentFillSchoolRow[], pick: (r: StudentFillSchoolRow) => number | null) {
   return rows.reduce((a, r) => a + (pick(r) ?? 0), 0);
 }
@@ -125,6 +144,17 @@ async function loadEdition(year: number): Promise<StudentFillEdition> {
 }
 
 async function main() {
+  const preflight = await validateStudentFillComprehensivePreflight({
+    analysisYear: 2026,
+    metro: "all",
+    estb: "all",
+    schoolKind: "all",
+  });
+  console.log(preflight.summary);
+  if (!preflight.ok) {
+    throw new Error(preflight.summary);
+  }
+
   const editions = new Map<number, StudentFillEdition>();
   for (const y of YEARS) editions.set(y, await loadEdition(y));
   const byYear = (y: number) => editions.get(y)!.schools;
@@ -821,6 +851,14 @@ async function main() {
 `;
   html = html.slice(0, start) + newCharts + html.slice(end);
 
+  const guideText = buildStudentFillComprehensiveGuidelines(2026);
+  html = injectGuideAppendix(
+    html,
+    "부록. 보고서 작성 지침 (v2.1.1)",
+    "생성 전 검증 필수. 이상치(누락·데이터 오류)는 생성 화면에 안내한다. 표·차트는 분석실행(본교 합산) 숫자로 채운다.",
+    guideText,
+  );
+
   const mockPath = path.join(process.cwd(), "public/mockups/sfa-comprehensive-report-v2.html");
   await writeFile(mockPath, html, "utf8");
 
@@ -830,9 +868,7 @@ async function main() {
       "목업 · 프로덕션 미적용 · A4 세로 · 분교·캠퍼스 본교 합산 · 율 재계산 · 2022–2026",
       "종합보고서 · A4 세로 · 분교·캠퍼스 본교 합산 · 율 재계산 · 2022–2026",
     )
-    .replace("K-UniTrust · 학생충원분석 종합보고서 시안", "K-UniTrust · 학생충원분석 종합보고서")
-    .replace("부록. 보고서 작성 지침 (목업 v2.0.0)", "부록. 보고서 작성 지침 (v2.0.0)")
-    .replace("프로덕션 지침(1.2.0)은 바꾸지 않았다. 아래는 이 시안을 생성할 때 쓸 지침이다.", "분석실행 결과(본교 합산)로 표·차트를 채운 종합보고서 지침이다.");
+    .replace("K-UniTrust · 학생충원분석 종합보고서 시안", "K-UniTrust · 학생충원분석 종합보고서");
   const prodPath = path.join(process.cwd(), "public/reports/sfa-gemini-comprehensive.html");
   await writeFile(prodPath, prod, "utf8");
 

@@ -21,6 +21,7 @@ export function StudentFillComprehensiveReportPanel({
   const isAdmin = useCanUploadExcel();
   const [busy, setBusy] = useState<"gen" | "pdf" | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [messageTone, setMessageTone] = useState<"ok" | "warn" | "error">("ok");
 
   const liveSrc = useMemo(() => {
     const qs = new URLSearchParams({ year: String(year) });
@@ -38,13 +39,29 @@ export function StudentFillComprehensiveReportPanel({
           analysisYear: year,
           metro: "all",
           estb: "all",
-          schoolKind: "university",
+          schoolKind: "all",
         }),
       });
-      const body = (await res.json()) as { error?: string; report?: { generatedAt?: string } };
-      if (!res.ok) throw new Error(body.error ?? "저장에 실패했습니다.");
-      setMessage(`이 분석연도 보고서를 저장했습니다. ${body.report?.generatedAt ?? ""}`.trim());
+      const body = (await res.json()) as {
+        error?: string;
+        report?: { generatedAt?: string };
+        validation?: { ok?: boolean; summary?: string; issues?: { level: string }[] };
+      };
+      if (!res.ok) {
+        setMessageTone("error");
+        throw new Error(body.error ?? "저장에 실패했습니다.");
+      }
+      const warnCount = body.validation?.issues?.filter((i) => i.level === "warning").length ?? 0;
+      const saved = `이 분석연도 보고서를 저장했습니다. ${body.report?.generatedAt ?? ""}`.trim();
+      if (body.validation?.summary && warnCount > 0) {
+        setMessageTone("warn");
+        setMessage(`${saved}\n\n${body.validation.summary}`);
+      } else {
+        setMessageTone("ok");
+        setMessage(body.validation?.summary ? `${saved}\n\n${body.validation.summary}` : saved);
+      }
     } catch (err) {
+      setMessageTone("error");
       setMessage(err instanceof Error ? err.message : "저장에 실패했습니다.");
     } finally {
       setBusy(null);
@@ -56,7 +73,7 @@ export function StudentFillComprehensiveReportPanel({
     setMessage(null);
     try {
       const res = await fetch(
-        `/api/student-fill-analysis/comprehensive-report?year=${year}&metro=all&estb=all&schoolKind=university&format=pdf`,
+        `/api/student-fill-analysis/comprehensive-report?year=${year}&metro=all&estb=all&schoolKind=all&format=pdf`,
       );
       if (res.ok && res.headers.get("content-type")?.includes("pdf")) {
         const blob = await res.blob();
@@ -83,7 +100,7 @@ export function StudentFillComprehensiveReportPanel({
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className={FDB_TYPO.legend}>
-          첨부 종합보고서 · 분석조건 필터(기준 연도·권역·설립·학제)는 보고서 안에서 바꿉니다. 인쇄는 A4 가로입니다.
+          8장 종합보고서 · 생성 전 검증 필수 · 이상치(누락·오류)는 아래 메시지로 안내합니다. 인쇄는 A4 세로입니다.
         </span>
         <div className="ml-auto">
           <div className="glass-mint-seg" role="group" aria-label="종합보고서 작업">
@@ -118,7 +135,19 @@ export function StudentFillComprehensiveReportPanel({
           </div>
         </div>
       </div>
-      {message ? <p className={`${FDB_TYPO.legend} text-accent`}>{message}</p> : null}
+      {message ? (
+        <pre
+          className={`${FDB_TYPO.legend} whitespace-pre-wrap rounded-md border px-3 py-2 ${
+            messageTone === "error"
+              ? "border-rose-300 bg-rose-50 text-rose-800"
+              : messageTone === "warn"
+                ? "border-amber-300 bg-amber-50 text-amber-900"
+                : "border-emerald-200 bg-emerald-50 text-emerald-900"
+          }`}
+        >
+          {message}
+        </pre>
+      ) : null}
       <iframe
         key={liveSrc}
         title="학생충원 종합보고서"
