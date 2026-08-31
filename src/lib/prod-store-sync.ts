@@ -1,10 +1,48 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
+import { gunzipSync, gzipSync } from "zlib";
 
 import { ACCESS_COOKIE } from "@/lib/auth/access";
 import { CSV_DIR } from "@/lib/csv/paths";
 
 export const PROD_SYNC_HEADER = "x-kunitrust-store-sync";
+export const PROD_SYNC_GZIP_HEADER = "x-kunitrust-content-encoding";
+/** Vercel 서버리스 요청/응답 한도(~4.5MB)보다 작은 본문은 gzip 없이 보낸다. */
+const GZIP_MIN_BYTES = 3 * 1024 * 1024;
+
+export function encodeStoreBody(
+  text: string,
+  contentType: string,
+): { body: string | Buffer; headers: Record<string, string> } {
+  const bytes = Buffer.byteLength(text, "utf8");
+  if (bytes < GZIP_MIN_BYTES) {
+    return { body: text, headers: { "content-type": contentType } };
+  }
+  return {
+    body: gzipSync(Buffer.from(text, "utf8")),
+    headers: {
+      "content-type": contentType,
+      [PROD_SYNC_GZIP_HEADER]: "gzip",
+    },
+  };
+}
+
+export async function decodeStoreBody(res: Response): Promise<string> {
+  const buf = Buffer.from(await res.arrayBuffer());
+  if (res.headers.get(PROD_SYNC_GZIP_HEADER) === "gzip") {
+    return gunzipSync(buf).toString("utf8");
+  }
+  return buf.toString("utf8");
+}
+
+export async function readEncodedStoreRequest(request: Request): Promise<string> {
+  const buf = Buffer.from(await request.arrayBuffer());
+  if (request.headers.get(PROD_SYNC_GZIP_HEADER) === "gzip") {
+    return gunzipSync(buf).toString("utf8");
+  }
+  return buf.toString("utf8");
+}
+
 
 const DEFAULT_PROD_URL = "https://k-uni-trust-six.vercel.app";
 const REVISION_TTL_MS = 30_000;
@@ -187,7 +225,7 @@ async function fetchProdStoreText(
       console.warn("[data-store] read failed", bucket, name, res.status);
       return null;
     }
-    const text = await res.text();
+    const text = await decodeStoreBody(res);
     return text || null;
   } catch (err) {
     console.warn("[data-store] read error", bucket, name, err);
@@ -271,10 +309,11 @@ export async function putProdStoreText(
   if (!shouldSyncProdDataStore()) return;
   assertStoreObjectName(bucket, name);
   noteSyncOnce();
+  const { body: payload, headers } = encodeStoreBody(body, contentType);
   const res = await prodFetch(storeUrl(bucket, name), {
     method: "PUT",
-    headers: { "content-type": contentType },
-    body,
+    headers,
+    body: payload,
   });
   if (!res.ok) {
     const detail = await res.text();

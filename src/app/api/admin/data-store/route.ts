@@ -14,6 +14,8 @@ import {
 import { CSV_DIR } from "@/lib/csv/paths";
 import {
   assertStoreObjectName,
+  encodeStoreBody,
+  readEncodedStoreRequest,
 } from "@/lib/prod-store-sync";
 
 export const runtime = "nodejs";
@@ -61,18 +63,22 @@ export async function GET(request: Request) {
     if (body == null) {
       return NextResponse.json({ error: "파일이 없습니다." }, { status: 404 });
     }
-    return new NextResponse(body, {
-      headers: { "Content-Type": "text/plain; charset=utf-8" },
-    });
+    const { body: payload, headers } = encodeStoreBody(
+      body,
+      "text/plain; charset=utf-8",
+    );
+    return new NextResponse(payload, { headers });
   }
 
   const remote = await getStorePathText(`data/${parsed.name}`);
   if (remote == null) {
     return NextResponse.json({ error: "파일이 없습니다." }, { status: 404 });
   }
-  return new NextResponse(remote, {
-    headers: { "Content-Type": "application/json; charset=utf-8" },
-  });
+  const { body: payload, headers } = encodeStoreBody(
+    remote,
+    "application/json; charset=utf-8",
+  );
+  return new NextResponse(payload, { headers });
 }
 
 export async function PUT(request: Request) {
@@ -89,7 +95,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "잘못된 요청입니다." }, { status: 400 });
   }
 
-  const body = await request.text();
+  const body = await readEncodedStoreRequest(request);
   if (!body) {
     return NextResponse.json({ error: "본문이 비었습니다." }, { status: 400 });
   }
