@@ -313,7 +313,7 @@ export async function putProdStoreText(
   const res = await prodFetch(storeUrl(bucket, name), {
     method: "PUT",
     headers,
-    body: payload,
+    body: payload as unknown as BodyInit,
   });
   if (!res.ok) {
     const detail = await res.text();
