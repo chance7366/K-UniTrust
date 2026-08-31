@@ -42,10 +42,7 @@ function binaryResponse(
   payload: string | Uint8Array,
   headers: Record<string, string>,
 ): NextResponse {
-  if (typeof payload === "string") {
-    return new NextResponse(payload, { headers });
-  }
-  return new NextResponse(new Blob([payload]), { headers });
+  return new NextResponse(payload as BodyInit, { headers });
 }
 
 async function readCsvFallback(fileName: string): Promise<string | null> {
