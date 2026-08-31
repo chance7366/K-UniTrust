@@ -38,6 +38,16 @@ function parseRequest(request: Request): {
   return { bucket, name };
 }
 
+function binaryResponse(
+  payload: string | Uint8Array,
+  headers: Record<string, string>,
+): NextResponse {
+  if (typeof payload === "string") {
+    return new NextResponse(payload, { headers });
+  }
+  return new NextResponse(new Blob([payload]), { headers });
+}
+
 async function readCsvFallback(fileName: string): Promise<string | null> {
   try {
     return await readFile(path.join(CSV_DIR, fileName), "utf8");
@@ -67,7 +77,7 @@ export async function GET(request: Request) {
       body,
       "text/plain; charset=utf-8",
     );
-    return new NextResponse(payload, { headers });
+    return binaryResponse(payload, headers);
   }
 
   const remote = await getStorePathText(`data/${parsed.name}`);
@@ -78,7 +88,7 @@ export async function GET(request: Request) {
     remote,
     "application/json; charset=utf-8",
   );
-  return new NextResponse(payload, { headers });
+  return binaryResponse(payload, headers);
 }
 
 export async function PUT(request: Request) {
