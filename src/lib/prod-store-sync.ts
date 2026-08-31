@@ -13,13 +13,13 @@ const GZIP_MIN_BYTES = 3 * 1024 * 1024;
 export function encodeStoreBody(
   text: string,
   contentType: string,
-): { body: string | Buffer; headers: Record<string, string> } {
+): { body: string | Uint8Array; headers: Record<string, string> } {
   const bytes = Buffer.byteLength(text, "utf8");
   if (bytes < GZIP_MIN_BYTES) {
     return { body: text, headers: { "content-type": contentType } };
   }
   return {
-    body: gzipSync(Buffer.from(text, "utf8")),
+    body: new Uint8Array(gzipSync(Buffer.from(text, "utf8"))),
     headers: {
       "content-type": contentType,
       [PROD_SYNC_GZIP_HEADER]: "gzip",
