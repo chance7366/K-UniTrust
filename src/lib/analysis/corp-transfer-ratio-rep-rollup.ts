@@ -1,3 +1,11 @@
+import {
+  findFinanceAlimiRowForCampus,
+  financeAlimiSchoolName,
+} from "@/lib/analysis/finance-alimi-campus-join";
+import {
+  numByAccountCode,
+  parseFinanceAlimiCells,
+} from "@/lib/analysis/finance-alimi-header-lookup";
 import type { CorpTransferRatioRow } from "@/lib/ingest/corp-transfer-ratio-config";
 import {
   groupAnalysisTargetByRep,
@@ -25,12 +33,17 @@ export const CORP_TRANSFER_REP_COHORT_DIVISION: Record<
   "junior-college": "전문대학",
 };
 
-/** 교비자금(수입) cells_json — 헤더 [계정코드] 기준 */
-const EDU_FUND_COL = {
-  tuitionRevenue: 11, // 4.등록금수입[1002]
-  ordinaryExpense: 29, // 5.경상비전입금[1015]
-  legalObligation: 30, // 5.법정부담전입금[1020]
-  assetTransfer: 43, // 5.자산전입금[1026]
+const EDU_FUND_CODE = {
+  tuitionRevenue: "1002",
+  ordinaryExpense: "1015",
+  legalObligation: "1020",
+  assetTransfer: "1026",
+} as const;
+const EDU_FUND_FALLBACK = {
+  tuitionRevenue: 11,
+  ordinaryExpense: 29,
+  legalObligation: 30,
+  assetTransfer: 43,
 } as const;
 
 export type CorpTransferRepCounts = {
@@ -56,43 +69,29 @@ export type CorpTransferRepRow = CorpTransferRepCounts & {
 export type AlimiEduFundTransfer = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   tuitionRevenue: number;
   ordinaryExpenseTransfer: number;
   legalObligationTransfer: number;
   assetTransfer: number;
 };
 
-function parseNum(value: string | undefined): number {
-  if (value == null) return 0;
-  const text = value.replace(/,/g, "").replace(/\s/g, "").trim();
-  if (!text || text === "-" || text === "—" || text === "–") return 0;
-  const n = Number(text);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function parseCellsJson(raw: string | undefined): string[] {
-  try {
-    const cells = JSON.parse(raw ?? "[]") as unknown;
-    return Array.isArray(cells) ? cells.map((c) => String(c ?? "")) : [];
-  } catch {
-    return [];
-  }
-}
-
 export function parseAlimiEduFundTransferRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiEduFundTransfer | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
   return {
     year,
     schoolCodeStd,
-    tuitionRevenue: parseNum(cells[EDU_FUND_COL.tuitionRevenue]),
-    ordinaryExpenseTransfer: parseNum(cells[EDU_FUND_COL.ordinaryExpense]),
-    legalObligationTransfer: parseNum(cells[EDU_FUND_COL.legalObligation]),
-    assetTransfer: parseNum(cells[EDU_FUND_COL.assetTransfer]),
+    schoolName: financeAlimiSchoolName(raw),
+    tuitionRevenue: numByAccountCode(cells, headers, EDU_FUND_CODE.tuitionRevenue, EDU_FUND_FALLBACK.tuitionRevenue),
+    ordinaryExpenseTransfer: numByAccountCode(cells, headers, EDU_FUND_CODE.ordinaryExpense, EDU_FUND_FALLBACK.ordinaryExpense),
+    legalObligationTransfer: numByAccountCode(cells, headers, EDU_FUND_CODE.legalObligation, EDU_FUND_FALLBACK.legalObligation),
+    assetTransfer: numByAccountCode(cells, headers, EDU_FUND_CODE.assetTransfer, EDU_FUND_FALLBACK.assetTransfer),
   };
 }
 
@@ -156,11 +155,7 @@ export function buildCorpTransferRepRows(args: {
   eduFund: AlimiEduFundTransfer[];
 }): CorpTransferRepRow[] {
   const { cohort, displayYear, roster, eduFund } = args;
-  const fundByCode = new Map<string, AlimiEduFundTransfer>();
-  for (const row of eduFund) {
-    if (row.year !== displayYear) continue;
-    fundByCode.set(row.schoolCodeStd, row);
-  }
+  const fundYear = eduFund.filter((row) => row.year === displayYear);
 
   const targetGroups = groupAnalysisTargetByRep(
     roster,
@@ -172,8 +167,9 @@ export function buildCorpTransferRepRows(args: {
     const primary = pickPrimaryCampus(campuses);
     let counts = emptyCounts();
     let campusHit = 0;
+    const usedFund = new Set<(typeof fundYear)[number]>();
     for (const campus of campuses) {
-      const fund = fundByCode.get(campus.schoolCodeStd);
+      const fund = findFinanceAlimiRowForCampus(campus, fundYear, usedFund);
       if (!fund) continue;
       campusHit += 1;
       counts = addCounts(counts, countsFromSources(fund));

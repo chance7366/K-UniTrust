@@ -16,6 +16,7 @@ import {
   pickNearestYear,
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { persistFundSecureRepDb } from "@/lib/data/fund-secure-rate-rep-db";
+import { loadFinanceAlimiHeaders } from "@/lib/analysis/finance-alimi-headers-server";
 import { readCsvFile } from "@/lib/csv/read";
 import { sourceRowsForTwoSchoolView } from "@/lib/analysis/all-universities-cohort";
 
@@ -31,24 +32,28 @@ const COHORTS: FundSecureRepCohort[] = ["university", "junior-college"];
 export async function loadFundSecureRepMockDashboard(
   query: FundSecureRepMockQuery = {},
 ): Promise<FundSecureRepMockData> {
-  const [targetRaw, balRaw, fundRaw, indRaw] = await Promise.all([
-    readCsvFile("univMapAnalysisTarget").catch(() => []),
-    readCsvFile("univMapEduBalance").catch(() => []),
-    readCsvFile("univMapEduFund").catch(() => []),
-    readCsvFile("univMapIndustryBalance").catch(() => []),
-  ]);
+  const [targetRaw, balRaw, fundRaw, indRaw, balHeaders, fundHeaders, indHeaders] =
+    await Promise.all([
+      readCsvFile("univMapAnalysisTarget").catch(() => []),
+      readCsvFile("univMapEduBalance").catch(() => []),
+      readCsvFile("univMapEduFund").catch(() => []),
+      readCsvFile("univMapIndustryBalance").catch(() => []),
+      loadFinanceAlimiHeaders("edu-balance"),
+      loadFinanceAlimiHeaders("edu-fund"),
+      loadFinanceAlimiHeaders("industry-balance"),
+    ]);
 
   const rosterAll = targetRaw
     .map(parseAnalysisTargetCampus)
     .filter((row): row is NonNullable<typeof row> => row != null);
   const eduBalance = balRaw
-    .map(parseAlimiEduBalanceRow)
+    .map((row) => parseAlimiEduBalanceRow(row, balHeaders))
     .filter((row): row is NonNullable<typeof row> => row != null);
   const eduFund = fundRaw
-    .map(parseAlimiEduFundRow)
+    .map((row) => parseAlimiEduFundRow(row, fundHeaders))
     .filter((row): row is NonNullable<typeof row> => row != null);
   const industryBalance = indRaw
-    .map(parseAlimiIndustryBalanceRow)
+    .map((row) => parseAlimiIndustryBalanceRow(row, indHeaders))
     .filter((row): row is NonNullable<typeof row> => row != null);
 
   const years = [...new Set(eduBalance.map((r) => r.year))].sort((a, b) => b - a);

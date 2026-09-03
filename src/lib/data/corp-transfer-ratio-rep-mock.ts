@@ -14,6 +14,7 @@ import {
   pickNearestYear,
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { persistCorpTransferRepDb } from "@/lib/data/corp-transfer-ratio-rep-db";
+import { loadFinanceAlimiHeaders } from "@/lib/analysis/finance-alimi-headers-server";
 import { readCsvFile } from "@/lib/csv/read";
 import { sourceRowsForTwoSchoolView } from "@/lib/analysis/all-universities-cohort";
 
@@ -29,16 +30,17 @@ const COHORTS: CorpTransferRepCohort[] = ["university", "junior-college"];
 export async function loadCorpTransferRepMockDashboard(
   query: CorpTransferRepMockQuery = {},
 ): Promise<CorpTransferRepMockData> {
-  const [targetRaw, fundRaw] = await Promise.all([
+  const [targetRaw, fundRaw, fundHeaders] = await Promise.all([
     readCsvFile("univMapAnalysisTarget").catch(() => []),
     readCsvFile("univMapEduFund").catch(() => []),
+    loadFinanceAlimiHeaders("edu-fund"),
   ]);
 
   const rosterAll = targetRaw
     .map(parseAnalysisTargetCampus)
     .filter((row): row is NonNullable<typeof row> => row != null);
   const eduFund = fundRaw
-    .map(parseAlimiEduFundTransferRow)
+    .map((row) => parseAlimiEduFundTransferRow(row, fundHeaders))
     .filter((row): row is NonNullable<typeof row> => row != null);
 
   const years = [...new Set(eduFund.map((r) => r.year))].sort((a, b) => b - a);

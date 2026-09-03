@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2025 교비회계 결산 종합보고서 · 수입분석 (목업)</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+  <style>
+    :root {
+      --ink: #1e293b; --navy: #1F3864; --teal: #1D7A74; --teal2: #2E9E97;
+      --aux: #8A99AC; --aux2: #C3CBD6; --line: #D6DDE7; --zebra: #F4F7FB;
+      --sum: #EDF2F8; --muted: #475569; --rose: #be123c;
+    }
+    * { box-sizing: border-box; }
+    html, body, .cover, .cover-kpis div, th, .ch-badge, .fig-label {
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    body { margin: 0; font-family: Pretendard, "Malgun Gothic", sans-serif; color: var(--ink); background: #e2e8f0; }
+    .toolbar { position: sticky; top: 0; z-index: 20; display: flex; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 16px; background: #0f172a; color: #fff; font-size: 12px; }
+    .toolbar button { border: 0; border-radius: 6px; padding: 6px 12px; background: var(--teal); color: #fff; cursor: pointer; font-weight: 600; }
+    .doc { width: 210mm; max-width: 210mm; margin: 16px auto 48px; background: #fff; box-shadow: 0 8px 32px rgba(15, 23, 42, 0.12); }
+    .page { width: 210mm; min-height: 297mm; padding: 25mm 22mm 22mm; }
+    .cover {
+      width: 210mm; min-height: 297mm; height: 297mm;
+      display: flex; flex-direction: column; justify-content: space-between;
+      background-color: #0f172a;
+      background-image: linear-gradient(180deg, #0f172a 0%, #1F3864 55%, #1D7A74 100%);
+      color: #fff; padding: 22mm 18mm;
+    }
+    .cover .kicker { font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.8; }
+    .cover h1 { font-size: 34px; line-height: 1.25; margin: 18px 0 10px; font-weight: 800; border: 0; }
+    .cover .sub { font-size: 16px; opacity: 0.92; line-height: 1.6; }
+    .cover-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 28px; }
+    .cover-kpis div { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); border-radius: 10px; padding: 10px 12px; }
+    .cover-kpis b { display: block; font-size: 20px; margin-top: 4px; }
+    .cover-foot { font-size: 12px; opacity: 0.85; line-height: 1.7; }
+    h2 { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 20pt; color: var(--navy); font-weight: 700; border-bottom: 2pt solid var(--navy); padding-bottom: 5px; margin: 0 0 12px; }
+    h2.keep { font-size: 18pt; }
+    .ch-badge { display: inline-block; background: var(--navy); color: #fff; font-size: 12pt; font-weight: 700; padding: 2px 8px; border-radius: 3px; }
+    h3 { font-size: 15pt; color: var(--navy); font-weight: 700; margin: 6mm 0 8px; }
+    h3 .sec-no { color: var(--teal); margin-right: 6px; }
+    p, li { font-size: 12pt; line-height: 2; color: var(--muted); text-align: justify; word-break: keep-all; }
+    p { margin: 0 0 10px; }
+    strong { color: var(--ink); }
+    .fig { margin: 5mm 0 2mm; font-size: 10.5pt; font-weight: 700; color: var(--navy); }
+    .fig-label { display: inline-block; background: var(--sum); color: var(--navy); font-weight: 700; padding: 1px 7px; margin-right: 6px; border-radius: 2px; }
+    .fig-note { font-size: 9.3pt; color: #64748b; margin: 2mm 0 0; }
+    .chart { position: relative; width: 100%; height: 58mm; margin: 0; border: 0.6pt solid var(--line); padding: 2.5mm; }
+    .chart canvas { width: 100% !important; height: 100% !important; }
+    table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 10.5pt; margin: 0 0 4mm; font-variant-numeric: tabular-nums; }
+    table.t-wide { font-size: 9.5pt; }
+    th, td { border: 0; padding: 2.4mm 2mm; vertical-align: middle; }
+    th { background: var(--navy); color: #fff; font-weight: 700; text-align: center; border-right: 1px solid rgba(255,255,255,0.28); }
+    th:last-child { border-right: 0; }
+    td { text-align: right; border-bottom: 0.6pt solid var(--line); }
+    tbody tr:nth-child(even) td { background: var(--zebra); }
+    tbody tr:last-child td { border-bottom: 1.6pt solid var(--navy); }
+    tbody tr.row-total td { background: var(--sum); font-weight: 700; border-top: 1.2pt solid var(--navy); }
+    td.col-sum { border-left: 1pt solid var(--line); font-weight: 700; color: var(--navy); }
+    th.col-sum { color: #fff; }
+    table.t-c1 td:first-child { text-align: center; }
+    table.t-sch td:nth-child(1) { text-align: center; }
+    table.t-sch td:nth-child(2) { text-align: left; }
+    .up { color: var(--teal); } .down { color: var(--rose); }
+    .callout { background: var(--zebra); border-left: 3pt solid var(--teal); padding: 10px 12px; margin: 12px 0 16px; font-size: 9.8pt; line-height: 1.7; }
+    .warn { border-left-color: var(--rose); background: #fff1f2; }
+    .toc a { color: var(--navy); text-decoration: none; display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dotted #e2e8f0; font-size: 12pt; }
+    .toc .sec { font-weight: 700; }
+    .meta { font-size: 10pt; color: #64748b; margin-bottom: 16px; }
+    .guide { white-space: pre-wrap; font-size: 9.5pt; line-height: 1.55; background: #0f172a; color: #e2e8f0; padding: 14px; border-radius: 8px; }
+    .keep-block { break-inside: avoid; page-break-inside: avoid; width: 100%; margin: 0 0 5mm; }
+    .keep-block + .keep-block { margin-top: 5mm; }
+    @page { size: A4 portrait; margin: 0; }
+    @media print {
+      body { background: #fff; }
+      .toolbar { display: none !important; }
+      .doc { margin: 0; box-shadow: none; }
+      .page { min-height: auto; padding: 25mm 22mm 22mm; }
+      .cover { break-after: page; }
+      #toc, #ch1, #ch2, #ch3, #ch4, #ch5, #guide { break-before: page; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <span>목업 시안 · 2025 교비회계 결산 · 수입분석 1차 · A4 세로 · 디자인 표준 v2.2</span>
+    <button type="button" onclick="window.print()">인쇄 / PDF 저장</button>
+  </div>
+  <div class="doc">
+    <section class="cover" id="cover">
+      <div>
+        <div class="kicker">K-UniTrust · 교비회계 결산 종합보고서</div>
+        <h1>2025회계연도<br />교비회계 결산 분석<br /><span style="font-size:22px;font-weight:700">수입분석 (1차)</span></h1>
+        <p class="sub">사립 대학(일반·산업대학) 및 전문대학 · 학교코드 매칭<br />교비자금(수입) 계정코드 집계 · 2024→2025 증감 · 2021–2025 추세<br />학제 · 5극 3특 · 17개 시·도 · 학생규모</p>
+        <div class="cover-kpis">
+          <div>매칭 대상교(시안)<b>대학 148 · 전문 119</b></div>
+          <div>등록금수입[1002] 합계 증감<b>−2.3%</b></div>
+          <div>학부수업료[1008] 증감<b>−1.8%</b></div>
+          <div>대학원수업료[1009] 증감<b>+0.6%</b></div>
+          <div>전입·기부[1013] 증감<b>+4.1%</b></div>
+          <div>국고보조금[1048] 증감<b>+7.8%</b></div>
+        </div>
+      </div>
+      <div class="cover-foot">
+        발행: 2026년 9월 · K-UniTrust 교비회계 결산분석 (목업)<br />
+        출처: 재정알리미 교비자금(수입) · 대학알리미 학교코드 · 재적학생 재학생(A)<br />
+        숫자는 시안입니다. 프로덕션 적용 시 원본 집계로 바꿉니다. 서식: A4 세로 · 디자인 표준 v2.2.
+      </div>
+    </section>
+
+    <section class="page" id="toc">
+      <h2 class="keep">목 차</h2>
+      <p class="meta">이번 시안은 수입 분석까지다. 쪽번호는 제1장 첫 쪽을 1로 한다. 소절은 목차에 넣지 않는다.</p>
+      <nav class="toc">
+        <a class="sec" href="#ch1"><span>제1장 서론 및 분석 개요</span><span>1</span></a>
+        <a class="sec" href="#ch2"><span>제2장 등록금수입 분석</span><span>3</span></a>
+        <a class="sec" href="#ch3"><span>제3장 전입 및 기부수입 분석</span><span>6</span></a>
+        <a class="sec" href="#ch4"><span>제4장 교육부대수입·교육외수입 분석</span><span>8</span></a>
+        <a class="sec" href="#ch5"><span>제5장 1차 종합 진단</span><span>10</span></a>
+        <a class="sec" href="#guide"><span>부록. 생성 지침 (v2.2)</span><span>11</span></a>
+      </nav>
+    </section>
+
+    <section class="page" id="ch1">
+      <h2><span class="ch-badge">제1장</span> 서론 및 분석 개요</h2>
+      <h3><span class="sec-no">1.1</span> 분석 배경 및 목적</h3>
+      <p>2025회계연도 교비회계 결산은 학령인구 감소가 등록금 수입으로 전이되는 시기다. 본 보고서는 사립 대학(일반대학·산업대학, 4년제)과 전문대학의 교비자금(수입)을 계정코드 단위로 집계해, <strong>2024년 대비 2025년 증감</strong>과 <strong>2021–2025년 5개년 추세</strong>를 진단한다. 목적은 등록금 의존 구조가 전입·기부·국고·교육부대·교육외 수입으로 얼마나 보완됐는지, 그 보완이 학제·권역·규모별로 고른지를 보는 것이다. 금액은 합산, 학교당 평균은 매칭된 학교 수의 단순평균이다. 공시가 없는 학교는 0으로 채우지 않고 제외한다.</p>
+      <h3><span class="sec-no">1.2</span> 대상 및 조인</h3>
+      <p>분석 단위는 재정알리미 교비자금(수입) 행의 학교코드다. 설립·학급·학종·지역·학교대표는 대학알리미 학교코드 메뉴와 맞춘다. 코드가 해마다 바뀌면 학교명으로 다시 맞춘다. 대학원·사이버·각종학교는 제외한다. 학생규모는 재적학생 탭의 재학생(A) 계·소계를 본교·분교·캠퍼스 합산한 값이다. 대학은 1만 명 이상 대규모, 5천 명 이상 중규모, 미만 소규모. 전문대학은 4천/2천 기준이다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 1-1</span> 매칭 대상교 수 (시안)</div>
+        <table class="t-c1"><thead><tr><th>구분</th><th>2024</th><th>2025</th><th>증감</th></tr></thead>
+          <tbody>
+            <tr><td>대학(일반·산업)</td><td>149</td><td>148</td><td class="down">−1</td></tr>
+            <tr><td>전문대학</td><td>120</td><td>119</td><td class="down">−1</td></tr>
+            <tr class="row-total"><td>합계</td><td>269</td><td>267</td><td class="col-sum">−2</td></tr>
+          </tbody>
+        </table>
+        <p class="fig-note">출처: 교비자금(수입) × 학교코드. 목업 시안.</p>
+      </div>
+      <h3><span class="sec-no">1.3</span> 계정 체계와 분석 차원</h3>
+      <p>자금수입총계[1135]는 운영수입[1086], 자산및부채수입[1126], 미사용전기이월자금[1127]의 합이다. 운영수입은 등록금및수강료[1001], 전입및기부[1013], 교육부대[1060], 교육외[1071]의 합이다. 이번 장은 등록금[1002](학부[1008]·대학원[1009]), 전입및기부[1013](전입금[1014]·기부금[1035]·국고[1048]), 교육부대·교육외를 다룬다. 모든 표는 학제, 5극 3특, 17개 시·도, 규모를 넣는다.</p>
+      <div class="callout">진단: 학교 수가 2교 줄었으므로 합계 감소만으로 교당 수입 감소를 단정하지 않는다. 증감률은 양쪽 연도에 모두 있는 학교만 짝지어 계산한다.</div>
+    </section>
+
+    <section class="page" id="ch2">
+      <h2><span class="ch-badge">제2장</span> 등록금수입 분석</h2>
+      <h3><span class="sec-no">2.1</span> 4.등록금수입[1002] 2024→2025</h3>
+      <p>등록금수입 합계는 대학 −1.6%, 전문대학 −4.1%로 전문대학 감소가 더 컸다. 전국 합계는 −2.3%다. 대학은 학부수업료 감소를 대학원수업료가 일부 상쇄했고, 전문대학은 학부 비중이 높아 학령인구 감소가 곧 등록금 감소로 이어졌다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 2-1</span> 등록금수입[1002] 학제별 합계 (억원, 시안)</div>
+        <table class="t-c1"><thead><tr><th>학제</th><th>2024</th><th>2025</th><th>증감액</th><th class="col-sum">증감률</th></tr></thead>
+          <tbody>
+            <tr><td>대학</td><td>184,200</td><td>181,250</td><td class="down">−2,950</td><td class="col-sum down">−1.6%</td></tr>
+            <tr><td>전문대학</td><td>68,100</td><td>65,310</td><td class="down">−2,790</td><td class="col-sum down">−4.1%</td></tr>
+            <tr class="row-total"><td>합계</td><td>252,300</td><td>246,560</td><td class="down">−5,740</td><td class="col-sum down">−2.3%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">그림 2-1</span> 등록금수입 5개년 추세 (억원)</div>
+        <div class="chart"><canvas id="c-tuition-trend"></canvas></div>
+        <p class="fig-note">대학은 완만히 줄고, 전문대학은 2023년 이후 기울기가 가파르다.</p>
+      </div>
+      <h3><span class="sec-no">2.2</span> 학부생수업료[1008] · 대학원생수업료[1009]</h3>
+      <p>대학 등록금 중 학부수업료는 −1.8%, 대학원수업료는 +0.6%다. 대학원 비중이 커지면 학부 충원 부진을 가릴 수 있다. 전문대학은 대학원 항이 거의 없어 학부수업료 감소가 곧 등록금 감소다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 2-2</span> 학부·대학원 수업료 (억원, 시안)</div>
+        <table class="t-wide t-c1"><thead><tr><th>구분</th><th>학부 2024</th><th>학부 2025</th><th>학부 증감</th><th>대학원 2024</th><th>대학원 2025</th><th>대학원 증감</th></tr></thead>
+          <tbody>
+            <tr><td>대학</td><td>162,400</td><td>159,480</td><td class="down">−1.8%</td><td>18,110</td><td>18,220</td><td class="up">+0.6%</td></tr>
+            <tr><td>전문대학</td><td>66,900</td><td>64,150</td><td class="down">−4.1%</td><td>210</td><td>205</td><td class="down">−2.4%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3><span class="sec-no">2.3</span> 권역 · 시도 · 규모</h3>
+      <p>5극 3특에서 수도권 대학은 −0.9%로 방어됐으나 대경권 −3.4%, 서남권 −3.1%다. 전문대학은 비수도권 전 권역이 −3%를 넘는다. 규모별로는 소규모 대학 −4.7%, 소규모 전문대학 −6.2%로 하방 위험이 소규모에 몰린다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 2-3</span> 등록금수입 권역별 증감률 (시안)</div>
+        <table class="t-wide t-c1"><thead><tr><th>권역</th><th>대학</th><th>전문대학</th><th>권역</th><th>대학</th><th>전문대학</th></tr></thead>
+          <tbody>
+            <tr><td>수도권</td><td class="up">−0.9%</td><td class="down">−2.8%</td><td>서남권</td><td class="down">−3.1%</td><td class="down">−5.0%</td></tr>
+            <tr><td>충청권</td><td class="down">−1.5%</td><td class="down">−3.6%</td><td>강원권</td><td class="down">−2.4%</td><td class="down">−4.4%</td></tr>
+            <tr><td>동남권</td><td class="down">−2.2%</td><td class="down">−4.8%</td><td>전북권</td><td class="down">−2.9%</td><td class="down">−5.1%</td></tr>
+            <tr><td>대경권</td><td class="down">−3.4%</td><td class="down">−5.4%</td><td>제주권</td><td class="down">−1.1%</td><td class="down">−3.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 2-4</span> 등록금수입 규모별 증감률 (시안)</div>
+        <table class="t-c1"><thead><tr><th>규모</th><th>대학</th><th>전문대학</th></tr></thead>
+          <tbody>
+            <tr><td>대규모</td><td class="up">−0.6%</td><td class="down">−2.1%</td></tr>
+            <tr><td>중규모</td><td class="down">−1.9%</td><td class="down">−3.8%</td></tr>
+            <tr><td>소규모</td><td class="down">−4.7%</td><td class="down">−6.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 2-5</span> 등록금수입 시도별 증감률 · 대학 (시안, %)</div>
+        <table class="t-wide t-c1"><thead><tr><th>시도</th><th>증감</th><th>시도</th><th>증감</th><th>시도</th><th>증감</th><th>시도</th><th>증감</th></tr></thead>
+          <tbody>
+            <tr><td>서울</td><td>−0.4</td><td>경기</td><td>−1.1</td><td>인천</td><td>−1.3</td><td>대전</td><td>−1.4</td></tr>
+            <tr><td>세종</td><td>−0.8</td><td>충북</td><td>−1.7</td><td>충남</td><td>−1.6</td><td>부산</td><td>−2.1</td></tr>
+            <tr><td>울산</td><td>−2.0</td><td>경남</td><td>−2.5</td><td>대구</td><td>−3.2</td><td>경북</td><td>−3.6</td></tr>
+            <tr><td>광주</td><td>−2.8</td><td>전남</td><td>−3.3</td><td>강원</td><td>−2.4</td><td>전북</td><td>−2.9</td></tr>
+            <tr><td>제주</td><td>−1.1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout warn">특이점: 대경권·소규모에서 등록금 감소가 동시에 나타난다. 학부수업료 감소가 주도하고, 대학원 증가는 수도권 대규모 대학에 편중된다.</div>
+    </section>
+
+    <section class="page" id="ch3">
+      <h2><span class="ch-badge">제3장</span> 전입 및 기부수입 분석</h2>
+      <h3><span class="sec-no">3.1</span> 3.전입및기부수입[1013]</h3>
+      <p>전입및기부수입 합계는 대학 +3.6%, 전문대학 +5.4%로 등록금과 반대 방향이다. 다만 규모가 등록금의 약 1/4 수준이라 등록금 감소를 상쇄하기에는 부족하다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 3-1</span> 전입및기부수입[1013] (억원, 시안)</div>
+        <table class="t-c1"><thead><tr><th>학제</th><th>2024</th><th>2025</th><th>증감률</th></tr></thead>
+          <tbody>
+            <tr><td>대학</td><td>46,800</td><td>48,480</td><td class="up">+3.6%</td></tr>
+            <tr><td>전문대학</td><td>12,410</td><td>13,080</td><td class="up">+5.4%</td></tr>
+            <tr class="row-total"><td>합계</td><td>59,210</td><td>61,560</td><td class="col-sum up">+4.0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">그림 3-1</span> 전입금·기부금·국고 구성 (2025, 억원)</div>
+        <div class="chart"><canvas id="c-transfer-mix"></canvas></div>
+      </div>
+      <h3><span class="sec-no">3.2</span> 전입금[1014] · 기부금[1035] · 국고[1048]</h3>
+      <p>국고보조금[1048]이 +7.8%로 가장 빠르고, 전입금[1014] +2.1%, 기부금[1035] +1.4%다. 전문대학 국고 증가(+11.2%)가 대학(+6.9%)보다 크다. 기부금은 수도권 대규모에 편중되어 평균과 중앙값 괴리가 크다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 3-2</span> 전입금·기부금·국고 증감률 (시안)</div>
+        <table class="t-c1"><thead><tr><th>항목</th><th>대학</th><th>전문대학</th><th>전국</th></tr></thead>
+          <tbody>
+            <tr><td>전입금[1014]</td><td class="up">+1.8%</td><td class="up">+3.0%</td><td class="up">+2.1%</td></tr>
+            <tr><td>기부금[1035]</td><td class="up">+1.6%</td><td class="down">−0.4%</td><td class="up">+1.4%</td></tr>
+            <tr><td>국고[1048]</td><td class="up">+6.9%</td><td class="up">+11.2%</td><td class="up">+7.8%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3><span class="sec-no">3.3</span> 권역 · 규모</h3>
+      <p>국고 증가율은 비수도권 소규모에서 높다. 등록금 감소와 국고 증가가 같은 집단에서 나타나, 운영수입의 정부 의존이 커지는 신호다. 기부금은 수도권 대규모만 늘고 지방 소규모는 줄었다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 3-3</span> 국고보조금 권역·규모 증감률 · 대학 (시안)</div>
+        <table class="t-wide t-c1"><thead><tr><th>구분</th><th>수도권</th><th>충청</th><th>동남</th><th>대경</th><th>서남</th><th>강원</th><th>전북</th><th>제주</th></tr></thead>
+          <tbody>
+            <tr><td>대규모</td><td>+4.2</td><td>+5.1</td><td>+5.8</td><td>+6.0</td><td>+6.4</td><td>+5.5</td><td>+6.1</td><td>+4.8</td></tr>
+            <tr><td>중규모</td><td>+5.6</td><td>+6.8</td><td>+7.4</td><td>+8.1</td><td>+8.5</td><td>+7.2</td><td>+8.0</td><td>+6.4</td></tr>
+            <tr><td>소규모</td><td>+7.1</td><td>+9.2</td><td>+10.4</td><td>+11.8</td><td>+12.1</td><td>+10.6</td><td>+11.4</td><td>+8.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">진단: 전입·기부는 늘었으나 등록금 감소액을 메우지 못한다. 국고 의존이 지방·소규모에서 커지면, 보조금 정책 변화에 대한 민감도가 커진다.</div>
+    </section>
+
+    <section class="page" id="ch4">
+      <h2><span class="ch-badge">제4장</span> 교육부대수입·교육외수입 분석</h2>
+      <h3><span class="sec-no">4.1</span> 3.교육부대수입[1060]</h3>
+      <p>교육부대수입은 대학 +2.4%, 전문대학 +0.8%다. 평생·공개강좌·수탁 등 학부 정원 밖 수입이다. 수도권 대규모에서 증가가 뚜렷하고, 소규모는 정체다. 헤더에 [1060]이 없으면 [1006]으로 찾는다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 4-1</span> 교육부대수입 (억원, 시안)</div>
+        <table class="t-c1"><thead><tr><th>학제</th><th>2024</th><th>2025</th><th>증감률</th></tr></thead>
+          <tbody>
+            <tr><td>대학</td><td>21,450</td><td>21,960</td><td class="up">+2.4%</td></tr>
+            <tr><td>전문대학</td><td>4,820</td><td>4,860</td><td class="up">+0.8%</td></tr>
+            <tr class="row-total"><td>합계</td><td>26,270</td><td>26,820</td><td class="col-sum up">+2.1%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3><span class="sec-no">4.2</span> 3.교육외수입[1071]</h3>
+      <p>교육외수입은 대학 +1.1%, 전문대학 −0.6%다. 이자·배당 등 금융수익 비중이 있어 금리·자산 규모에 좌우된다. 대규모 대학은 소폭 증가, 소규모 전문대학은 감소다.</p>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 4-2</span> 교육외수입 (억원, 시안)</div>
+        <table class="t-c1"><thead><tr><th>학제</th><th>2024</th><th>2025</th><th>증감률</th></tr></thead>
+          <tbody>
+            <tr><td>대학</td><td>9,640</td><td>9,750</td><td class="up">+1.1%</td></tr>
+            <tr><td>전문대학</td><td>1,980</td><td>1,968</td><td class="down">−0.6%</td></tr>
+            <tr class="row-total"><td>합계</td><td>11,620</td><td>11,718</td><td class="col-sum up">+0.8%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">그림 4-1</span> 운영수입 구성 변화 (대학, %)</div>
+        <div class="chart"><canvas id="c-op-mix"></canvas></div>
+        <p class="fig-note">등록금 비중은 줄고 전입·기부와 교육부대 비중이 소폭 늘었다.</p>
+      </div>
+      <h3><span class="sec-no">4.3</span> 시사점</h3>
+      <p>교육부대·교육외는 등록금 감소를 완충하는 보조 재원이다. 증가가 수도권 대규모에 몰리면, 지방 소규모는 등록금 감소와 국고 의존만 남는다. 5개년으로 보면 교육부대는 2022년 이후 대학에서만 우상향이다.</p>
+      <div class="callout">진단: 운영수입 다각화는 진행 중이나 학제·규모 간 속도 차가 크다. 전문대학 소규모는 교육부대·교육외 모두 정체다.</div>
+    </section>
+
+    <section class="page" id="ch5">
+      <h2><span class="ch-badge">제5장</span> 1차 종합 진단</h2>
+      <h3><span class="sec-no">5.1</span> 핵심 지표 요약</h3>
+      <div class="keep-block">
+        <div class="fig"><span class="fig-label">표 5-1</span> 수입 항목 전국 증감률 요약 (시안)</div>
+        <table class="t-c1"><thead><tr><th>항목</th><th>대학</th><th>전문대학</th><th>전국</th></tr></thead>
+          <tbody>
+            <tr><td>등록금[1002]</td><td>−1.6%</td><td>−4.1%</td><td>−2.3%</td></tr>
+            <tr><td>학부수업료[1008]</td><td>−1.8%</td><td>−4.1%</td><td>−2.4%</td></tr>
+            <tr><td>대학원수업료[1009]</td><td>+0.6%</td><td>−2.4%</td><td>+0.5%</td></tr>
+            <tr><td>전입·기부[1013]</td><td>+3.6%</td><td>+5.4%</td><td>+4.0%</td></tr>
+            <tr><td>국고[1048]</td><td>+6.9%</td><td>+11.2%</td><td>+7.8%</td></tr>
+            <tr><td>교육부대[1060]</td><td>+2.4%</td><td>+0.8%</td><td>+2.1%</td></tr>
+            <tr><td>교육외[1071]</td><td>+1.1%</td><td>−0.6%</td><td>+0.8%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3><span class="sec-no">5.2</span> 교차 특이점</h3>
+      <p>첫째, 전문대학·비수도권·소규모에서 등록금 감소가 겹친다. 둘째, 같은 집단에서 국고 증가율이 높다. 셋째, 대학원수업료와 기부금 증가는 수도권 대규모 대학에 편중된다. 넷째, 교육부대 다각화는 대학에 한정된다.</p>
+      <h3><span class="sec-no">5.3</span> 후속 범위</h3>
+      <p>다음 시안은 자산및부채수입·이월자금, 교비자금(지출), 교비대차, 자금확보·등록금의존과의 연결이다. 본 목업 숫자는 원본 재집계로 교체한다.</p>
+      <div class="callout warn">1차 결론: 2025년 교비 운영수입은 등록금 감소를 국고·전입이 부분 보완하는 구조다. 학제·권역·규모 격차가 동시에 벌어져, 전국 합계만 보면 소규모 전문대학의 하방을 놓친다.</div>
+    </section>
+
+    <section class="page" id="guide">
+      <h2><span class="ch-badge">부록</span> 생성 지침</h2>
+      <p class="meta">학생충원분석 종합보고서 구성을 따르고, 제7절은 A4 서식 디자인 표준 v2.2다.</p>
+      <pre class="guide">■ 7. A4 서식 · 디자인 표준 v2.2 (2025년)
+
+· A4 세로. @page margin 0. 본문 여백 위 25mm·아래 22mm·좌우 22mm. 이어지는 쪽 위 여백 32mm.
+· 쪽번호 「- n -」는 하단 중앙·지면에서 9mm·9pt 회색. 표지·목차 제외, 제1장 첫 쪽=1.
+· 표지 그라데이션·남색 표 헤더는 print-color-adjust:exact로 PDF에 출력한다.
+· 표는 width 100%·table-layout:fixed. 차트는 폭 100%.
+· 표 헤더 배경 #1F3864·흰 글자. 본문 가로선만, 짝수 행 #F4F7FB.
+· 캡션은 「표 2-1」「그림 2-1」 라벨 태그(#EDF2F8) 후 제목.
+· 차트 색은 #1F3864·#1D7A74·#2E9E97·#8A99AC·#C3CBD6만 쓴다.
+· 타이포: 대제목 20pt·장 배지 12pt·소제목 15pt·본문 12pt 줄간격 200%.
+· 진단은 왼쪽 3pt 청록 콜아웃.
+
+전체 생성 지침은 목업 페이지의 「생성 지침」에서 확인한다.</pre>
+    </section>
+  </div>
+  <script>
+    const years = ["2021","2022","2023","2024","2025"];
+    const pal = { n:"#1F3864", t:"#1D7A74", t2:"#2E9E97", a:"#8A99AC", a2:"#C3CBD6" };
+    Chart.defaults.font.family = "Pretendard, Malgun Gothic, sans-serif";
+    Chart.defaults.font.size = 11;
+    new Chart(document.getElementById("c-tuition-trend"), {
+      type: "line",
+      data: {
+        labels: years,
+        datasets: [
+          { label: "대학", data: [191200, 188400, 186100, 184200, 181250], borderColor: pal.n, backgroundColor: pal.n, tension: 0.2, fill: false },
+          { label: "전문대학", data: [74200, 72100, 70200, 68100, 65310], borderColor: pal.t, backgroundColor: pal.t, tension: 0.2, fill: false }
+        ]
+      },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { y: { title: { display: true, text: "억원" } } } }
+    });
+    new Chart(document.getElementById("c-transfer-mix"), {
+      type: "bar",
+      data: {
+        labels: ["전입금[1014]", "기부금[1035]", "국고[1048]"],
+        datasets: [
+          { label: "대학", data: [21400, 9800, 17280], backgroundColor: pal.n },
+          { label: "전문대학", data: [4100, 980, 8000], backgroundColor: pal.t }
+        ]
+      },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { y: { title: { display: true, text: "억원" } } } }
+    });
+    new Chart(document.getElementById("c-op-mix"), {
+      type: "bar",
+      data: {
+        labels: ["2024", "2025"],
+        datasets: [
+          { label: "등록금", data: [70.2, 68.9], backgroundColor: pal.n },
+          { label: "전입·기부", data: [17.8, 18.4], backgroundColor: pal.t },
+          { label: "교육부대", data: [8.2, 8.3], backgroundColor: pal.t2 },
+          { label: "교육외", data: [3.8, 3.7], backgroundColor: pal.a }
+        ]
+      },
+      options: { maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, scales: { y: { stacked: true, title: { display: true, text: "%" } }, x: { stacked: true } } }
+    });
+  </script>
+</body>
+</html>

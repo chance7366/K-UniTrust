@@ -1,3 +1,11 @@
+import {
+  findFinanceAlimiRowForCampus,
+  financeAlimiSchoolName,
+} from "@/lib/analysis/finance-alimi-campus-join";
+import {
+  numByAccountCode,
+  parseFinanceAlimiCells,
+} from "@/lib/analysis/finance-alimi-header-lookup";
 import type { FundSecureRateRow } from "@/lib/ingest/fund-secure-rate-config";
 import {
   groupAnalysisTargetByRep,
@@ -23,27 +31,36 @@ export const FUND_SECURE_REP_COHORT_DIVISION: Record<
   "junior-college": "전문대학",
 };
 
-/** 교비대차 cells_json — 헤더 [계정코드] 기준 */
-const EDU_BALANCE_COL = {
-  currentAssets: 9, // 2.유동자산[1001]
-  principalFund: 37, // 3.원금보존기금[1110]
-  discretionaryFund: 44, // 3.임의기금[1025]
-  currentLiabilities: 80, // 3.유동부채[1050]
-  shortTermBorrowings: 81, // 4.단기차입금[1051] (공시 코드 10552 없음)
+const EDU_BALANCE_CODE = {
+  currentAssets: "1001",
+  principalFund: "1110",
+  discretionaryFund: "1025",
+  currentLiabilities: "1050",
+  shortTermBorrowings: "1051",
+} as const;
+const EDU_BALANCE_FALLBACK = {
+  currentAssets: 9,
+  principalFund: 37,
+  discretionaryFund: 44,
+  currentLiabilities: 80,
+  shortTermBorrowings: 81,
 } as const;
 
-/** 산단대차 cells_json */
-const INDUSTRY_BALANCE_COL = {
-  currentAssets: 10, // 3.유동자산[2003]
-  longTermDeposits: 29, // 5.장기금융상품[2022]
-  longTermInvestments: 30, // 5.장기투자금융자산[2023]
-  currentLiabilities: 62, // 4.유동부채[2055]
+const INDUSTRY_BALANCE_CODE = {
+  currentAssets: "2003",
+  longTermDeposits: "2022",
+  longTermInvestments: "2023",
+  currentLiabilities: "2055",
+} as const;
+const INDUSTRY_BALANCE_FALLBACK = {
+  currentAssets: 10,
+  longTermDeposits: 29,
+  longTermInvestments: 30,
+  currentLiabilities: 62,
 } as const;
 
-/** 교비자금(수입) cells_json */
-const EDU_FUND_COL = {
-  tuitionRevenue: 11, // 4.등록금수입[1002]
-} as const;
+const EDU_FUND_CODE = { tuitionRevenue: "1002" } as const;
+const EDU_FUND_FALLBACK = { tuitionRevenue: 11 } as const;
 
 export type FundSecureRepCounts = {
   eduCarryover: number;
@@ -69,6 +86,7 @@ export type FundSecureRepRow = FundSecureRepCounts & {
 export type AlimiEduBalance = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   currentAssets: number;
   currentLiabilities: number;
   shortTermBorrowings: number;
@@ -79,6 +97,7 @@ export type AlimiEduBalance = {
 export type AlimiIndustryBalance = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   currentAssets: number;
   currentLiabilities: number;
   longTermDeposits: number;
@@ -91,69 +110,66 @@ export type AlimiEduFund = {
   tuitionRevenue: number;
 };
 
-function parseNum(value: string | undefined): number {
-  if (value == null) return 0;
-  const text = value.replace(/,/g, "").replace(/\s/g, "").trim();
-  if (!text || text === "-" || text === "—" || text === "–") return 0;
-  const n = Number(text);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function parseCellsJson(raw: string | undefined): string[] {
-  try {
-    const cells = JSON.parse(raw ?? "[]") as unknown;
-    return Array.isArray(cells) ? cells.map((c) => String(c ?? "")) : [];
-  } catch {
-    return [];
-  }
+function num(
+  cells: string[],
+  headers: string[],
+  code: string,
+  fallback: number,
+): number {
+  return numByAccountCode(cells, headers, code, fallback);
 }
 
 export function parseAlimiEduBalanceRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiEduBalance | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
   return {
     year,
     schoolCodeStd,
-    currentAssets: parseNum(cells[EDU_BALANCE_COL.currentAssets]),
-    currentLiabilities: parseNum(cells[EDU_BALANCE_COL.currentLiabilities]),
-    shortTermBorrowings: parseNum(cells[EDU_BALANCE_COL.shortTermBorrowings]),
-    principalFund: parseNum(cells[EDU_BALANCE_COL.principalFund]),
-    discretionaryFund: parseNum(cells[EDU_BALANCE_COL.discretionaryFund]),
+    schoolName: financeAlimiSchoolName(raw),
+    currentAssets: num(cells, headers, EDU_BALANCE_CODE.currentAssets, EDU_BALANCE_FALLBACK.currentAssets),
+    currentLiabilities: num(cells, headers, EDU_BALANCE_CODE.currentLiabilities, EDU_BALANCE_FALLBACK.currentLiabilities),
+    shortTermBorrowings: num(cells, headers, EDU_BALANCE_CODE.shortTermBorrowings, EDU_BALANCE_FALLBACK.shortTermBorrowings),
+    principalFund: num(cells, headers, EDU_BALANCE_CODE.principalFund, EDU_BALANCE_FALLBACK.principalFund),
+    discretionaryFund: num(cells, headers, EDU_BALANCE_CODE.discretionaryFund, EDU_BALANCE_FALLBACK.discretionaryFund),
   };
 }
 
 export function parseAlimiIndustryBalanceRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiIndustryBalance | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
   return {
     year,
     schoolCodeStd,
-    currentAssets: parseNum(cells[INDUSTRY_BALANCE_COL.currentAssets]),
-    currentLiabilities: parseNum(cells[INDUSTRY_BALANCE_COL.currentLiabilities]),
-    longTermDeposits: parseNum(cells[INDUSTRY_BALANCE_COL.longTermDeposits]),
-    longTermInvestments: parseNum(cells[INDUSTRY_BALANCE_COL.longTermInvestments]),
+    schoolName: financeAlimiSchoolName(raw),
+    currentAssets: num(cells, headers, INDUSTRY_BALANCE_CODE.currentAssets, INDUSTRY_BALANCE_FALLBACK.currentAssets),
+    currentLiabilities: num(cells, headers, INDUSTRY_BALANCE_CODE.currentLiabilities, INDUSTRY_BALANCE_FALLBACK.currentLiabilities),
+    longTermDeposits: num(cells, headers, INDUSTRY_BALANCE_CODE.longTermDeposits, INDUSTRY_BALANCE_FALLBACK.longTermDeposits),
+    longTermInvestments: num(cells, headers, INDUSTRY_BALANCE_CODE.longTermInvestments, INDUSTRY_BALANCE_FALLBACK.longTermInvestments),
   };
 }
 
 export function parseAlimiEduFundRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiEduFund | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
   return {
     year,
     schoolCodeStd,
-    tuitionRevenue: parseNum(cells[EDU_FUND_COL.tuitionRevenue]),
+    tuitionRevenue: num(cells, headers, EDU_FUND_CODE.tuitionRevenue, EDU_FUND_FALLBACK.tuitionRevenue),
   };
 }
 
@@ -235,21 +251,9 @@ export function buildFundSecureRepRows(args: {
 }): FundSecureRepRow[] {
   const { cohort, displayYear, roster, eduBalance, industryBalance, eduFund } =
     args;
-  const balByCode = new Map<string, AlimiEduBalance>();
-  for (const row of eduBalance) {
-    if (row.year !== displayYear) continue;
-    balByCode.set(row.schoolCodeStd, row);
-  }
-  const indByCode = new Map<string, AlimiIndustryBalance>();
-  for (const row of industryBalance) {
-    if (row.year !== displayYear) continue;
-    indByCode.set(row.schoolCodeStd, row);
-  }
-  const fundByCode = new Map<string, AlimiEduFund>();
-  for (const row of eduFund) {
-    if (row.year !== displayYear) continue;
-    fundByCode.set(row.schoolCodeStd, row);
-  }
+  const balYear = eduBalance.filter((row) => row.year === displayYear);
+  const indYear = industryBalance.filter((row) => row.year === displayYear);
+  const fundYear = eduFund.filter((row) => row.year === displayYear);
 
   const targetGroups = groupAnalysisTargetByRep(
     roster,
@@ -261,10 +265,13 @@ export function buildFundSecureRepRows(args: {
     const primary = pickPrimaryCampus(campuses);
     let counts = emptyCounts();
     let campusHit = 0;
+    const usedBal = new Set<(typeof balYear)[number]>();
+    const usedInd = new Set<(typeof indYear)[number]>();
+    const usedFund = new Set<(typeof fundYear)[number]>();
     for (const campus of campuses) {
-      const balance = balByCode.get(campus.schoolCodeStd);
-      const industry = indByCode.get(campus.schoolCodeStd);
-      const fund = fundByCode.get(campus.schoolCodeStd);
+      const balance = findFinanceAlimiRowForCampus(campus, balYear, usedBal);
+      const industry = findFinanceAlimiRowForCampus(campus, indYear, usedInd);
+      const fund = findFinanceAlimiRowForCampus(campus, fundYear, usedFund);
       if (!balance && !industry && !fund) continue;
       campusHit += 1;
       counts = addCounts(counts, countsFromSources(balance, industry, fund));

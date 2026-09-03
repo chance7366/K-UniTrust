@@ -15,6 +15,7 @@ import {
   pickNearestYear,
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { persistIncomePropertyRepDb } from "@/lib/data/income-property-secure-rate-rep-db";
+import { loadFinanceAlimiHeaders } from "@/lib/analysis/finance-alimi-headers-server";
 import { readCsvFile } from "@/lib/csv/read";
 import { sourceRowsForTwoSchoolView } from "@/lib/analysis/all-universities-cohort";
 
@@ -30,20 +31,23 @@ const COHORTS: IncomePropertyRepCohort[] = ["university", "junior-college"];
 export async function loadIncomePropertyRepMockDashboard(
   query: IncomePropertyRepMockQuery = {},
 ): Promise<IncomePropertyRepMockData> {
-  const [targetRaw, propertyRaw, fundRaw] = await Promise.all([
-    readCsvFile("univMapAnalysisTarget").catch(() => []),
-    readCsvFile("univMapIncomeProperty").catch(() => []),
-    readCsvFile("univMapEduFund").catch(() => []),
-  ]);
+  const [targetRaw, propertyRaw, fundRaw, propertyHeaders, fundHeaders] =
+    await Promise.all([
+      readCsvFile("univMapAnalysisTarget").catch(() => []),
+      readCsvFile("univMapIncomeProperty").catch(() => []),
+      readCsvFile("univMapEduFund").catch(() => []),
+      loadFinanceAlimiHeaders("income-property"),
+      loadFinanceAlimiHeaders("edu-fund"),
+    ]);
 
   const rosterAll = targetRaw
     .map(parseAnalysisTargetCampus)
     .filter((row): row is NonNullable<typeof row> => row != null);
   const property = propertyRaw
-    .map(parseAlimiIncomePropertyRow)
+    .map((row) => parseAlimiIncomePropertyRow(row, propertyHeaders))
     .filter((row): row is NonNullable<typeof row> => row != null);
   const eduFund = fundRaw
-    .map(parseAlimiEduFundTuitionOnlyRow)
+    .map((row) => parseAlimiEduFundTuitionOnlyRow(row, fundHeaders))
     .filter((row): row is NonNullable<typeof row> => row != null);
 
   const years = [...new Set(property.map((r) => r.year))].sort((a, b) => b - a);

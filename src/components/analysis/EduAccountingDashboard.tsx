@@ -1,6 +1,6 @@
 "use client";
 
-import { Database } from "lucide-react";
+import { Database, FileText } from "lucide-react";
 
 import { DashboardEmeraldHeader } from "@/components/analysis/DashboardEmeraldHeader";
 import { GlassMintTabGroup } from "@/components/analysis/GlassMintTabGroup";
@@ -16,6 +16,7 @@ import type {
 } from "@/lib/analysis/univ-alimi-raw/types";
 
 import "./edu-accounting-dashboard.css";
+import "./glass-help-button.css";
 
 function StatementTabRow({ active }: { active: EduAccountingSheetId }) {
   return (
@@ -41,6 +42,9 @@ export function EduAccountingDashboard({
   screen: UnivAlimiScreenConfig;
   sheetId: EduAccountingSheetId;
 }) {
+  const yearQs =
+    data.displayYear != null ? `?year=${data.displayYear}` : "";
+
   return (
     <div className="flex w-full flex-col gap-4">
       <DashboardEmeraldHeader
@@ -53,6 +57,18 @@ export function EduAccountingDashboard({
         screen={screen}
         hideHeader
         toolbarStart={<StatementTabRow active={sheetId} />}
+        toolbarEnd={
+          <a
+            href={`/analysis/univ-map/edu-settlement-report${yearQs}`}
+            className="glass-mint-seg shrink-0"
+            aria-label="종합보고서"
+          >
+            <span className="glass-mint-seg-item is-on">
+              <FileText size={12} strokeWidth={2.6} aria-hidden />
+              종합보고서
+            </span>
+          </a>
+        }
         buildHref={buildEduAccountingHref}
         metricRoundDigits={0}
         metricUnitLabel="(단위 : 천원)"

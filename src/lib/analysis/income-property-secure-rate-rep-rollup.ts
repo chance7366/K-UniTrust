@@ -1,3 +1,12 @@
+import {
+  findFinanceAlimiRowForCampus,
+  financeAlimiSchoolName,
+} from "@/lib/analysis/finance-alimi-campus-join";
+import {
+  numByAccountCode,
+  numByHeaderLabel,
+  parseFinanceAlimiCells,
+} from "@/lib/analysis/finance-alimi-header-lookup";
 import type { IncomePropertySecureRateDisplayRow } from "@/lib/ingest/income-property-secure-rate-config";
 import {
   groupAnalysisTargetByRep,
@@ -25,8 +34,20 @@ export const INCOME_PROPERTY_REP_COHORT_DIVISION: Record<
   "junior-college": "전문대학",
 };
 
-/** 수익용재산 cells_json — 헤더 기준 */
-const PROPERTY_COL = {
+const PROPERTY_LABEL = {
+  landAppraised: "토지_평가액",
+  landIncome: "토지_순수입액",
+  buildingAppraised: "건물_평가액",
+  buildingIncome: "건물_순수입액",
+  securitiesAppraised: "유가증권-평가액",
+  securitiesIncome: "유가증권_순수입액",
+  depositAppraised: "예금_평가액",
+  depositIncome: "예금_순수입액",
+  otherAppraised: "기타재산_평가액",
+  otherIncome: "기타재산_순수입액",
+  collateral: "담보차감액",
+} as const;
+const PROPERTY_FALLBACK = {
   landAppraised: 8,
   landIncome: 9,
   buildingAppraised: 10,
@@ -38,11 +59,6 @@ const PROPERTY_COL = {
   otherAppraised: 16,
   otherIncome: 17,
   collateral: 18,
-} as const;
-
-/** 교비자금(수입) cells_json */
-const EDU_FUND_COL = {
-  tuitionRevenue: 11, // 4.등록금수입[1002] 천원
 } as const;
 
 export type IncomePropertyRepCounts = {
@@ -79,6 +95,7 @@ export type IncomePropertyRepRow = IncomePropertyRepCounts & {
 export type AlimiIncomeProperty = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   landAppraised: number;
   landIncome: number;
   buildingAppraised: number;
@@ -95,61 +112,51 @@ export type AlimiIncomeProperty = {
 export type AlimiEduFundTuition = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   tuitionRevenue: number;
 };
 
-function parseNum(value: string | undefined): number {
-  if (value == null) return 0;
-  const text = value.replace(/,/g, "").replace(/\s/g, "").trim();
-  if (!text || text === "-" || text === "—" || text === "–") return 0;
-  const n = Number(text);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function parseCellsJson(raw: string | undefined): string[] {
-  try {
-    const cells = JSON.parse(raw ?? "[]") as unknown;
-    return Array.isArray(cells) ? cells.map((c) => String(c ?? "")) : [];
-  } catch {
-    return [];
-  }
-}
-
 export function parseAlimiIncomePropertyRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiIncomeProperty | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
+  const n = (label: string, fallback: number) =>
+    numByHeaderLabel(cells, headers, label, fallback);
   return {
     year,
     schoolCodeStd,
-    landAppraised: parseNum(cells[PROPERTY_COL.landAppraised]),
-    landIncome: parseNum(cells[PROPERTY_COL.landIncome]),
-    buildingAppraised: parseNum(cells[PROPERTY_COL.buildingAppraised]),
-    buildingIncome: parseNum(cells[PROPERTY_COL.buildingIncome]),
-    securitiesAppraised: parseNum(cells[PROPERTY_COL.securitiesAppraised]),
-    securitiesIncome: parseNum(cells[PROPERTY_COL.securitiesIncome]),
-    depositAppraised: parseNum(cells[PROPERTY_COL.depositAppraised]),
-    depositIncome: parseNum(cells[PROPERTY_COL.depositIncome]),
-    otherAppraised: parseNum(cells[PROPERTY_COL.otherAppraised]),
-    otherIncome: parseNum(cells[PROPERTY_COL.otherIncome]),
-    collateralDeduction: parseNum(cells[PROPERTY_COL.collateral]),
+    schoolName: financeAlimiSchoolName(raw),
+    landAppraised: n(PROPERTY_LABEL.landAppraised, PROPERTY_FALLBACK.landAppraised),
+    landIncome: n(PROPERTY_LABEL.landIncome, PROPERTY_FALLBACK.landIncome),
+    buildingAppraised: n(PROPERTY_LABEL.buildingAppraised, PROPERTY_FALLBACK.buildingAppraised),
+    buildingIncome: n(PROPERTY_LABEL.buildingIncome, PROPERTY_FALLBACK.buildingIncome),
+    securitiesAppraised: n(PROPERTY_LABEL.securitiesAppraised, PROPERTY_FALLBACK.securitiesAppraised),
+    securitiesIncome: n(PROPERTY_LABEL.securitiesIncome, PROPERTY_FALLBACK.securitiesIncome),
+    depositAppraised: n(PROPERTY_LABEL.depositAppraised, PROPERTY_FALLBACK.depositAppraised),
+    depositIncome: n(PROPERTY_LABEL.depositIncome, PROPERTY_FALLBACK.depositIncome),
+    otherAppraised: n(PROPERTY_LABEL.otherAppraised, PROPERTY_FALLBACK.otherAppraised),
+    otherIncome: n(PROPERTY_LABEL.otherIncome, PROPERTY_FALLBACK.otherIncome),
+    collateralDeduction: n(PROPERTY_LABEL.collateral, PROPERTY_FALLBACK.collateral),
   };
 }
 
 export function parseAlimiEduFundTuitionOnlyRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiEduFundTuition | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
   return {
     year,
     schoolCodeStd,
-    tuitionRevenue: parseNum(cells[EDU_FUND_COL.tuitionRevenue]),
+    schoolName: financeAlimiSchoolName(raw),
+    tuitionRevenue: numByAccountCode(cells, headers, "1002", 11),
   };
 }
 
@@ -268,16 +275,8 @@ export function buildIncomePropertyRepRows(args: {
 }): IncomePropertyRepRow[] {
   const { cohort, displayYear, roster, property, eduFund } = args;
   const tuitionYear = priorTuitionYear(displayYear);
-  const propertyByCode = new Map<string, AlimiIncomeProperty>();
-  for (const row of property) {
-    if (row.year !== displayYear) continue;
-    propertyByCode.set(row.schoolCodeStd, row);
-  }
-  const fundByCode = new Map<string, AlimiEduFundTuition>();
-  for (const row of eduFund) {
-    if (row.year !== tuitionYear) continue;
-    fundByCode.set(row.schoolCodeStd, row);
-  }
+  const propertyYear = property.filter((row) => row.year === displayYear);
+  const fundYear = eduFund.filter((row) => row.year === tuitionYear);
 
   const targetGroups = groupAnalysisTargetByRep(
     roster,
@@ -289,9 +288,15 @@ export function buildIncomePropertyRepRows(args: {
     const primary = pickPrimaryCampus(campuses);
     let counts = emptyCounts();
     let campusHit = 0;
+    const usedProperty = new Set<(typeof propertyYear)[number]>();
+    const usedFund = new Set<(typeof fundYear)[number]>();
     for (const campus of campuses) {
-      const propertyRow = propertyByCode.get(campus.schoolCodeStd);
-      const fund = fundByCode.get(campus.schoolCodeStd);
+      const propertyRow = findFinanceAlimiRowForCampus(
+        campus,
+        propertyYear,
+        usedProperty,
+      );
+      const fund = findFinanceAlimiRowForCampus(campus, fundYear, usedFund);
       if (!propertyRow && !fund) continue;
       campusHit += 1;
       counts = addCounts(counts, countsFromSources(propertyRow, fund));

@@ -15,6 +15,7 @@ import {
   pickNearestYear,
 } from "@/lib/analysis/freshman-enrollment-rep-rollup";
 import { persistTuitionDepRepDb } from "@/lib/data/tuition-dependency-rate-rep-db";
+import { loadFinanceAlimiHeaders } from "@/lib/analysis/finance-alimi-headers-server";
 import { readCsvFile } from "@/lib/csv/read";
 import { sourceRowsForTwoSchoolView } from "@/lib/analysis/all-universities-cohort";
 
@@ -30,20 +31,22 @@ const COHORTS: TuitionDepRepCohort[] = ["university", "junior-college"];
 export async function loadTuitionDepRepMockDashboard(
   query: TuitionDepRepMockQuery = {},
 ): Promise<TuitionDepRepMockData> {
-  const [targetRaw, fundRaw, cashRaw] = await Promise.all([
+  const [targetRaw, fundRaw, cashRaw, fundHeaders, cashHeaders] = await Promise.all([
     readCsvFile("univMapAnalysisTarget").catch(() => []),
     readCsvFile("univMapEduFund").catch(() => []),
     readCsvFile("univMapIndustryCash").catch(() => []),
+    loadFinanceAlimiHeaders("edu-fund"),
+    loadFinanceAlimiHeaders("industry-cash"),
   ]);
 
   const rosterAll = targetRaw
     .map(parseAnalysisTargetCampus)
     .filter((row): row is NonNullable<typeof row> => row != null);
   const eduFund = fundRaw
-    .map(parseAlimiEduFundTuitionRow)
+    .map((row) => parseAlimiEduFundTuitionRow(row, fundHeaders))
     .filter((row): row is NonNullable<typeof row> => row != null);
   const industryCash = cashRaw
-    .map(parseAlimiIndustryCashRow)
+    .map((row) => parseAlimiIndustryCashRow(row, cashHeaders))
     .filter((row): row is NonNullable<typeof row> => row != null);
 
   const years = [...new Set(eduFund.map((r) => r.year))].sort((a, b) => b - a);

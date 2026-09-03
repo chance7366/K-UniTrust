@@ -11,7 +11,7 @@ export const INCOME_PROPERTY_REP_DB_HELP: HelpSection[] = [
   },
   {
     title: "데이터는 어디서 오는가",
-    body: "분석대상은 대학현황 › 분석대상(univ_map_analysis_target.csv)입니다. 수익용재산은 대학현황 › 재정알리미 › 수익용재산(univ_map_income_property.csv)이며 천원 단위입니다. 등록금수입은 재정알리미 › 교비회계의 교비자금(수입)(univ_map_edu_fund.csv) 4.등록금수입[1002]이며, 표시 연도의 전년도 값·같은 천원 단위입니다. 원본은 cells_json에 공시 열을 그대로 두고, 연도·학교코드(표준)로 찾습니다.",
+    body: "분석대상은 대학현황 › 분석대상(univ_map_analysis_target.csv)입니다. 수익용재산은 대학현황 › 재정알리미 › 수익용재산(univ_map_income_property.csv)이며 천원 단위입니다. 등록금수입은 재정알리미 › 교비회계의 교비자금(수입)(univ_map_edu_fund.csv) 4.등록금수입[1002]이며, 표시 연도의 전년도 값·같은 천원 단위입니다. 원본은 cells_json에 공시 열을 그대로 두고, 헤더의 계정코드·헤더 라벨로 열을 찾습니다.",
   },
   {
     title: "산출에 쓰는 연도",

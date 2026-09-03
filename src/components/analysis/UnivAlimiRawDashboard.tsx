@@ -287,6 +287,7 @@ export function UnivAlimiRawDashboard({
   screen,
   hideHeader = false,
   toolbarStart,
+  toolbarEnd,
   buildHref = buildUnivAlimiRawHref,
   metricRoundDigits,
   metricUnitLabel,
@@ -295,6 +296,7 @@ export function UnivAlimiRawDashboard({
   screen: UnivAlimiScreenConfig;
   hideHeader?: boolean;
   toolbarStart?: ReactNode;
+  toolbarEnd?: ReactNode;
   buildHref?: typeof buildUnivAlimiRawHref;
   metricRoundDigits?: number;
   metricUnitLabel?: string;
@@ -484,23 +486,29 @@ export function UnivAlimiRawDashboard({
               });
             }}
             action={
-              !uploadOpen ? (
-                <ExcelUploadButton
-                  variant="emerald"
-                  onClick={() => setUploadOpen(true)}
-                />
-              ) : null
+              <div className="flex shrink-0 items-center gap-2">
+                {!uploadOpen ? (
+                  <ExcelUploadButton
+                    variant="emerald"
+                    onClick={() => setUploadOpen(true)}
+                  />
+                ) : null}
+                {toolbarEnd}
+              </div>
             }
           />
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-2">
             {toolbarStart ?? <span />}
-            {!uploadOpen ? (
-              <ExcelUploadButton
-                variant="emerald"
-                onClick={() => setUploadOpen(true)}
-              />
-            ) : null}
+            <div className="ml-auto flex shrink-0 items-center gap-2">
+              {!uploadOpen ? (
+                <ExcelUploadButton
+                  variant="emerald"
+                  onClick={() => setUploadOpen(true)}
+                />
+              ) : null}
+              {toolbarEnd}
+            </div>
           </div>
         )}
 

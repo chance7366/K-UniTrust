@@ -1,3 +1,12 @@
+import {
+  findFinanceAlimiRowForCampus,
+  financeAlimiSchoolName,
+} from "@/lib/analysis/finance-alimi-campus-join";
+import {
+  numByAccountCode,
+  numByHeaderLabel,
+  parseFinanceAlimiCells,
+} from "@/lib/analysis/finance-alimi-header-lookup";
 import type { FinancialSupportBenefitRateRow } from "@/lib/ingest/financial-support-benefit-rate-config";
 import {
   groupAnalysisTargetByRep,
@@ -23,24 +32,31 @@ export const FIN_SUPPORT_REP_COHORT_DIVISION: Record<
   "junior-college": "전문대학",
 };
 
-/** 재정지원 cells_json — 헤더 기준 */
-const SUPPORT_COL = {
-  moe: 6, // 교육부
-  scholarship: 7, // (맞춤형국가장학금)
-  science: 8, // 과학기술정보통신부
-  employment: 9, // 고용노동부
-  trade: 10, // 산업통상부
-  health: 11, // 보건복지부
-  culture: 12, // 문화체육관광부
-  sme: 13, // 중소벤처기업부
-  agriculture: 14, // 농림축산식품부
-  other: 15, // 기타 28개부처청
-  local: 16, // 지방자치단체
+const SUPPORT_LABEL = {
+  moe: "교육부",
+  scholarship: "(맞춤형국가장학금)",
+  science: "과학기술정보통신부",
+  employment: "고용노동부",
+  trade: "산업통상부",
+  health: "보건복지부",
+  culture: "문화체육관광부",
+  sme: "중소벤처기업부",
+  agriculture: "농림축산식품부",
+  other: "기타 28개부처청",
+  local: "지방자치단체",
 } as const;
-
-/** 교비자금(수입) cells_json */
-const EDU_FUND_COL = {
-  tuitionRevenue: 11, // 4.등록금수입[1002] 천원
+const SUPPORT_FALLBACK = {
+  moe: 6,
+  scholarship: 7,
+  science: 8,
+  employment: 9,
+  trade: 10,
+  health: 11,
+  culture: 12,
+  sme: 13,
+  agriculture: 14,
+  other: 15,
+  local: 16,
 } as const;
 
 export type FinSupportRepCounts = {
@@ -76,6 +92,7 @@ export type FinSupportRepRow = FinSupportRepCounts & {
 export type AlimiFinancialSupport = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   ministryOfEducation: number;
   nationalScholarship: number;
   ministryOfScienceIct: number;
@@ -92,61 +109,50 @@ export type AlimiFinancialSupport = {
 export type AlimiEduFundTuition = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   tuitionRevenue: number;
 };
 
-function parseNum(value: string | undefined): number {
-  if (value == null) return 0;
-  const text = value.replace(/,/g, "").replace(/\s/g, "").trim();
-  if (!text || text === "-" || text === "—" || text === "–") return 0;
-  const n = Number(text);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function parseCellsJson(raw: string | undefined): string[] {
-  try {
-    const cells = JSON.parse(raw ?? "[]") as unknown;
-    return Array.isArray(cells) ? cells.map((c) => String(c ?? "")) : [];
-  } catch {
-    return [];
-  }
-}
-
 export function parseAlimiFinancialSupportRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiFinancialSupport | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
+  const n = (label: string, fallback: number) =>
+    numByHeaderLabel(cells, headers, label, fallback);
   return {
     year,
     schoolCodeStd,
-    ministryOfEducation: parseNum(cells[SUPPORT_COL.moe]),
-    nationalScholarship: parseNum(cells[SUPPORT_COL.scholarship]),
-    ministryOfScienceIct: parseNum(cells[SUPPORT_COL.science]),
-    ministryOfEmployment: parseNum(cells[SUPPORT_COL.employment]),
-    ministryOfTrade: parseNum(cells[SUPPORT_COL.trade]),
-    ministryOfHealth: parseNum(cells[SUPPORT_COL.health]),
-    ministryOfCulture: parseNum(cells[SUPPORT_COL.culture]),
-    ministryOfSme: parseNum(cells[SUPPORT_COL.sme]),
-    ministryOfAgriculture: parseNum(cells[SUPPORT_COL.agriculture]),
-    otherMinistries: parseNum(cells[SUPPORT_COL.other]),
-    localGovernment: parseNum(cells[SUPPORT_COL.local]),
+    ministryOfEducation: n(SUPPORT_LABEL.moe, SUPPORT_FALLBACK.moe),
+    nationalScholarship: n(SUPPORT_LABEL.scholarship, SUPPORT_FALLBACK.scholarship),
+    ministryOfScienceIct: n(SUPPORT_LABEL.science, SUPPORT_FALLBACK.science),
+    ministryOfEmployment: n(SUPPORT_LABEL.employment, SUPPORT_FALLBACK.employment),
+    ministryOfTrade: n(SUPPORT_LABEL.trade, SUPPORT_FALLBACK.trade),
+    ministryOfHealth: n(SUPPORT_LABEL.health, SUPPORT_FALLBACK.health),
+    ministryOfCulture: n(SUPPORT_LABEL.culture, SUPPORT_FALLBACK.culture),
+    ministryOfSme: n(SUPPORT_LABEL.sme, SUPPORT_FALLBACK.sme),
+    ministryOfAgriculture: n(SUPPORT_LABEL.agriculture, SUPPORT_FALLBACK.agriculture),
+    otherMinistries: n(SUPPORT_LABEL.other, SUPPORT_FALLBACK.other),
+    localGovernment: n(SUPPORT_LABEL.local, SUPPORT_FALLBACK.local),
   };
 }
 
 export function parseAlimiEduFundTuitionOnlyRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiEduFundTuition | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
   return {
     year,
     schoolCodeStd,
-    tuitionRevenue: parseNum(cells[EDU_FUND_COL.tuitionRevenue]),
+    schoolName: financeAlimiSchoolName(raw),
+    tuitionRevenue: numByAccountCode(cells, headers, "1002", 11),
   };
 }
 
@@ -263,16 +269,8 @@ export function buildFinSupportRepRows(args: {
   eduFund: AlimiEduFundTuition[];
 }): FinSupportRepRow[] {
   const { cohort, displayYear, roster, support, eduFund } = args;
-  const supportByCode = new Map<string, AlimiFinancialSupport>();
-  for (const row of support) {
-    if (row.year !== displayYear) continue;
-    supportByCode.set(row.schoolCodeStd, row);
-  }
-  const fundByCode = new Map<string, AlimiEduFundTuition>();
-  for (const row of eduFund) {
-    if (row.year !== displayYear) continue;
-    fundByCode.set(row.schoolCodeStd, row);
-  }
+  const supportYear = support.filter((row) => row.year === displayYear);
+  const fundYear = eduFund.filter((row) => row.year === displayYear);
 
   const targetGroups = groupAnalysisTargetByRep(
     roster,
@@ -284,9 +282,15 @@ export function buildFinSupportRepRows(args: {
     const primary = pickPrimaryCampus(campuses);
     let counts = emptyCounts();
     let campusHit = 0;
+    const usedSupport = new Set<(typeof supportYear)[number]>();
+    const usedFund = new Set<(typeof fundYear)[number]>();
     for (const campus of campuses) {
-      const supportRow = supportByCode.get(campus.schoolCodeStd);
-      const fund = fundByCode.get(campus.schoolCodeStd);
+      const supportRow = findFinanceAlimiRowForCampus(
+        campus,
+        supportYear,
+        usedSupport,
+      );
+      const fund = findFinanceAlimiRowForCampus(campus, fundYear, usedFund);
       if (!supportRow && !fund) continue;
       campusHit += 1;
       counts = addCounts(counts, countsFromSources(supportRow, fund));

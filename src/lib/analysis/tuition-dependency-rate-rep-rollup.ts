@@ -1,3 +1,11 @@
+import {
+  findFinanceAlimiRowForCampus,
+  financeAlimiSchoolName,
+} from "@/lib/analysis/finance-alimi-campus-join";
+import {
+  numByAccountCode,
+  parseFinanceAlimiCells,
+} from "@/lib/analysis/finance-alimi-header-lookup";
 import type { TuitionDependencyRateRow } from "@/lib/ingest/tuition-dependency-rate-config";
 import {
   groupAnalysisTargetByRep,
@@ -23,15 +31,22 @@ export const TUITION_DEP_REP_COHORT_DIVISION: Record<
   "junior-college": "전문대학",
 };
 
-/** 교비자금(수입) cells_json — 헤더 [계정코드] 기준 */
-const EDU_FUND_COL = {
-  operatingRevenue: 9, // 2.운영수입[1086]
-  tuitionRevenue: 11, // 4.등록금수입[1002]
+/** 교비자금(수입) — 계정코드, 폴백은 기존 열 번호 */
+const EDU_FUND_CODE = {
+  operatingRevenue: "1086",
+  tuitionRevenue: "1002",
+} as const;
+const EDU_FUND_FALLBACK = {
+  operatingRevenue: 9,
+  tuitionRevenue: 11,
 } as const;
 
-/** 산단현금 cells_json */
-const INDUSTRY_CASH_COL = {
-  operatingCashInflow: 9, // 2.운영활동현금유입[2003]
+/** 산단현금 — 계정코드 */
+const INDUSTRY_CASH_CODE = {
+  operatingCashInflow: "2003",
+} as const;
+const INDUSTRY_CASH_FALLBACK = {
+  operatingCashInflow: 9,
 } as const;
 
 export type TuitionDepRepCounts = {
@@ -56,6 +71,7 @@ export type TuitionDepRepRow = TuitionDepRepCounts & {
 export type AlimiEduFundTuition = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   tuitionRevenue: number;
   operatingRevenue: number;
 };
@@ -63,52 +79,54 @@ export type AlimiEduFundTuition = {
 export type AlimiIndustryCash = {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   operatingCashInflow: number;
 };
 
-function parseNum(value: string | undefined): number {
-  if (value == null) return 0;
-  const text = value.replace(/,/g, "").replace(/\s/g, "").trim();
-  if (!text || text === "-" || text === "—" || text === "–") return 0;
-  const n = Number(text);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function parseCellsJson(raw: string | undefined): string[] {
-  try {
-    const cells = JSON.parse(raw ?? "[]") as unknown;
-    return Array.isArray(cells) ? cells.map((c) => String(c ?? "")) : [];
-  } catch {
-    return [];
-  }
-}
-
 export function parseAlimiEduFundTuitionRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiEduFundTuition | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
   return {
     year,
     schoolCodeStd,
-    tuitionRevenue: parseNum(cells[EDU_FUND_COL.tuitionRevenue]),
-    operatingRevenue: parseNum(cells[EDU_FUND_COL.operatingRevenue]),
+    schoolName: financeAlimiSchoolName(raw),
+    tuitionRevenue: numByAccountCode(
+      cells,
+      headers,
+      EDU_FUND_CODE.tuitionRevenue,
+      EDU_FUND_FALLBACK.tuitionRevenue,
+    ),
+    operatingRevenue: numByAccountCode(
+      cells,
+      headers,
+      EDU_FUND_CODE.operatingRevenue,
+      EDU_FUND_FALLBACK.operatingRevenue,
+    ),
   };
 }
 
 export function parseAlimiIndustryCashRow(
   raw: Record<string, string>,
+  headers: string[] = [],
 ): AlimiIndustryCash | null {
   const year = parseYearText(raw.year_text ?? "");
   const schoolCodeStd = normalizeSchoolCodeText(raw.school_code_std ?? "");
   if (!year || !schoolCodeStd) return null;
-  const cells = parseCellsJson(raw.cells_json);
+  const cells = parseFinanceAlimiCells(raw.cells_json);
   return {
     year,
     schoolCodeStd,
-    operatingCashInflow: parseNum(cells[INDUSTRY_CASH_COL.operatingCashInflow]),
+    operatingCashInflow: numByAccountCode(
+      cells,
+      headers,
+      INDUSTRY_CASH_CODE.operatingCashInflow,
+      INDUSTRY_CASH_FALLBACK.operatingCashInflow,
+    ),
   };
 }
 
@@ -169,16 +187,8 @@ export function buildTuitionDepRepRows(args: {
   industryCash: AlimiIndustryCash[];
 }): TuitionDepRepRow[] {
   const { cohort, displayYear, roster, eduFund, industryCash } = args;
-  const fundByCode = new Map<string, AlimiEduFundTuition>();
-  for (const row of eduFund) {
-    if (row.year !== displayYear) continue;
-    fundByCode.set(row.schoolCodeStd, row);
-  }
-  const cashByCode = new Map<string, AlimiIndustryCash>();
-  for (const row of industryCash) {
-    if (row.year !== displayYear) continue;
-    cashByCode.set(row.schoolCodeStd, row);
-  }
+  const fundYear = eduFund.filter((row) => row.year === displayYear);
+  const cashYear = industryCash.filter((row) => row.year === displayYear);
 
   const targetGroups = groupAnalysisTargetByRep(
     roster,
@@ -190,9 +200,11 @@ export function buildTuitionDepRepRows(args: {
     const primary = pickPrimaryCampus(campuses);
     let counts = emptyCounts();
     let campusHit = 0;
+    const usedFund = new Set<(typeof fundYear)[number]>();
+    const usedCash = new Set<(typeof cashYear)[number]>();
     for (const campus of campuses) {
-      const fund = fundByCode.get(campus.schoolCodeStd);
-      const cash = cashByCode.get(campus.schoolCodeStd);
+      const fund = findFinanceAlimiRowForCampus(campus, fundYear, usedFund);
+      const cash = findFinanceAlimiRowForCampus(campus, cashYear, usedCash);
       if (!fund && !cash) continue;
       campusHit += 1;
       counts = addCounts(counts, countsFromSources(fund, cash));

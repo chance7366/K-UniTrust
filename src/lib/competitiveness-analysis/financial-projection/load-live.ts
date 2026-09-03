@@ -2,6 +2,20 @@ import {
   parseAlimiEduBalanceRow,
 } from "@/lib/analysis/fund-secure-rate-rep-rollup";
 import {
+  financeAlimiNameMatchesCampus,
+  financeAlimiSchoolName,
+  findFinanceAlimiRowForCampus,
+} from "@/lib/analysis/finance-alimi-campus-join";
+import {
+  loadFinanceAlimiHeaders,
+} from "@/lib/analysis/finance-alimi-headers-server";
+import {
+  numByAccountCode,
+  numByHeaderLabel,
+  parseFinanceAlimiCells,
+  parseFinanceAlimiNum,
+} from "@/lib/analysis/finance-alimi-header-lookup";
+import {
   buildEnrolledASplitByRep,
   parseAlimiEnrolledStudentsGrad,
   parseAlimiEnrolledStudentsUndergrad,
@@ -50,31 +64,39 @@ import {
   settlementYearOf,
 } from "@/lib/competitiveness-analysis/financial-projection/years";
 
-/** 교비 운영계산서 cells_json — 수업료 폴백용 */
-const EDU_OP_COL = {
-  tuition: 10, // 3.등록금수입[1001]
+const EDU_OP_CODE = { tuition: "1001" } as const;
+const EDU_OP_FALLBACK = { tuition: 10 } as const;
+const EDU_FUND_EXPENSE_CODE = {
+  labor: "1136",
+  admin: "1154",
+  researchStudent: "1186",
+  nonEdu: "1205",
 } as const;
-/** 교비자금(지출) cells_json — 천원 */
-const EDU_FUND_EXPENSE_COL = {
-  labor: 10, // 3.보수[1136]
-  admin: 38, // 3.관리운영비[1154]
-  researchStudent: 71, // 3.연구학생경비[1186]
-  nonEdu: 89, // 3.교육외비용[1205]
+const EDU_FUND_EXPENSE_FALLBACK = {
+  labor: 10,
+  admin: 38,
+  researchStudent: 71,
+  nonEdu: 89,
 } as const;
 
 /** 평균등록금 대학전문 — 수업료 */
 const AVG_TUITION_UG_COL = 7;
 /** 평균등록금 대학원 — 수업료 (B) */
 const AVG_TUITION_GRAD_COL = 8;
-/** 교비자금(수입) cells_json — 천원 */
-const EDU_FUND_COL = {
-  operatingIncome: 9, // 2.운영수입[1086]
-  undergrad: 17, // 6.학부생수업료[1008]
-  graduate: 20, // 6.대학원생수업료[1009]
-  grant: 67, // 4.국고보조금수입[1048]
+const EDU_FUND_CODE = {
+  operatingIncome: "1086",
+  undergrad: "1008",
+  graduate: "1009",
+  grant: "1048",
 } as const;
-/** 재정지원 cells_json — 원 */
-const SUPPORT_SCHOLAR_COL = 7; // (맞춤형국가장학금)
+const EDU_FUND_FALLBACK = {
+  operatingIncome: 9,
+  undergrad: 17,
+  graduate: 20,
+  grant: 67,
+} as const;
+const SUPPORT_SCHOLAR_LABEL = "(맞춤형국가장학금)";
+const SUPPORT_SCHOLAR_FALLBACK = 7;
 const METRO_REGIONS = new Set(["서울"]);
 const WIDE_REGIONS = new Set([
   "부산",
@@ -87,20 +109,11 @@ const WIDE_REGIONS = new Set([
 ]);
 
 function parseNum(value: string | undefined): number {
-  if (value == null) return 0;
-  const text = value.replace(/,/g, "").replace(/\s/g, "").trim();
-  if (!text || text === "-" || text === "—" || text === "–") return 0;
-  const n = Number(text);
-  return Number.isFinite(n) ? n : 0;
+  return parseFinanceAlimiNum(value);
 }
 
 function parseCellsJson(raw: string | undefined): string[] {
-  try {
-    const cells = JSON.parse(raw ?? "[]") as unknown;
-    return Array.isArray(cells) ? cells.map((c) => String(c ?? "")) : [];
-  } catch {
-    return [];
-  }
+  return parseFinanceAlimiCells(raw);
 }
 
 function cheonToWon(cheon: number): number {
@@ -316,6 +329,8 @@ function enrolledAByCampus(
 type CampusRep = {
   schoolCodeStd: string;
   schoolRepCode: string;
+  schoolName: string;
+  schoolRepName: string;
   region: string;
 };
 
@@ -329,10 +344,26 @@ function buildCampusRepMap(raw: Record<string, string>[]): Map<string, CampusRep
     out.set(row.schoolCodeStd, {
       schoolCodeStd: row.schoolCodeStd,
       schoolRepCode: row.schoolRepCode || row.schoolCodeStd,
+      schoolName: row.schoolName,
+      schoolRepName: row.schoolRepName,
       region: row.region,
     });
   }
   return out;
+}
+
+function resolveCampusRep(
+  campusMap: Map<string, CampusRep>,
+  code: string,
+  name: string,
+): CampusRep | undefined {
+  const byCode = campusMap.get(code);
+  if (byCode) return byCode;
+  if (!name) return undefined;
+  for (const campus of campusMap.values()) {
+    if (financeAlimiNameMatchesCampus(name, campus)) return campus;
+  }
+  return undefined;
 }
 
 function campusesOfRep(
@@ -347,9 +378,13 @@ type OpAmounts = {
   tuition: number;
 };
 
-function parseEduOperation(raw: Record<string, string>): {
+function parseEduOperation(
+  raw: Record<string, string>,
+  headers: string[] = [],
+): {
   year: number;
   schoolCodeStd: string;
+  schoolName: string;
   amounts: Omit<OpAmounts, "year">;
 } | null {
   const year = parseYearText(raw.year_text ?? "");
@@ -359,8 +394,14 @@ function parseEduOperation(raw: Record<string, string>): {
   return {
     year,
     schoolCodeStd,
+    schoolName: financeAlimiSchoolName(raw),
     amounts: {
-      tuition: parseNum(cells[EDU_OP_COL.tuition]),
+      tuition: numByAccountCode(
+        cells,
+        headers,
+        EDU_OP_CODE.tuition,
+        EDU_OP_FALLBACK.tuition,
+      ),
     },
   };
 }
@@ -640,6 +681,11 @@ export async function loadFinancialProjectionBaseline(args: {
     eduBalRaw,
     bootstrap,
     schoolAgeDash,
+    eduFundHeaders,
+    eduFundExpHeaders,
+    supportHeaders,
+    eduOpHeaders,
+    eduBalHeaders,
   ] = await Promise.all([
     readCsvFile("univMapAnalysisTarget").catch(() => []),
     readCsvFile("financeAnalysisFreshmanEnrollmentRep").catch(() => []),
@@ -658,6 +704,11 @@ export async function loadFinancialProjectionBaseline(args: {
     readCsvFile("univMapEduBalance").catch(() => []),
     loadFinancialProjectionBootstrap({ analysisYear: analysisYearHint }),
     loadSchoolAgePopulationDashboard(),
+    loadFinanceAlimiHeaders("edu-fund"),
+    loadFinanceAlimiHeaders("edu-fund-expense"),
+    loadFinanceAlimiHeaders("financial-support"),
+    loadFinanceAlimiHeaders("edu-operation"),
+    loadFinanceAlimiHeaders("edu-balance"),
   ]);
 
   const analysisYear = bootstrap.analysisYear;
@@ -732,14 +783,38 @@ export async function loadFinancialProjectionBaseline(args: {
     const year = parseYearText(raw.year_text ?? "");
     const campus = normalizeSchoolCodeText(raw.school_code_std ?? "");
     if (!year || !campus) continue;
-    const rep = campusMap.get(campus)?.schoolRepCode;
+    const rep = resolveCampusRep(
+      campusMap,
+      campus,
+      financeAlimiSchoolName(raw),
+    )?.schoolRepCode;
     if (!rep || !wanted.has(rep)) continue;
     const cells = parseCellsJson(raw.cells_json);
     const add = {
-      operatingIncome: parseNum(cells[EDU_FUND_COL.operatingIncome]),
-      undergrad: parseNum(cells[EDU_FUND_COL.undergrad]),
-      graduate: parseNum(cells[EDU_FUND_COL.graduate]),
-      grant: parseNum(cells[EDU_FUND_COL.grant]),
+      operatingIncome: numByAccountCode(
+        cells,
+        eduFundHeaders,
+        EDU_FUND_CODE.operatingIncome,
+        EDU_FUND_FALLBACK.operatingIncome,
+      ),
+      undergrad: numByAccountCode(
+        cells,
+        eduFundHeaders,
+        EDU_FUND_CODE.undergrad,
+        EDU_FUND_FALLBACK.undergrad,
+      ),
+      graduate: numByAccountCode(
+        cells,
+        eduFundHeaders,
+        EDU_FUND_CODE.graduate,
+        EDU_FUND_FALLBACK.graduate,
+      ),
+      grant: numByAccountCode(
+        cells,
+        eduFundHeaders,
+        EDU_FUND_CODE.grant,
+        EDU_FUND_FALLBACK.grant,
+      ),
     };
     const key = `${rep}::${year}`;
     const prev = fundByRepYear.get(key);
@@ -761,10 +836,19 @@ export async function loadFinancialProjectionBaseline(args: {
     const year = parseYearText(raw.year_text ?? "");
     const campus = normalizeSchoolCodeText(raw.school_code_std ?? "");
     if (!year || !campus) continue;
-    const rep = campusMap.get(campus)?.schoolRepCode;
+    const rep = resolveCampusRep(
+      campusMap,
+      campus,
+      financeAlimiSchoolName(raw),
+    )?.schoolRepCode;
     if (!rep || !wanted.has(rep)) continue;
     const cells = parseCellsJson(raw.cells_json);
-    const add = parseNum(cells[SUPPORT_SCHOLAR_COL]);
+    const add = numByHeaderLabel(
+      cells,
+      supportHeaders,
+      SUPPORT_SCHOLAR_LABEL,
+      SUPPORT_SCHOLAR_FALLBACK,
+    );
     const key = `${rep}::${year}`;
     scholarByRepYear.set(key, (scholarByRepYear.get(key) ?? 0) + add);
   }
@@ -779,10 +863,30 @@ export async function loadFinancialProjectionBaseline(args: {
     if (!rep || !wanted.has(rep)) continue;
     const cells = parseCellsJson(raw.cells_json);
     const add: EduFundExpenseAmounts = {
-      labor: parseNum(cells[EDU_FUND_EXPENSE_COL.labor]),
-      admin: parseNum(cells[EDU_FUND_EXPENSE_COL.admin]),
-      researchStudent: parseNum(cells[EDU_FUND_EXPENSE_COL.researchStudent]),
-      nonEdu: parseNum(cells[EDU_FUND_EXPENSE_COL.nonEdu]),
+      labor: numByAccountCode(
+        cells,
+        eduFundExpHeaders,
+        EDU_FUND_EXPENSE_CODE.labor,
+        EDU_FUND_EXPENSE_FALLBACK.labor,
+      ),
+      admin: numByAccountCode(
+        cells,
+        eduFundExpHeaders,
+        EDU_FUND_EXPENSE_CODE.admin,
+        EDU_FUND_EXPENSE_FALLBACK.admin,
+      ),
+      researchStudent: numByAccountCode(
+        cells,
+        eduFundExpHeaders,
+        EDU_FUND_EXPENSE_CODE.researchStudent,
+        EDU_FUND_EXPENSE_FALLBACK.researchStudent,
+      ),
+      nonEdu: numByAccountCode(
+        cells,
+        eduFundExpHeaders,
+        EDU_FUND_EXPENSE_CODE.nonEdu,
+        EDU_FUND_EXPENSE_FALLBACK.nonEdu,
+      ),
     };
     const key = `${rep}::${year}`;
     const prev = expByRepYear.get(key);
@@ -795,9 +899,13 @@ export async function loadFinancialProjectionBaseline(args: {
   const opByRepYear = new Map<string, Omit<OpAmounts, "year">>();
   const opYearsByRep = new Map<string, number[]>();
   for (const raw of eduOpRaw) {
-    const parsed = parseEduOperation(raw);
+    const parsed = parseEduOperation(raw, eduOpHeaders);
     if (!parsed) continue;
-    const rep = campusMap.get(parsed.schoolCodeStd)?.schoolRepCode;
+    const rep = resolveCampusRep(
+      campusMap,
+      parsed.schoolCodeStd,
+      parsed.schoolName,
+    )?.schoolRepCode;
     if (!rep || !wanted.has(rep)) continue;
     const key = `${rep}::${parsed.year}`;
     const prev = opByRepYear.get(key);
@@ -820,15 +928,13 @@ export async function loadFinancialProjectionBaseline(args: {
     null;
   const liqByRep = new Map<string, Liquidity>();
   if (liqYear != null) {
-    const balByCode = new Map(
-      eduBalRaw
-        .map(parseAlimiEduBalanceRow)
-        .filter((row): row is NonNullable<typeof row> => row != null && row.year === liqYear)
-        .map((row) => [row.schoolCodeStd, row]),
-    );
+    const balYear = eduBalRaw
+      .map((row) => parseAlimiEduBalanceRow(row, eduBalHeaders))
+      .filter((row): row is NonNullable<typeof row> => row != null && row.year === liqYear);
+    const usedBal = new Set<(typeof balYear)[number]>();
     for (const campus of campusMap.values()) {
       if (!wanted.has(campus.schoolRepCode)) continue;
-      const bal = balByCode.get(campus.schoolCodeStd);
+      const bal = findFinanceAlimiRowForCampus(campus, balYear, usedBal);
       if (!bal) continue;
       const carryover =
         bal.currentAssets - bal.currentLiabilities + bal.shortTermBorrowings;
