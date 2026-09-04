@@ -41,24 +41,33 @@ export function EduSettlementReportPanel({
       const body = (await res.json()) as {
         error?: string;
         generatedAt?: string;
+        saved?: boolean;
+        saveError?: string | null;
         warnings?: string[];
         match?: { schools?: number; unmatchedRows?: number };
       };
       if (!res.ok) {
         setMessageTone("error");
-        throw new Error(body.error ?? "저장에 실패했습니다.");
+        throw new Error(body.error ?? "생성에 실패했습니다.");
       }
       const warn = body.warnings?.length
         ? `\n\n${body.warnings.join("\n")}`
         : "";
-      setMessageTone(body.warnings?.length ? "warn" : "ok");
-      setMessage(
-        `이 결산연도 보고서를 저장했습니다. ${body.generatedAt ?? ""} · 매칭 ${body.match?.schools ?? "—"}교.${warn}`.trim(),
-      );
+      if (body.saved === false) {
+        setMessageTone("warn");
+        setMessage(
+          `보고서는 생성됐습니다. 영구 저장만 실패했습니다. ${body.generatedAt ?? ""} · 매칭 ${body.match?.schools ?? "—"}교.${warn}`.trim(),
+        );
+      } else {
+        setMessageTone(body.warnings?.length ? "warn" : "ok");
+        setMessage(
+          `이 결산연도 보고서를 저장했습니다. ${body.generatedAt ?? ""} · 매칭 ${body.match?.schools ?? "—"}교.${warn}`.trim(),
+        );
+      }
       setReload((n) => n + 1);
     } catch (err) {
       setMessageTone("error");
-      setMessage(err instanceof Error ? err.message : "저장에 실패했습니다.");
+      setMessage(err instanceof Error ? err.message : "생성에 실패했습니다.");
     } finally {
       setBusy(null);
     }

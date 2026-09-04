@@ -57,6 +57,14 @@ export async function GET(request: Request) {
   }
 }
 
+function formatSaveError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err);
+  if (/store has been suspended|store is blocked/i.test(raw)) {
+    return "영구 저장(Vercel Blob)이 중단되어 스냅샷을 남기지 못했습니다. 화면·열람의 HTML은 생성됐습니다. Blob 스토어를 재개하거나 토큰을 교체하세요.";
+  }
+  return `영구 저장에 실패했습니다. 화면·열람의 HTML은 생성됐습니다. (${raw})`;
+}
+
 export async function POST(request: Request) {
   const denied = await requireAdminReportGenerate();
   if (denied) return denied;
@@ -64,16 +72,31 @@ export async function POST(request: Request) {
     const body = (await request.json().catch(() => ({}))) as { year?: unknown };
     const year = parseYear(body.year != null ? String(body.year) : null);
     const { html, data } = await generateEduSettlementReport(year);
-    await saveEduSettlementReport(data.settlementYear, html);
+
+    let saved = true;
+    let saveError: string | null = null;
+    try {
+      await saveEduSettlementReport(data.settlementYear, html);
+    } catch (err) {
+      saved = false;
+      saveError = formatSaveError(err);
+      console.warn("[edu-settlement] save failed after generate", err);
+    }
+
+    const warnings = [...data.warnings];
+    if (saveError) warnings.unshift(saveError);
+
     return NextResponse.json({
       settlementYear: data.settlementYear,
       generatedAt: data.generatedAt,
-      warnings: data.warnings,
+      saved,
+      saveError,
+      warnings,
       match: data.matchByYear[data.settlementYear],
     });
   } catch (err) {
     const message =
-      err instanceof Error ? err.message : "교비회계 결산 종합보고서를 저장하지 못했습니다.";
+      err instanceof Error ? err.message : "교비회계 결산 종합보고서를 만들지 못했습니다.";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
