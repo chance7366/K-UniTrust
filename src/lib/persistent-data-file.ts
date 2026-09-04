@@ -9,7 +9,7 @@ import {
 } from "@/lib/csv/blob-store";
 import {
   isVercelBlobEnabled,
-  shouldReadRemoteCsvStore,
+  shouldReadRemotePersistentStore,
 } from "@/lib/vercel-blob-env";
 import {
   putProdStoreText,
@@ -40,17 +40,20 @@ export async function readPersistentTextFile(
   relUnderData: string,
 ): Promise<string | null> {
   try {
-    return await readFile(diskPath(relUnderData), "utf8");
+    const raw = await readFile(diskPath(relUnderData), "utf8");
+    if (raw.trim()) return raw;
   } catch {
-    if (shouldReadRemoteCsvStore()) {
-      const remote = await getStorePathText(blobPath(relUnderData));
-      if (remote) {
-        await persistOverlayToDisk(relUnderData, remote);
-        return remote;
-      }
-    }
-    return null;
+    /* fall through to Blob for JSON/reports not in Git */
   }
+
+  if (shouldReadRemotePersistentStore()) {
+    const remote = await getStorePathText(blobPath(relUnderData));
+    if (remote) {
+      await persistOverlayToDisk(relUnderData, remote);
+      return remote;
+    }
+  }
+  return null;
 }
 
 export async function writePersistentTextFile(

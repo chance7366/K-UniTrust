@@ -20,22 +20,24 @@ export async function readTextOverlayFile(
   fileName: string,
 ): Promise<string | null> {
   try {
-    return await readFile(diskPath(fileName), "utf8");
+    const raw = await readFile(diskPath(fileName), "utf8");
+    if (raw.trim()) return raw;
   } catch {
-    if (shouldReadRemoteCsvStore()) {
-      const remote = await getCsvStoreFile(fileName);
-      if (remote) {
-        try {
-          await mkdir(CSV_DIR, { recursive: true });
-          await writeFile(diskPath(fileName), remote, "utf8");
-        } catch {
-          // Vercel disk is read-only
-        }
-        return remote;
-      }
-    }
-    return null;
+    /* fall through */
   }
+
+  // Prefer Git-deployed meta; Blob only when explicitly enabled.
+  if (!shouldReadRemoteCsvStore()) return null;
+
+  const remote = await getCsvStoreFile(fileName);
+  if (!remote) return null;
+  try {
+    await mkdir(CSV_DIR, { recursive: true });
+    await writeFile(diskPath(fileName), remote, "utf8");
+  } catch {
+    // Vercel disk is read-only
+  }
+  return remote;
 }
 
 export async function writeTextOverlayFile(

@@ -12,7 +12,7 @@ import {
   putProdStoreText,
   shouldSyncProdDataStore,
 } from "@/lib/prod-store-sync";
-import { isVercelBlobEnabled } from "@/lib/vercel-blob-env";
+import { isVercelBlobEnabled, shouldReadRemoteCsvStore } from "@/lib/vercel-blob-env";
 
 export async function writeCsvFile(
   key: CsvFileKey,
@@ -41,7 +41,8 @@ export async function writeCsvFile(
   }
 
   await putCsvStoreFile(CSV_FILES[key], body, "text/csv; charset=utf-8");
-  if (isVercelBlobEnabled()) {
+  // revision은 Blob CSV 읽기 폴백(BLOB_CSV_READ_FALLBACK)용. 기본 배포분 우선 모드에서는 생략해 Simple/Advanced Ops를 줄인다.
+  if (isVercelBlobEnabled() && shouldReadRemoteCsvStore()) {
     await bumpCsvStoreRevision();
   } else if (shouldSyncProdDataStore()) {
     await putProdStoreText(

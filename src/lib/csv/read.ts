@@ -55,19 +55,41 @@ async function persistOverlayToDisk(filePath: string, body: string) {
   }
 }
 
-/** Stat/revision only — does not parse or retain rows. */
-export async function peekCsvFileVersion(key: CsvFileKey): Promise<number> {
-  if (shouldReadRemoteCsvStore()) {
-    const revision = await getCsvStoreRevision();
-    const version = revision > 0 ? revision : blobEpoch;
-    noteCsvVersion(key, version);
-    return version;
+async function readDiskCsv(
+  key: CsvFileKey,
+): Promise<{ records: Record<string, string>[]; version: number } | null> {
+  try {
+    const filePath = csvPath(key);
+    const fileStat = await stat(filePath);
+    const raw = await readFile(filePath, "utf8");
+    if (!raw.trim()) {
+      return { records: [], version: fileStat.mtimeMs };
+    }
+    return {
+      records: parseCsvText(raw),
+      version: fileStat.mtimeMs,
+    };
+  } catch {
+    return null;
   }
+}
+
+/**
+ * Stat only — does not hit Blob unless BLOB_CSV_READ_FALLBACK=1 and disk is missing.
+ * Prefer Git-deployed data/csv mtime so Hobby Simple Ops stay near zero on page loads.
+ */
+export async function peekCsvFileVersion(key: CsvFileKey): Promise<number> {
   try {
     const fileStat = await stat(csvPath(key));
     noteCsvVersion(key, fileStat.mtimeMs);
     return fileStat.mtimeMs;
   } catch {
+    if (shouldReadRemoteCsvStore()) {
+      const revision = await getCsvStoreRevision();
+      const version = revision > 0 ? revision : blobEpoch;
+      noteCsvVersion(key, version);
+      return version;
+    }
     return csvVersions.get(key) ?? 0;
   }
 }
@@ -79,17 +101,10 @@ export async function peekLocalCsvVersion(key: CsvFileKey): Promise<number> {
 export async function readCsvFileFromDisk(
   key: CsvFileKey,
 ): Promise<Record<string, string>[]> {
-  try {
-    const filePath = csvPath(key);
-    const fileStat = await stat(filePath);
-    const raw = await readFile(filePath, "utf8");
-    if (!raw.trim()) return [];
-    const records = parseCsvText(raw);
-    noteCsvVersion(key, fileStat.mtimeMs);
-    return records;
-  } catch {
-    return [];
-  }
+  const disk = await readDiskCsv(key);
+  if (!disk) return [];
+  noteCsvVersion(key, disk.version);
+  return disk.records;
 }
 
 const readInflight = new Map<CsvFileKey, Promise<Record<string, string>[]>>();
@@ -109,6 +124,17 @@ export async function readCsvFile(
 async function readCsvFileUncached(
   key: CsvFileKey,
 ): Promise<Record<string, string>[]> {
+  const disk = await readDiskCsv(key);
+  if (disk && disk.records.length > 0) {
+    noteCsvVersion(key, disk.version);
+    return disk.records;
+  }
+  if (disk && disk.records.length === 0 && !shouldReadRemoteCsvStore()) {
+    noteCsvVersion(key, disk.version);
+    return [];
+  }
+
+  // Disk missing/empty: optional Blob fallback (BLOB_CSV_READ_FALLBACK=1).
   if (shouldReadRemoteCsvStore()) {
     const revision = await getCsvStoreRevision();
     const remote = await getCsvStoreFile(CSV_FILES[key]);
@@ -120,14 +146,9 @@ async function readCsvFileUncached(
     }
   }
 
-  try {
-    const filePath = csvPath(key);
-    const fileStat = await stat(filePath);
-    const raw = await readFile(filePath, "utf8");
-    const records = raw.trim() ? parseCsvText(raw) : [];
-    noteCsvVersion(key, fileStat.mtimeMs);
-    return records;
-  } catch {
-    return [];
+  if (disk) {
+    noteCsvVersion(key, disk.version);
+    return disk.records;
   }
+  return [];
 }

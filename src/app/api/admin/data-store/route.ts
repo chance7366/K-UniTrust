@@ -17,6 +17,7 @@ import {
   encodeStoreBody,
   readEncodedStoreRequest,
 } from "@/lib/prod-store-sync";
+import { shouldReadRemoteCsvStore } from "@/lib/vercel-blob-env";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,8 +66,13 @@ export async function GET(request: Request) {
   }
 
   if (parsed.bucket === "csv") {
-    const remote = await getCsvStoreFile(parsed.name);
-    const body = remote ?? (await readCsvFallback(parsed.name));
+    // Prefer Git-deployed disk; Blob only when BLOB_CSV_READ_FALLBACK=1.
+    const disk = await readCsvFallback(parsed.name);
+    const remote =
+      disk == null && shouldReadRemoteCsvStore()
+        ? await getCsvStoreFile(parsed.name)
+        : null;
+    const body = disk ?? remote;
     if (body == null) {
       return NextResponse.json({ error: "파일이 없습니다." }, { status: 404 });
     }
@@ -114,7 +120,7 @@ export async function PUT(request: Request) {
         ? "text/plain; charset=utf-8"
         : "text/csv; charset=utf-8";
     await putCsvStoreFile(parsed.name, body, contentType);
-    if (parsed.name !== "_revision.txt") {
+    if (parsed.name !== "_revision.txt" && shouldReadRemoteCsvStore()) {
       await bumpCsvStoreRevision();
     }
     return NextResponse.json({ ok: true });

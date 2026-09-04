@@ -34,7 +34,6 @@ import {
 import { loadTargetUniversitiesFromCsv } from "@/lib/ingest/target-universities-upload";
 import { applyFundShortageFlags } from "@/lib/ingest/fund-shortage-detection";
 import { shouldSyncProdDataStore } from "@/lib/prod-store-sync";
-import { shouldReadRemoteCsvStore } from "@/lib/vercel-blob-env";
 
 export type EditionSummary = {
   analysisYear: number;
@@ -309,7 +308,8 @@ async function writeIndexRows(rows: EditionIndexRow[]): Promise<void> {
 }
 
 async function readPayload(year: number): Promise<EditionPayloadFile | null> {
-  if (!shouldReadRemoteCsvStore() && !shouldSyncProdDataStore()) {
+  // CSV는 배포분 우선이라 remote CSV 플래그와 무관. JSON payload는 프로세스 내 캐시 사용.
+  if (!shouldSyncProdDataStore()) {
     const cached = payloadCache.get(year);
     if (cached) return cached;
   }
